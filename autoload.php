@@ -10,3 +10,5 @@ function GAS_autoloader($className) {
 }
 
 spl_autoload_register('GAS_autoloader');
+
+require "bootstrap.php";
