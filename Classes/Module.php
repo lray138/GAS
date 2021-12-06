@@ -1,6 +1,6 @@
 <?php 
 
-namespace lray138\GAS\System;
+namespace lray138\GAS\Classes;
 
 use function lray138\GAS\Filesystem\includeFileReturnObject;
 use lray138\GAS\Types\{Arr, None, Maybe, Str};
