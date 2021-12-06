@@ -57,7 +57,7 @@ function each()
     return call_user_func_array(FP\curry2($walk), func_get_args());
 }
 
-const each = __NAMESPACE __ . '\each';
+const each = __NAMESPACE__ . '\each';
 
 /**
  *
