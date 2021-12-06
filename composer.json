@@ -1,0 +1,10 @@
+{
+    "name": "lray138/GAS",
+    "version": "0.0.1",
+    "description": "A collection of functions.",
+    "require": {
+        "php": ">=7.4",
+        "ivopetkov/html5-dom-document-php": "2.3.*",
+        "gajus/dindent": "2.0.*"
+    }
+}
