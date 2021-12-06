@@ -368,7 +368,7 @@ function map() {
         return $array;
     };
 
-    return FP\curry2($f)(...func_get_args())
+    return FP\curry2($f)(...func_get_args());
 }
 
 const map = __NAMESPACE__ . '\map';
