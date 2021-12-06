@@ -1,5 +1,5 @@
 {
-    "name": "lray138/GAS",
+    "name": "lray138/gas",
     "description": "A collection of functions.",
     "require": {
         "php": ">=7.4",
