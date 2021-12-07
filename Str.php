@@ -5,7 +5,7 @@ namespace lray138\GAS\Str;
 use lray138\GAS\{
     TypeChecks as TC,
     Arr,
-    FP
+    Functional as FP
 };
 
 use function lray138\GAS\Functional\{curry3, curry2};
