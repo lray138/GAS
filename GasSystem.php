@@ -125,9 +125,9 @@ function main() {
 		}
 
 		if(file_exists($data["modules"][0]["dir"] . "/models/" . $data["current_module"]["name"] . ".php")) {
-			$data["model"] = Sys\loadModel($data["modules"][0]["dir"] . "/models", $data["current_module"]["name"])($data["db"]);
+			$data["model"] = loadModel($data["modules"][0]["dir"] . "/models", $data["current_module"]["name"])($data["db"]);
 		} else {
-			$data["model"] = Sys\model($data["db"], $data["current_module"]["name"]);
+			$data["model"] = model($data["db"], $data["current_module"]["name"]);
 		}
 
 		unset($controller["module"]);
