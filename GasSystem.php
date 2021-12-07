@@ -216,7 +216,7 @@ function renderPage($data) {
 								: Arr\pluckOrNull(["content", "attr"])($x);
 
 					return call_user_func_array(
-							'\GAS\Functions\HTMLSimple\\' . $x["name"], 
+							'lray138\GAS\HTML\\' . $x["name"], 
 							$values
 					);
 				} 
