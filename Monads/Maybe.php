@@ -1,6 +1,7 @@
 <?php 
+namespace lray138\GAS\Monads;
 
-namespace GAS\Monads;
+use function lray138\GAS\IO\dump;
 
 class Maybe {
 	private $value;

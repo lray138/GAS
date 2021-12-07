@@ -86,7 +86,7 @@ function getOuterHTML($element) {
 }
 
 function getAttributes($element) {
-    return $element->getAttributes();
+    return is_null($element) ? [] : $element->getAttributes();
 }
 
 function getChildren($element) {

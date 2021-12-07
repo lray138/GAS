@@ -1,7 +1,10 @@
 <?php 
+namespace lray138\GAS\Monads;
 
-namespace GAS\Monads;
-use GAS\Monads\Maybe;
+use lray138\GAS\Arr;
+use lray138\GAS\Monads\Maybe;
+
+use function lray138\GAS\IO\dump;
 
 class Many {
 	private $values;

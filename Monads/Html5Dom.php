@@ -1,6 +1,9 @@
 <?php 
+namespace lray138\GAS\Monads;
 
-namespace GAS\Monads;
+use lray138\GAS\Arr;
+
+use function lray138\GAS\IO\dump;
 
 class Html5Dom {
 	private $value;
