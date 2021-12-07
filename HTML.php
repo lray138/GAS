@@ -5,7 +5,7 @@ namespace lray138\GAS\HTML;
 use lray138\GAS\Arr;
 use lray138\GAS\Str;
 use lray138\GAS\Functional as FP;
-use lray138\GAS\Maybe;
+use lray138\GAS\Monads\Maybe;
 use lray138\GAS\IO;
 
 use function lray138\GAS\IO\dump;
