@@ -233,7 +233,7 @@ function set() {
 }
 
 function pluckFrom() {
-    return call_user_func_array(F\flip2(pluck), func_get_args());
+    return call_user_func_array(FP\flip2(pluck), func_get_args());
 }
 
 // function pluckFrom() {
@@ -273,7 +273,7 @@ function getOrEmptyStr() {
         return is_null($value) ? "" : $value;
     };
 
-    return F\curry2($f)(...func_get_args());
+    return FP\curry2($f)(...func_get_args());
 }
 
 function toObj(array $array) {
