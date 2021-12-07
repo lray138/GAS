@@ -259,6 +259,21 @@ function get() {
     };
 
     return call_user_func_array(FP\curry2($get), func_get_args());
+} 
+
+const get = __NAMESPACE__ . '\get';
+
+/* 
+ *
+ * 
+ */
+function getOrEmptyStr() {
+    $f = function($key, $array) {
+        $value = get($key, $array);
+        return is_null($value) ? "" : $value;
+    };
+
+    return F\curry2($f)(...func_get_args());
 }
 
 function toObj(array $array) {
