@@ -1,10 +1,9 @@
 <?php 
+namespace lray138\GAS\Monads;
 
-namespace GAS\Monads;
+use lray138\GAS\Arr;
 
-use function GAS\Functions\IO\dump;
-
-use GAS\Functions\Arr;
+use function lray138\GAS\IO\dump;
 
 class HTMLMonad {
 	private $value;

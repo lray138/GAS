@@ -1,8 +1,9 @@
 <?php 
+namespace lray138\GAS\Monads;
 
-namespace GAS\Monads;
+use function lray138\GAS\IO\dump;
 
-use GAS\Functions\Arr as A;
+use lray138\GAS\Arr as A;
 
 class Arr {
 	private $value;
