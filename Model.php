@@ -6,7 +6,8 @@ namespace lray138\GAS\Model;
 
 use lray138\GAS\{
 	Functional as FP,
-	SQL
+	SQL,
+	PDO
 };
 
 function create() {
@@ -37,7 +38,9 @@ function create() {
 
 		$model["insert"] = function($data) use ($db, $table) {
 			$sql = SQL\insert($table, $data);
-			$stmt = $db->prepareExec($sql, array_values($data));
+			// leaving line for example of Functional vs. OO
+			//$stmt = $db->prepareExec($sql, array_values($data));
+			$stmt = PDO\prepareExecLastId($db, $sql, array_values($data));
 		};
 		
 		$model["update"] = function($data) use ($db, $table) {
