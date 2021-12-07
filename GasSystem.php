@@ -1,6 +1,6 @@
 <?php 
 
-namespace lray138\GAS\System;
+namespace lray138\GAS\GasSystem;
 
 use lray138\GAS\Types\Maybe;
 
@@ -12,7 +12,6 @@ use lray138\GAS\{
 	HTMLSimple as HTML, 
 	SQL,
 	Filesystem as FS,
-	System as Sys,
 	Model
 };
 
@@ -41,7 +40,7 @@ function slugToPascalCase(StrType $slug): StrType {
 
 function loadSite(StrType $dir, StrType $name) {
 	if(is_dir($dir->extract() . "/" . $name->extract())) {
-		return System\Site::create([
+		return Classes\Site::create([
 			"dir" => $dir->rtrim("/")->append("/", $name),
 			"name" => $name
 		]);

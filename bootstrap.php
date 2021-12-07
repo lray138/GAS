@@ -18,7 +18,8 @@ require 'ProcessWire.php';
 require 'RegexPatterns.php';
 require 'Str.php';
 require 'SQL.php';
-require 'System.php';
 require 'TypeChecks.php';
 require 'Tree.php';
 require 'XML.php';
+
+require 'GasSystem.php';
