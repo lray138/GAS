@@ -2,6 +2,8 @@
 
 namespace lray138\GAS;
 
+require 'autoload.php';
+
 require 'Arr.php';
 require 'Calendar.php';
 require 'DateTime.php';
