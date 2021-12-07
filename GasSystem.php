@@ -206,7 +206,7 @@ function renderPage($data) {
 
 					return join([
 						$prefix_out, 
-						call_user_func_array('\GAS\Functions\HTMLSimple\\' . $x["name"], [$nodes, $attributes]),
+						call_user_func_array('lray138\GAS\HTML\\' . $x["name"], [$nodes, $attributes]),
 						$affix_out
 					]);	
 				} else if(isset($x["name"])) {
