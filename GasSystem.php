@@ -9,7 +9,7 @@ use lray138\GAS\{
 	Arr, 
 	Functional as FP, 
 	Math, 
-	HTMLSimple as HTML, 
+	HTML, 
 	SQL,
 	Filesystem as FS,
 	Model
