@@ -1,7 +1,7 @@
 <?php 
 namespace lray138\GAS\SQL;
 
-use lray138\GAS\Functions\{
+use lray138\GAS\{
 	Functional as FP,
 	Arr,
 	Str,

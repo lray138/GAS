@@ -182,8 +182,9 @@ function includeFileFromDir() {
 }
 
 // via https://stackoverflow.com/questions/17363545/file-get-contents-is-not-working-for-some-url
-function getUrlContent($url) {
-	$cookies_file = dirname(dirname(__DIR__)) . "/output/cookies.txt";
+function getUrlContent($url, $cookies_file) {
+		//$cookies_file = dirname(dirname(__DIR__)) . "/output/cookies.txt";
+    
     fopen($cookies_file, "w");
     $parts = parse_url($url);
     $host = $parts['host'];
