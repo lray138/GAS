@@ -866,3 +866,7 @@ function h6($content, $attributes = []) {
 }
 
 const h6 = __NAMESPACE__ . '\h6';
+
+function indent($html) {
+  return (new \Gajus\Dindent\Indenter())->indent($html);
+}
