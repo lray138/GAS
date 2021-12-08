@@ -56,7 +56,7 @@ function create() {
 		};
 
 		$model["all"] = function($options = []) use ($model, $table) {
-			return PDO\queryFetchAll($db, "SELECT * FROM $table");
+			return PDO\queryFetchAll($model["db"], "SELECT * FROM $table");
 			//return $model["db"]->queryFetchAll("SELECT * FROM $table");
 		};
 
