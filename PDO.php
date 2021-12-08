@@ -118,7 +118,7 @@ function prepareExecLastId($pdo, $sql, $values) {
 const prepareExecLastId = __NAMESPACE__ . '\prepareExecLastId';
 
 function queryFetchAll($pdo, $sql, $data = []) {
-	return prepareFetchAll($pdo, $sql, $data);
+	return prepareExecFetchAll($pdo, $sql, $data);
 }
 
 const queryExecLastId = __NAMESPACE__ . '\queryExecLastId';
