@@ -121,4 +121,4 @@ function queryFetchAll($pdo, $sql, $data = []) {
 	return prepareExecFetchAll($pdo, $sql, $data);
 }
 
-const queryExecLastId = __NAMESPACE__ . '\queryExecLastId';
+const queryExecFetchAll = __NAMESPACE__ . '\queryExecLastId';

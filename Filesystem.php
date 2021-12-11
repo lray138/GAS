@@ -52,7 +52,7 @@ function getFiles($directory) {
 const getFiles = __NAMESPACE__ . '\getFiles';
 
 
-function getFilesInDir($directory) {
+function getFilesInDir($directory, callable $filter = null) {
 	$prependDirectoryToFile = Arr\map(
 					function($x) use ($directory) {
 						if(!Str\lastCharIs("/", $directory)) {
@@ -152,7 +152,14 @@ function move($from, $to) {
 	return rename($from, $to);
 }
 
+// adding this just so it's in the collection even though
+// it's completely redundant
+function rename($from, $to) {
+	return rename($from, $to);
+}
+
 // came from PHP 
+// this is probably better named "readCSV"
 function csvToAssoc($file) {
 	$array = array_map('str_getcsv', file($file));
 
@@ -165,6 +172,21 @@ function csvToAssoc($file) {
 	array_walk($array, $combineArray, $header);
 	return $array;
 }
+
+// came from PHP 
+function readCSV($file) {
+	$array = array_map('str_getcsv', file($file));
+
+	$header = array_shift($array);
+
+	$combineArray = function(&$row, $key, $header) {
+  		$row = array_combine($header, $row);
+	};
+
+	array_walk($array, $combineArray, $header);
+	return $array;
+}
+
 
 function getCsvColumns($file) {
 	
