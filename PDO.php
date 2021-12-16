@@ -45,6 +45,11 @@ function create(array $creds, $options = null) {
 	}
 }
 
+function useDatabase($db, $database) {
+	$db->exec("use " . $database);
+	return $db;
+}
+
 function execStmt() {
 	$f = function($stmt, $values) {
 		// be kind
@@ -121,4 +126,4 @@ function queryFetchAll($pdo, $sql, $data = []) {
 	return prepareExecFetchAll($pdo, $sql, $data);
 }
 
-const queryExecFetchAll = __NAMESPACE__ . '\queryExecLastId';
+const queryExecLastId = __NAMESPACE__ . '\queryExecLastId';

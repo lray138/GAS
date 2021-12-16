@@ -41,12 +41,19 @@ function varDump($var) {
 const varDump = __NAMESPACE__ . '\varDump';
 
 function dump($var) {
-    return varDump($var);
+    if(!isCLI()) {
+        echo "<pre>";
+        var_dump($var);
+        echo "</pre>";
+    } else {
+        var_dump($var);
+    }
 }
 
 const dump = __NAMESPACE__ . '\dump';
 
 function dumpNdie($var) {
+
     varDump($var);
     die;
 }

@@ -3,9 +3,13 @@ declare(strict_types=1);
 
 namespace lray138\GAS\Filesystem;
 
-use lray138\GAS\Functional as FP;
-use lray138\GAS\Arr;
-use lray138\GAS\Str;
+use lray138\GAS\{
+	Functional as FP, 
+	Arr,
+	Str
+};
+
+use function lray138\GAS\IO\dump;
 
 function getContents($filename) {
 	return file_get_contents($filename);
@@ -52,7 +56,7 @@ function getFiles($directory) {
 const getFiles = __NAMESPACE__ . '\getFiles';
 
 
-function getFilesInDir($directory, callable $filter = null) {
+function getFilesInDir($directory) {
 	$prependDirectoryToFile = Arr\map(
 					function($x) use ($directory) {
 						if(!Str\lastCharIs("/", $directory)) {
@@ -68,6 +72,14 @@ function getFilesInDir($directory, callable $filter = null) {
 	return Arr\filter(
 				"is_file", 
 		 		$process(scandir($directory)));
+}
+
+// https://stackoverflow.com/questions/24783862/list-all-the-files-and-folders-in-a-directory-with-php-recursive-function
+// and
+// https://stackoverflow.com/questions/19724579/php-recursivedirectoryiterator-how-to-exclude-directory-paths-with-a-dot-and-do
+function getFilesInDirRecursive($dir, $callable = null) {
+	$it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
+	return iterator_to_array(new \RecursiveIteratorIterator($it));
 }
 
 function scan($directory) {
@@ -152,14 +164,7 @@ function move($from, $to) {
 	return rename($from, $to);
 }
 
-// adding this just so it's in the collection even though
-// it's completely redundant
-function rename($from, $to) {
-	return rename($from, $to);
-}
-
 // came from PHP 
-// this is probably better named "readCSV"
 function csvToAssoc($file) {
 	$array = array_map('str_getcsv', file($file));
 
@@ -172,21 +177,6 @@ function csvToAssoc($file) {
 	array_walk($array, $combineArray, $header);
 	return $array;
 }
-
-// came from PHP 
-function readCSV($file) {
-	$array = array_map('str_getcsv', file($file));
-
-	$header = array_shift($array);
-
-	$combineArray = function(&$row, $key, $header) {
-  		$row = array_combine($header, $row);
-	};
-
-	array_walk($array, $combineArray, $header);
-	return $array;
-}
-
 
 function getCsvColumns($file) {
 	

@@ -29,6 +29,10 @@ class Maybe {
 		//return new static($x);
 	}
 
+	public function out() {
+		return $this->value;
+	}
+
 	public function __call($method, $parameters) {
 		return $this->then(function($value) use ($method) {
 			if(is_array($value)) {
