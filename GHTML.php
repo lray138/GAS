@@ -13,6 +13,8 @@ use lray138\GAS\{
 
 use function lray138\GAS\IO\dump;
 
+// initially assumed it was "blocks", but 
+// when trying to feed the whole template it breaks
 function process($src, $dist) {
 	$src = FS\isDir($src) ? FS\getFilesInDir($src) : [$src];
 
@@ -22,14 +24,20 @@ function process($src, $dist) {
 		$source_dir = Str\beforeLast("/", $pathname, $trim_right);
 		$write_to = Str\replace([$source_dir, ".html"], [$dist, ".php"], $pathname);
 
-		$element_to_process = $source_contents->documentElement->firstElementChild;
-
-		if($element_to_process->tagName === "head" ) {
-			$tag_name = "head";
+		if($source_contents->documentElement->tagName === "html") {
+			$element_to_process = $source_contents->documentElement;
 		} else {
-			$element_to_process = $element_to_process->firstElementChild;
-			$tag_name = $element_to_process->tagName;
+			$element_to_process = $source_contents->documentElement->firstElementChild;
+
+			if($element_to_process->tagName === "head" ) {
+				$tag_name = "head";
+			} else {
+				$element_to_process = $element_to_process->firstElementChild;
+				$tag_name = $element_to_process->tagName;
+			}
 		}
+
+
 
 		$out = getPHPStart();
 		$out .= 'use lray138\GAS\HTML;
