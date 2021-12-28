@@ -1,6 +1,6 @@
 <?php
 
-namespace GAS\Types;
+namespace lray138\GAS\Types;
 
 class Type {
 

@@ -3,6 +3,7 @@
 namespace lray138\GAS\Types;
 
 use lray138\GAS\{Str as S, Functional as FP};
+use function lray138\GAS\IO\dump;
 
 class Str extends Type {
 	
@@ -16,14 +17,20 @@ class Str extends Type {
 		return new self($value);
 	}
 
+	const of = __NAMESPACE__ . '\Str::of';
+
 	public function __construct($value) {
 		if($value instanceof self) {
 			$value = $value->extract();
 		}
 
+		if(is_array($value)) {
+			$value = implode($value);
+		}
+
 		if(!is_string($value)) {
-			$value = "";
-		} 
+			$value = (string) $value;
+		}
 
 		$this->value = $value;
 	}
@@ -32,8 +39,18 @@ class Str extends Type {
 		return $this->value;
 	}
 
-	public function append() {
-		return new self(S\concatN(count(func_get_args()), $this->value, ...func_get_args()));
+	public function replace($find, $replace) {
+		return new self(S\replace($find, $replace, $this->value));
+	}
+
+	public function map(callable $f) {
+		return new self($f($this->value));
+	}
+
+	public function append($x) {
+		//return new self(S\concatN(count(func_get_args()), $this->value, ...func_get_args()));
+		$value = $x . $this->value;
+		return new self($value);
 	}
 
 	public function prepend($value) {
@@ -44,8 +61,14 @@ class Str extends Type {
 		return $this->value;
 	}
 
+	public function out() {
+		return $this->value;
+	}
+
 	public function wrap($a, $b) {
-		return new self(FP\compose(S\prepend($a), S\append($b))($this->value));
+		//return new self(FP\compose(S\prepend($a), S\append($b))($this->value));
+		$val = $a . $b;
+		return new self($a . $b);
 	}
 
 	public function extract() {

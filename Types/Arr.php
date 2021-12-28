@@ -27,6 +27,8 @@ class Arr {
 		return new self($data);
 	}
 
+	const of = __NAMESPACE__ . '\of';
+
 	public function __construct(array $data) {
 		$this->data = $data;
 	}

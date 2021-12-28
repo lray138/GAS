@@ -5,11 +5,16 @@ namespace lray138\GAS\Str;
 use lray138\GAS\{
     TypeChecks as TC,
     Arr,
-    Functional as FP
+    Functional as FP,
+    Types
 };
 
 use function lray138\GAS\Functional\{curry3, curry2};
 use function lray138\GAS\IO\dump;
+
+function of($value) {
+    return Types\Str::of($value);
+}
 
 function contains() {
     $contains = function($needle, $haystack) {

@@ -2,6 +2,7 @@
 
 namespace lray138\GAS\Types;
 use lray138\GAS\Types\Maybe;
+use function lray138\GAS\IO\dump;
 
 class Many {
 	private $values;
@@ -39,6 +40,13 @@ class Many {
 		});
 	}
 
+	public function to($type) {
+		echo "?";
+		return $this->value;
+
+		return $type($this->value);
+	}
+
 	public function then(callable $mapper) {
 		return static::create(flatMap($this->values, $mapper));
 	}
@@ -70,13 +78,17 @@ class Many {
 		return $this->map($function)->flatten();
 	}
 
-	function toMaybe() {
+	public function toMaybe() {
 		$tmp = Maybe::of($this->values);
 		return $tmp;
 	}
 
-	function toArr() {
+	public function toArr() {
 		return Arr::of($this->values);
+	}
+
+	public function toStr() {
+		return Str::of($this->values);
 	}
 
 	public function value() {
