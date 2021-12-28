@@ -26,7 +26,7 @@ function element($type, $content = "", $attributes = null) {
 
   if(is_array($attributes) && count($attributes) > 0) {
       $out .= _processAttributes($attributes);
-  } else if(is_string($attributes)) {
+  } else if(is_string($attributes) && $attributes !== "") {
       $out .= " " . $attributes;
   }
 
