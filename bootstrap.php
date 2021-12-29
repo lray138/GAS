@@ -37,6 +37,6 @@ require 'ProcessWire.php';
 require 'Regex.php';
 require 'Str.php';
 require 'SQL.php';
-require 'TypeChecks.php';
+require 'Types.php';
 require 'Tree.php';
 require 'XML.php';

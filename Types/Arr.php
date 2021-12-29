@@ -2,8 +2,9 @@
 
 namespace lray138\GAS\Types;
 use lray138\GAS\{Arr as A, Functional as FP, Str as S};
+use function lray138\GAS\IO\dump;
 
-class Arr {
+class Arr extends Type{
 
 	private $data;
 
@@ -80,6 +81,12 @@ class Arr {
 
 	function map(callable $func) {
 		return Arr::of(A\map($func, $this->data));
+	}
+
+	function merge($arr) {
+		return is_null($arr)
+			? $this
+			: Arr::of(array_merge($this->data, $arr));
 	}
 
 	function join($delimeter): Str {

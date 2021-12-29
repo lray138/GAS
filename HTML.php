@@ -7,6 +7,7 @@ use lray138\GAS\Str;
 use lray138\GAS\Functional as FP;
 use lray138\GAS\Monads\Maybe;
 use lray138\GAS\IO;
+use lray138\GAS\Types\Type;
 
 use function lray138\GAS\IO\dump;
 
@@ -15,6 +16,11 @@ function isVoidElement($node_name) {
 }
 
 function element($type, $content = "", $attributes = null) {
+
+  if($content instanceof Type) {
+    $content = $content->extract();
+  } 
+
   $out = '<' . $type;
 
   // for cases where flipped currying is involved
