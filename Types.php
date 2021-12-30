@@ -165,10 +165,18 @@ function wrapType($variable) {
 
 const wrapType = __NAMESPACE__ . '\wrapType';
 
-function Arr($value) {
+function arr($value) {
     return Arr::of($value);
 }
 
-function Many($value) {
+function many($value) {
     return Many::of($value);
+}
+
+function maybe($value) {
+    return Maybe::of($value);
+}
+
+function str($value) {
+    return Str::of($value);
 }
