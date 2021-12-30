@@ -2,6 +2,8 @@
 namespace lray138\GAS\Functional;
 use lray138\GAS\Arr;
 
+use function lray138\GAS\IO\dump;
+
 function identity($x) { 
     return $x; 
 }
@@ -47,6 +49,14 @@ function flip2() {
 function flip3() {
     return call_user_func_array(flipN(2), func_get_args());
 }
+
+function extract($data) {
+    return $data instanceof \lray138\GAS\Types\Type 
+            ? $data->extract()
+            : $data;
+}
+
+const extract = __NAMESPACE__ . '\extract';
 
 function arityN($n, $callable, ...$args) {
     if(count($args) >= $n) {

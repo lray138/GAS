@@ -362,3 +362,32 @@ function getDayNumber2(DateTime $dt) {
 	//date('l'); // dayname
 	return $dt->format("w");
 }
+
+function getDurationMins($start, $end) {
+		$since = $start->diff($end);
+		$minutes = $since->days * 24 * 60;
+		$minutes += $since->h * 60;
+		$minutes += $since->i;
+		$minutes += $since->s/60;
+		return $minutes;
+	}
+
+	function getDurationString($start, $end) {
+		$since = $start->diff($end);
+		
+		$out = [];
+
+		if($since->h > 0) {
+			$out[] = $since->h . " hour";
+		}
+
+		if($since->i > 0) {
+			$out[] = $since->i . " min";
+		}
+
+		if($since->s > 0) {
+			$out[] = $since->s . " sec";
+		}
+		
+		return implode(", ", $out);
+	}

@@ -29,7 +29,10 @@ class Maybe {
 
 	public static function of($x) {
 		return new self($x);
-		//return new static($x);
+	}
+
+	public static function unit($x) {
+		return new self($x);
 	}
 
 	public function __call($method, $parameters) {
@@ -63,6 +66,10 @@ class Maybe {
 
 	public function join() {
 		return $this->extract();
+	}
+
+	public function runClosure() {
+		return new self(call_user_func_array($this->value, func_get_args()));
 	}
 
 	public function __get($property) {

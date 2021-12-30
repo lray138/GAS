@@ -43,6 +43,15 @@ class Arr extends Type{
 		return Arr::of(A\filter($value, $this->data));
 	}
 
+	function fillKeys($value = null) {
+		return Arr::of(array_fill_keys($this->data, $value));
+	}
+
+	function combine($array = null) {
+		$array = is_null($array) ? $this->data : $array;
+		return Arr::of(array_combine($this->data, $array));
+	}
+
 	function get($key) {
 		if(is_object($key) && method_exists($key, "extract")) {
 			$key = $key->extract();

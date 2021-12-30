@@ -3,7 +3,6 @@
 namespace lray138\GAS\Str;
 
 use lray138\GAS\{
-    TypeChecks as TC,
     Arr,
     Functional as FP,
     Types
@@ -43,7 +42,7 @@ function isExpression($variable) {
 }
 
 function isRegex($variable) {
-    return TC\isExpression($variable);
+    return Types\isExpression($variable);
 }
 
 // this is kind of borderline here... may belong in
@@ -85,7 +84,7 @@ const padLeft = __NAMESPACE__ . '\padLeft';
  * @return bool
  */
 function isArray($variable) {
-    return TC\isArray($variable);
+    return Types\isArray($variable);
 }
 
 function afterNth() {
@@ -800,7 +799,7 @@ function DOMToArray($root) {
 
 // may or may not be a Str object
 function extract($str) {
-    if($str instanceof \GAS\TC\Str) {
+    if($str instanceof \GAS\Types\Str) {
         $str = $str->extract();
     }
     return $str;

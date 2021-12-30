@@ -16,7 +16,7 @@ function getContents($filename) {
 }
 
 function read($filename) {
-	return file_get_contents($filename);
+	return file_get_contents(FP\extract($filename));
 }
 
 const read = __NAMESPACE__ . '\read';
@@ -140,8 +140,15 @@ function isDir($filename) {
 	return is_dir($filename);
 }
 
+// function runCallback($callable, $args) {
+// 	$args = Arr\map(FP\extract)($args);
+
+// 	return $callable(...$args);
+// }
+
 function fileExists($filename) {
-	return file_exists($filename);
+		//return runCallback("file_exists", func_get_args());
+		return file_exists(FP\extract($filename));
 }
 
 function isFile($filename) {
