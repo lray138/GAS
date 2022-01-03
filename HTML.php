@@ -25,6 +25,8 @@ function element($type, $content = "", $attributes = null) {
 
   // for cases where flipped currying is involved
   // and you need to add extra attributes
+  /// revisiting this since it hasn't really been used... 
+  // wonder if just spelling "attributes" is better anyway
   if(is_array($content) && array_key_exists("attr", $content)) {
     $attributes = array_merge($attributes, $content["attr"]);
     $content = $content["content"];
@@ -41,9 +43,11 @@ function element($type, $content = "", $attributes = null) {
     return $out;
   }
 
+  // Jan 1, 2022 @ 15:19 - added extract support for types being passed
   if(is_array($content)) {
-    $content = Arr\join("", $content);
+    $content = Arr\join("", Arr\map(FP\extract, $content));
   }
+
   $out .= '>' . $content . '</' . $type . '>';
   
   return $out;

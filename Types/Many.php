@@ -4,7 +4,7 @@ namespace lray138\GAS\Types;
 use lray138\GAS\Types\Maybe;
 use function lray138\GAS\IO\dump;
 
-class Many {
+class Many extends Type {
 	private $values;
 
 	public function __construct($values = null) {

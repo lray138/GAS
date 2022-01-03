@@ -2,7 +2,7 @@
 
 namespace lray138\GAS\Types;
 
-class Maybe extends Type {
+class GHTML extends Type {
 	private $value;
 
 	public function __construct($value = null) {
@@ -56,8 +56,12 @@ class Maybe extends Type {
 		return $this->isNothing() ? $default_value : $this->value;
 	}
 
-	public function map($fn) {
-		return $this->then($fn);
+	public function map() {
+		if(is_callable($this->value)) {
+			return new self(call_user_func_array($this->value, func_get_args()));
+		}
+
+		return None::of();
 	}
 
 	public function bind($fn) {

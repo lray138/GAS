@@ -2,7 +2,11 @@
 
 namespace lray138\GAS\Types;
 
-class NoMethod {
+/* 
+	Wondering if this is me experimenting or code from Typed PHP
+*/
+
+class NoMethod extends Type {
 	
 	private $value;
 

@@ -26,4 +26,9 @@ class None {
 		return new self();
 	}
 
+	// for use in HTML generation
+	public function __toString() {
+		return "";
+	}
+
 }

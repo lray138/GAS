@@ -332,7 +332,11 @@ function notIn() {
  * @return string
  */
 function join() {
-    return call_user_func_array(FP\curry2('\join'), func_get_args());
+    $f = function($x, $y) {
+        return \join(FP\extract($x), FP\extract($y));
+    };
+
+    return FP\curry2($f)(...func_get_args());
 }
 
 const join = __NAMESPACE__ . '\join';

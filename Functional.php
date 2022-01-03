@@ -51,9 +51,10 @@ function flip3() {
 }
 
 function extract($data) {
-    return $data instanceof \lray138\GAS\Types\Type 
+    $out = $data instanceof \lray138\GAS\Types\Type 
             ? $data->extract()
             : $data;
+    return $out;
 }
 
 const extract = __NAMESPACE__ . '\extract';
