@@ -141,6 +141,10 @@ class Maybe extends Type {
 		return $this->value;
 	}
 
+	public function out() {
+		return $this->value;
+	}
+
 	public function value() {
 		return $this->value;
 	}

@@ -207,7 +207,7 @@ function pluckOrNull() {
 
 function push() {
     $push = function($value, $array) {
-        array_push($array, $value);
+        array_push($array, FP\extract($value));
         return $array;
     };
 
