@@ -252,9 +252,14 @@ const tail = __NAMESPACE__ . '\tail';
 
 function get() {
     $get = function($key, $array) {
+        if(!is_array($array)) {
+            return null;
+        }
+
         if(is_null($array) || count($array) === 0) {
             return null;
         }
+        
         return isset($array[$key]) ? $array[$key] : null;
     };
 

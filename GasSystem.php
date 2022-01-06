@@ -12,7 +12,8 @@ use lray138\GAS\{
 	HTML, 
 	SQL,
 	Filesystem as FS,
-	Model
+	Model,
+	PDO
 };
 
 use function lray138\GAS\IO\dump;
@@ -121,7 +122,8 @@ function main() {
 		}
 
 		if(isset($controller["database"])) {
-			$data["db"]->use($controller["database"]);
+			//$data["db"]->use($controller["database"]);
+			$data["db"] = PDO\useDatabase($controller["database"], $data["db"]);
 		}
 
 		if(file_exists($data["modules"][0]["dir"] . "/models/" . $data["current_module"]["name"] . ".php")) {

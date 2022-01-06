@@ -45,8 +45,9 @@ function create(array $creds, $options = null) {
 	}
 }
 
-function useDatabase($db, $database) {
-	$db->exec("use " . $database);
+
+function useDatabase($database_name, $db) {
+	$db->exec("use " . FP\extract($database_name));
 	return $db;
 }
 

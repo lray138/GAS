@@ -40,13 +40,13 @@ function varDump($var) {
 
 const varDump = __NAMESPACE__ . '\varDump';
 
-function dump($var) {
+function dump() {
     if(!isCLI()) {
         echo "<pre>";
-        var_dump($var);
+        var_dump(...func_get_args());
         echo "</pre>";
     } else {
-        var_dump($var);
+        var_dump(...func_get_args());
     }
 }
 

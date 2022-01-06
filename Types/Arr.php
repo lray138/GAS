@@ -4,7 +4,7 @@ namespace lray138\GAS\Types;
 use lray138\GAS\{Arr as A, Functional as FP, Str as S};
 use function lray138\GAS\IO\dump;
 
-class Arr extends Type{
+class Arr extends Type {
 
 	private $data;
 
@@ -24,13 +24,18 @@ class Arr extends Type{
 		return Arr::of(A\set($key, $val, $this->data));
 	}
 
-	public static function of(array $data = []) {
+	public static function of($data = []) {
 		return new self($data);
 	}
 
 	const of = __NAMESPACE__ . '\of';
 
-	public function __construct(array $data) {
+	public function __construct($data = []) {
+
+		if($data instanceof self) {
+			$data = $data->extract();
+		} 
+
 		$this->data = $data;
 	}
 
@@ -72,6 +77,10 @@ class Arr extends Type{
 		return Number::of(count($this->data));
 	}
 
+	function flatten() {
+		return new self(A\flatten($this->data));
+	}
+
 	function size() {
 		return $this->count();
 	}
@@ -98,12 +107,8 @@ class Arr extends Type{
 			: Arr::of(array_merge($this->data, $arr));
 	}
 
-	function join($delimeter): Str {
-		$fn = FP\compose(
-			A\join($delimeter),
-			A\map(S\extract)
-		);
-		return Str::of($fn($this->data));
+	function join($delimeter = "") {
+		return Str::of(A\join($delimeter, $this->data));
 	}
 
 	function toUl(): Str {
@@ -121,6 +126,10 @@ class Arr extends Type{
 
 	public function __get($key) {
 		return $this->get($key);
+	}
+
+	public function __set($property, $value) {
+		$this->data[$property] = $value;
 	}
 
 	public function __call($name, $args) {
