@@ -2,38 +2,13 @@
 
 namespace lray138\GAS\Types;
 
-class Maybe extends Type {
-	private $value;
-
-	public function __construct($value = null) {
-		// if(is_object($value) && $value instanceof static) {
-		// 	$value = $value->value();
-		// }
-
-		if(is_object($value) && $value instanceof \GAS\Types\None) {
-			$value = $value->value();
-		}
-
-		$this->value = $value;
-	}
+class Maybe extends Functor {
 
 	public function within(callable $func) {
         return $this->then(function($value) use ($func) {
             return static::new($func($value));
         });
     }
-
-	public static function new(...$args) {
-		return new static(...$args);
-	}
-
-	public static function of($x) {
-		return new self($x);
-	}
-
-	public static function unit($x) {
-		return new self($x);
-	}
 
 	public function __call($method, $parameters) {
 		return $this->then(function($value) use ($method) {
@@ -54,14 +29,6 @@ class Maybe extends Type {
 
 	public function getOrElse($default_value) {
 		return $this->isNothing() ? $default_value : $this->value;
-	}
-
-	public function map($fn) {
-		return $this->then($fn);
-	}
-
-	public function bind($fn) {
-		return $this->then($fn);
 	}
 
 	public function join() {
@@ -133,22 +100,6 @@ class Maybe extends Type {
 		return new Maybe();
 	}
 
-	public function flatten() {
-		return $this->value;
-	}
-
-	public function extract() {
-		return $this->value;
-	}
-
-	public function out() {
-		return $this->value;
-	}
-
-	public function value() {
-		return $this->value;
-	}
-
 	private function getProperty($property) {
 		$prop = $this->$property();
 		return $prop instanceof self ? $prop->extract() : $prop;
@@ -162,5 +113,34 @@ class Maybe extends Type {
 		return !is_null($property) 
 					? $this->getProperty($property)
 					: $this->value;
+	}
+
+	public function __construct($value = null) {
+		// this is where the auto-unwrapping seems not correct???
+		// if(is_object($value) && $value instanceof static) {
+		// 	$value = $value->value();
+		// }
+
+		if(is_object($value) && $value instanceof \GAS\Types\None) {
+			$value = $value->value();
+		}
+
+		$this->value = $value;
+	}
+
+	public static function of($x) {
+		return new self($x);
+	}
+
+	public static function unit($x) {
+		return new self($x);
+	}
+
+	public function extract() {
+		return $this->value;
+	}
+
+	public function out() {
+		return $this->value;
 	}
 }

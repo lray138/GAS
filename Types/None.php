@@ -18,14 +18,6 @@ class None {
 		return new self();
 	}
 
-	public function __get($val) {
-		echo "val";	
-	}
-
-	public function __call($method, $args) {
-		return new self();
-	}
-
 	// for use in HTML generation
 	public function __toString() {
 		return "";

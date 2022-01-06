@@ -200,3 +200,11 @@ function curry($function, $required = true)
 
     return curry_n($count, $function);
 }
+
+function unit($value) {
+    return $monad::unit($value);
+}
+
+function bind($monad, $function) {
+    return $monad->bind($function);
+}
