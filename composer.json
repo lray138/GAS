@@ -7,8 +7,11 @@
         "gajus/dindent": "2.0.*"
     },
     "autoload": {
+        "psr-4": {
+            "lray138\\GAS\\": "src/"
+        },
         "files": [
-            "bootstrap.php"
+            "src/bootstrap.php"
         ]
     }
 }

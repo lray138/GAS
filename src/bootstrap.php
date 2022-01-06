@@ -8,16 +8,18 @@ had this code previously in another file called 'autoload' mostly because I
 saw others use that name.  I like bootstrap better and also the code being in the same 
 file is probably less clutter.
  */
-function GAS_autoloader($className) {
-   	$className = str_replace("lray138\\GAS\\", "", $className);
-  	$path = __DIR__ . "/" . str_replace("\\", DIRECTORY_SEPARATOR, trim($className, "\\")).".php";
+// function GAS_autoloader($className) {
+//    	$className = str_replace("lray138\\GAS\\", "", $className);
+//   	$path = __DIR__ . "/" . str_replace("\\", DIRECTORY_SEPARATOR, trim($className, "\\")).".php";
 
-	if(file_exists($path)) {
-		require_once $path;
-	}
-}
+// 	if(file_exists($path)) {
+// 		require_once $path;
+// 	}
+// }
 
-spl_autoload_register(__NAMESPACE__ . '\GAS_autoloader');
+// spl_autoload_register(__NAMESPACE__ . '\GAS_autoloader');
+
+// removing above will delete after success, using psr-4 now.
 
 require 'Arr.php';
 require 'Calendar.php';
