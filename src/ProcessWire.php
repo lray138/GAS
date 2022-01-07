@@ -66,18 +66,50 @@ function createPage($pages, $data) {
 		$page = $pages->add($data["template"], $data["parent_path"], $data["name"]);
 	}
 
-	return updatePage($page, $data);
+	return updatePage($page, $data, $pages);
 }
 
-function updatePage($page, $data) {
+function updatePage($page, $data, $pages = null) {
+
 	if(isset($data["title"])) {
     	$page->title = $data["title"];
     }
 
     // additional fields
-    foreach($data["fields"] as $key => $value) {
-      	$page->$key = $value;
-    }
+    // foreach($data["fields"] as $key => $value) {
+    //   	$page->$key = $value;
+    // }
+
+    foreach($data["fields"] as $key=>$field ) {
+  		if($key === "purchase_products") {
+    		$page->save();
+			$products = $field;
+
+			// these are the products from the form
+			foreach($products as $product) {
+				$item = $page->purchase_products->getNewItem();
+
+				foreach($product as $key2=>$prod) {
+					$item->$key2 = $prod;
+				}
+
+				if(isset($product["purchase_unit_price"])) {
+					$product_page = $pages->get($product["purchase_set_product_page"]);
+					if(!$product_page->product_measured) {
+						$product_page->product_measured = true;	
+					}
+					$product_page->product_measured_last_price_per = $product["purchase_unit_price"];
+					$product_page->save();
+				}
+
+				$item->save();
+				$page->purchase_products->add($item);
+			}
+			$page->save('purchase_products');
+		} else {
+			$page->$key = $field;
+		}
+	}
 
     $page->save();
 
@@ -87,41 +119,40 @@ function updatePage($page, $data) {
 const createPage = __NAMESPACE__ . '\createPage';
 
 function createPageRecursive($pages, $data, $carry = []) {
+	if($data["parent_path"] === "") {
+		//dump($data);
+		// via https://processwire.com/talk/topic/2160-createupdate-a-page-programmatically/
+		// $home = $pages->get("/");
+		// $home->of(false);
+		// $home->name = $data["name"];
+		// $home->title = $data["title"];
+		// $home->save();
+		return updatePage($pages->get("/"), $data, $pages);
+	}
 
-		if($data["parent_path"] === "") {
-			//dump($data);
-			// via https://processwire.com/talk/topic/2160-createupdate-a-page-programmatically/
-			// $home = $pages->get("/");
-			// $home->of(false);
-			// $home->name = $data["name"];
-			// $home->title = $data["title"];
-			// $home->save();
-			return updatePage($pages->get("/"), $data);
+	$parent = $pages->get($data["parent_path"]);
+
+	if(!isNullPage($parent)) {
+		$page = createPage($pages, $data);
+		if(count($carry) === 0) {
+			return $page;
+		}
+		$data = array_shift($carry);
+	} else {
+		array_unshift($carry, $data);
+
+		$parent_path = Str\beforeLast("/", $data["parent_path"]);
+		if(empty($parent_path)){ 
+			$parent_path = "/";
 		}
 
-		$parent = $pages->get($data["parent_path"]);
-
-		if(!isNullPage($parent)) {
-			$page = createPage($pages, $data);
-			if(count($carry) === 0) {
-				return $page;
-			}
-			$data = array_shift($carry);
-		} else {
-			array_unshift($carry, $data);
-
-			$parent_path = Str\beforeLast("/", $data["parent_path"]);
-			if(empty($parent_path)){ 
-				$parent_path = "/";
-			}
-
-			$data = [
-				"parent_path" => $parent_path,
-				"name" => Str\afterLast("/", $data["parent_path"])
-			];
-		}
-			
-		return createPageRecursive($pages, $data, $carry);
+		$data = [
+			"parent_path" => $parent_path,
+			"name" => Str\afterLast("/", $data["parent_path"])
+		];
+	}
+		
+	return createPageRecursive($pages, $data, $carry);
 };
 
 
@@ -131,7 +162,12 @@ const createPageRecursive = __NAMESPACE__ . '\createPageRecursive';
 function getCommonRelativeChildTemplate($page, $depth = 0) {
 
 	if($depth == 0) {
-		$template_name = $page->children()->first->template->name;
+		$children = Arr\filter(function($page) {
+			return $page->hasChildren();
+		}, $page->children->getArray());
+	
+		$template_name = $children[0]->template->name;
+
 		if(is_null($template_name)) {
 			return getCommonRelativeChildTemplate($page, Math\add(1, $depth));
 		} 
@@ -141,28 +177,28 @@ function getCommonRelativeChildTemplate($page, $depth = 0) {
 
 		while($x > 0) {
 			$page = $page->parent;
-			if(isNullPage($page)) {
-				return null;
-			}
 			$x--;
 		}
 
-		if(isNullPage($page) || count($page->children()) === 0) {
+		if(is_null($page) || isNullPage($page) || count($page->children()) === 0) {
 			return null;
 		}
 
-
-		//$page = $page->siblings(false)->first;
+		$page = $page->siblings(false)->first;
+		
 		$x = $depth;
 		while($x > 0) {
-			$page = $page->children()->first;
-			if(isNullPage($page)) {
-				return null;
-			}
+
+			$children = Arr\filter(function($page) {
+				return $page->hasChildren();
+			}, $page->children->getArray());
+
+			$page = $children[0];
+
 			$x--;
 		}
 		
-		if($page === false || count($page->children()) === 0) {
+		if(is_null($page) || isNullPage($page) || count($page->children()) === 0) {
 			return getCommonRelativeChildTemplate($page_original, Math\add(1, $depth));
 		}
 

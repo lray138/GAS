@@ -7,7 +7,7 @@ use function lray138\GAS\IO\dump;
 
 class Str extends Type {
 	
-	private $value;
+	protected $value;
 
 	public function explode(string $delimeter) {
 		return Arr::of(S\explode($delimeter, rtrim($this->value, $delimeter)))->map("\\GAS\\Types\\Str::of");
