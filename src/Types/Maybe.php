@@ -59,6 +59,13 @@ class Maybe extends Functor {
 		return None::of();
 	}
 
+	public function apply($f) {
+		// I suppose if you use the extract function
+		// the variable can be whatever, but I would 
+		// lean toward just doing $this->value
+        return $f->map($this->extract());
+    }
+
 	public function __get($property) {
 		return $this->$property();
 	}

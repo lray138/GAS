@@ -1,17 +1,22 @@
 <?php 
 
 namespace lray138\GAS\Types;
-use lray138\GAS\{Arr as A, Functional as FP, Str as S};
+use lray138\GAS\{
+	Arr as A, 
+	Functional as FP, 
+	Str as S
+};
+
 use function lray138\GAS\IO\dump;
 
 class ArrType extends Type {
 
 	public function push($value) {
-		return Arr::of(A\push($value, $this->value));
+		return ArrType::of(A\push($value, $this->value));
 	}
 
 	public function pushKeyVal($key, $val) {
-		return Arr::of(A\pushKeyVal($key, $val, $this->value));
+		return ArrType::of(A\pushKeyVal($key, $val, $this->value));
 	}
 
 	public function set($key, $val) {
@@ -19,7 +24,7 @@ class ArrType extends Type {
 		if($key instanceof \GAS\Types\Type) {
 			$key = $key->extract();
 		}
-		return Arr::of(A\set($key, $val, $this->value));
+		return ArrType::of(A\set($key, $val, $this->value));
 	}
 
 	function filter($value = null) {
@@ -28,16 +33,16 @@ class ArrType extends Type {
 				return $x;
 			};
 		}
-		return Arr::of(A\filter($value, $this->value));
+		return ArrType::of(A\filter($value, $this->value));
 	}
 
 	function fillKeys($value = null) {
-		return Arr::of(array_fill_keys($this->value, $value));
+		return ArrType::of(array_fill_keys($this->value, $value));
 	}
 
 	function combine($array = null) {
 		$array = is_null($array) ? $this->value : $array;
-		return Arr::of(array_combine($this->value, $array));
+		return ArrType::of(array_combine($this->value, $array));
 	}
 
 	function get($key) {
@@ -81,13 +86,13 @@ class ArrType extends Type {
 	}
 
 	function map(callable $func) {
-		return Arr::of(A\map($func, $this->value));
+		return ArrType::of(A\map($func, $this->value));
 	}
 
 	function merge($arr) {
 		return is_null($arr)
 			? $this
-			: Arr::of(array_merge($this->value, $arr));
+			: ArrType::of(array_merge($this->value, $arr));
 	}
 
 	function join($delimeter = "") {
@@ -114,11 +119,11 @@ class ArrType extends Type {
 	const of = __NAMESPACE__ . '\of';
 
 	public function __construct($data = []) {
-		if($data instanceof self) {
-			$data = $data->extract();
-		} elseif(!is_array($data)) {
-			$data = [$data];
-		}
+		// if($data instanceof self) {
+		// 	$data = $data->extract();
+		// } elseif(!is_array($data)) {
+		// 	$data = [$data];
+		// }
 
 		$this->value = $data;
 	}

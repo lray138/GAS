@@ -206,8 +206,13 @@ function pluckOrNull() {
 }
 
 function push() {
+    // catch 22 here because in some cases we want the 
+    // ArrType to be pushed...
+    // maybe that I just started applying extract where it 
+    // didn't need to be, if it was combine or something of that nature????
+    // I guess this is where we go "next" level with the functional understanding
     $push = function($value, $array) {
-        array_push($array, FP\extract($value));
+        array_push($array, $value);
         return $array;
     };
 

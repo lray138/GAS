@@ -70,7 +70,8 @@ function getVoidElements() {
     "param", 
     "source", 
     "track", 
-    "wbr"
+    "wbr",
+    "useElement"
   ];
 }
 
@@ -877,6 +878,13 @@ function h6($content, $attributes = []) {
 
 const h6 = __NAMESPACE__ . '\h6';
 
+function useElement($attributes) {
+  return element("use", "", $attributes);
+}
+
+const useElement = __NAMESPACE__ . '\use';
+
 function indent($html) {
   return (new \Gajus\Dindent\Indenter())->indent($html);
 }
+

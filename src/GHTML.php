@@ -140,7 +140,7 @@ function traverseForBlockContent($node, $carry = []){
     }
 
     $out = [
-    	"node_name" => DOM\getNodeName($node),
+    	"node_name" => DOM\getNodeName($node) === "use" ? "useElement" : DOM\getNodeName($node),
     	"attributes" => DOM\getAttributes($node)
     ];
 
