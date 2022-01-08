@@ -24,15 +24,11 @@ function absolute($number)
  * @return float
  */
 function add() {
-    $add = function($x, $y) {
+    $f = function($x, $y) {
         return (float) $x + (float) $y;
     };
 
-    return call_user_func_array(FP\curry2($add), args());
-}
-
-function add1() {
-    return add(1);
+    return FP\curry2($f)(...func_get_args());
 }
 
 /**

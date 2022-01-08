@@ -10,6 +10,12 @@ function identity($x) {
 
 const identity = __NAMESPACE__ . '\identity';
 
+function id($x) {
+    return $x;
+}
+
+const id = __NAMESPACE__ . '\id';
+
 //lstronj functional 
 // function flip($callback) {
 //     return function () use ($callback) {
