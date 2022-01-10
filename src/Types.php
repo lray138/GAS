@@ -177,6 +177,10 @@ function Maybe($value =  null) {
     return Maybe::of($value);
 }
 
+function Some($value) {
+    return Some::of($value);
+}
+
 function Str($value = "") {
     return StrType::of($value);
 }

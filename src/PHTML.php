@@ -1,6 +1,6 @@
 <?php 
 
-namespace lray138\GAS\GHTML;
+namespace lray138\GAS\PHTML;
 
 use lray138\GAS\{
 	Filesystem as FS,
@@ -14,13 +14,18 @@ use lray138\GAS\{
 use function lray138\GAS\IO\dump;
 
 function process($src, $dist) {
-	$src = FS\isDir($src) ? FS\getFilesInDir($src) : [$src];
+	$src = FS\isDir($src) ? FS\getFilesInDirRecursive($src) : [$src];
+
+	$src = Arr\filter(function($x) {
+		return !Str\contains(".DS_Store", $x);
+	}, $src);
 
 	$createGHTML = function($pathname) use ($src, $dist) {
 		$source_contents = DOM\create(FS\read($pathname));
 		$trim_right = Str\lastCharIs("/", $dist);
 		$source_dir = Str\beforeLast("/", $pathname, $trim_right);
-		$write_to = Str\replace([$source_dir, ".html"], [$dist, ".php"], $pathname);
+		
+		$write_to = Str\replace(["src", ".html"], ["dist", ".php"], $pathname);
 
 		$element_to_process = $source_contents->documentElement->firstElementChild;
 
@@ -28,18 +33,24 @@ function process($src, $dist) {
 			$tag_name = "head";
 		} else {
 			$element_to_process = $element_to_process->firstElementChild;
+			if(is_null($element_to_process)) {
+				dump("issue with " . $pathname);
+			}
 			$tag_name = $element_to_process->tagName;
 		}
 
 		$out = getPHPStart();
-		$out .= 'use lray138\GAS\HTML;
+		$out .= 'use lray138\GAS\{
+	HTML,
+	Types\ArrType
+};
 
 use function lray138\GAS\Functional\flipCurry2 as _;
 		';
 		$out .= '
 ';
 
-		$out .= 'return function($data = []) {
+		$out .= 'return function(ArrType $data = null) {
     return ';
 
 		$out .= traverse2(traverseForBlockContent($element_to_process)); 
@@ -47,7 +58,7 @@ use function lray138\GAS\Functional\flipCurry2 as _;
 		$out .= ';
 };';
 
-		FS\write($write_to, $out);
+		FS\write($write_to, $out, true);
 	};
 
 	Arr\walk($createGHTML, $src);
@@ -88,19 +99,27 @@ function traverse2($node, $level = 0 ){
 
     } else if(!HTML\isVoidElement($node["node_name"])) {
     	if(isset($node["content"])) {
-    		$out .= getPad($level) . '"' . $node["content"] . '"
-';
+//     		$out .= getPad($level) . '"' . $node["content"] . '"
+// ';
+			$out .= '"' . $node["content"] . '"';
     	}
     	
     }
 
     if(HTML\isVoidElement($node["node_name"])) {
     	return $stuff . $out . getPad($level-1);
+    } else if(!isset($node["children"])) {
+    	$out = empty($out) ? "''" : $out;
+    	return $stuff . "(" . $out . ")";
     } else {
     	return $stuff . "([
 "
-. $out . getPad($level-1) . "])";
+. $out . getPad($level-1) . "
+" . getPad($level) . "])";
 }
+
+	
+
     }
 
 

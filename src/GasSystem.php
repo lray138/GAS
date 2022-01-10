@@ -154,10 +154,10 @@ function includeTemplate($filename, array $page) {
 	include $filename;
 }
 
-function htmlResponse($data) {
+function htmlResponse($data, $doctype = "") {
 	return [
 		"type" => "html",
-		"data" => $data
+		"data" => $doctype . $data
 	];
 }
 

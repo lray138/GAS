@@ -19,7 +19,11 @@ function element($type, $content = "", $attributes = null) {
 
   if($content instanceof Type) {
     $content = $content->extract();
-  } 
+  }
+
+  if($attributes instanceof Type) {
+    $attributes = $attributes->extract();
+  }
 
   $out = '<' . $type;
 

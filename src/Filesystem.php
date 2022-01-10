@@ -25,16 +25,25 @@ function readFile($filename) {
 	return file_get_contents($filename);
 }
 
-function write() {
-	return call_user_func_array(putContents(), func_get_args());
+function write($pathname, $contents, $create_dir_if_not_exists = false) {
+	if($create_dir_if_not_exists) {
+		$dir = Str\beforeLast("/", $pathname);
+		if(!dirExists($dir)) {
+			createDir($dir);
+		}
+	}
+
+	file_put_contents($pathname, $contents);
 }
 
-function putContents() {
-	$putContents = function($filename, $contents) {
-		return file_put_contents($filename, $contents);
+// here is an example not not necessarilly getting much milage out of
+// default currying and if currying is needed then do it inline
+function putContents($filename, $contents, $create_dir_if_not_exists = false) {
+	$putContents = function($filename, $contents, $create_dir_if_not_exists = false) {
+		return file_put_contents($filename, $contents, $create_dir_if_not_exists);
 	};
 
-	return call_user_func_array(FP\curry2($putContents), func_get_args());
+	return $putContents(...func_get_args());
 }
 
 function getChangedTimestamp($filename) {
@@ -80,6 +89,7 @@ function getFilesInDir($directory) {
 function getFilesInDirRecursive($dir, $callable = null) {
 	$it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
 	return iterator_to_array(new \RecursiveIteratorIterator($it));
+	//return array_keys(iterator_to_array(new \RecursiveIteratorIterator($it)));
 }
 
 function scan($directory) {
