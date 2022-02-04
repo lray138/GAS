@@ -8,7 +8,7 @@ namespace lray138\GAS\Types;
 
 class NoMethod extends Type {
 	
-	private $value;
+	protected $value;
 
 	public static function of($value) {
 		return new self($value);

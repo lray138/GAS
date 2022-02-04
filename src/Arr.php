@@ -4,36 +4,38 @@ namespace lray138\GAS\Arr;
 
 use lray138\GAS\Math;
 use lray138\GAS\Functional as FP;
+use lray138\GAS\Types\ArrType;
 use function lray138\GAS\Functional\curry2;
 use function lray138\GAS\IO\dump as dump;
 
 /**
  * @param mixed $needle
- * @param array $haystack
+ * @param array|ArrType $haystack
  *
  * @return bool
  */
-// its dec 3, 2021 and just correcting this for being in 
-// wrong functional order...
 function contains() {
-    $contains = function($needle, $haystack) {
+    $f = function($needle, $haystack): bool {
         return in_array($needle, $haystack);
     };
 
-    return call_user_func_array(FP\curry2($contains), func_get_args());
+    return FP\curry2($f)(...func_get_args());
 }
 
-function in() {
-    return contains(...func_get_args());
-}
-
+/**
+ * @param int $size
+ * @param array|ArrType $haystack
+ *
+ * @return array
+ */
 function chunk() {
-    $chunk = function($size, $array) {
-        return array_chunk($array, $size);
+    $f = function($size, $array) {
+        return array_chunk(FP\extract($array), $size);
     };
 
-    return call_user_func_array(FP\curry2($chunk), func_get_args());
+    return call_user_func_array(FP\curry2($f), func_get_args());
 }
+
 
 function values($array) {
     return array_values($array);
@@ -42,8 +44,8 @@ function values($array) {
 const values = __NAMESPACE__ . '\values';
 
 /**
- * @param array    $array
- * @param callable $callback
+ * @param array|ArrType $array
+ * @param callable      $callback
  *
  * @return array
  */
@@ -212,6 +214,10 @@ function push() {
     // didn't need to be, if it was combine or something of that nature????
     // I guess this is where we go "next" level with the functional understanding
     $push = function($value, $array) {
+        if($array instanceof ArrType) {
+           return $array->push($value);
+        }
+
         array_push($array, $value);
         return $array;
     };
@@ -415,9 +421,23 @@ function _map($fn, $array) {
  *
  * @return array
  */
-function merge()
-{
-    return call_user_func_array(FP\curry2("array_merge"), func_get_args());
+function merge() {
+    $f = function($merge, $with) {
+        // if($with instanceof ArrType) {
+        //    return $with->merge($merge);
+        // }
+
+        $with = FP\extract($with);
+        $merge = FP\extract($merge);
+
+        if(is_null($merge)) {
+            return $with;
+        }
+
+        return array_merge($with, $merge);
+    };
+
+    return FP\curry2($f)(...func_get_args());
 }
 
 /**
@@ -480,13 +500,6 @@ function toUl(array $array) {
 }
 
 const toUl = __NAMESPACE__ . '\toUl';
-
-function toXMLString(array $array) {
-    $xml = \GAS\Array2XML\Array2XML::createXML('root', $array);
-    $root = $xml->getElementsByTagname("text")->item(0);
-    return $xml->saveXML($root);
-    //return \GAS\Array2XML($array);
-}
 
 // https://stackoverflow.com/questions/526556/how-to-flatten-a-multi-dimensional-array-to-simple-one-in-php/15939539
 function flatten(array $array) {

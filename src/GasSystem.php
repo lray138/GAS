@@ -13,7 +13,8 @@ use lray138\GAS\{
 	SQL,
 	Filesystem as FS,
 	Model,
-	PDO
+	PDO,
+	Types as T
 };
 
 use function lray138\GAS\IO\dump;
@@ -85,7 +86,10 @@ function main() {
 		$loader = FP\curry2(function($dir, $name) {
 			$name = !Str\endsWith(".php")($name) ? Str\append(".php")($name) : $name;
 			$dir = !Str\endsWith("/")($dir) ? Str\concat($dir, "/") : $dir;
-			return include $dir . $name;
+			
+			$file = include $dir . $name;
+
+			return T\Maybe($file);
 		});
 
 		if(array_key_exists("modules", $data)) {
@@ -154,10 +158,10 @@ function includeTemplate($filename, array $page) {
 	include $filename;
 }
 
-function htmlResponse($data, $doctype = "") {
+function htmlResponse($data, $doctype = "<!DOCTYPE html>") {
 	return [
 		"type" => "html",
-		"data" => $doctype . $data
+		"data" => $doctype . FP\extract($data)
 	];
 }
 

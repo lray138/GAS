@@ -169,6 +169,8 @@ function Arr($value = []) {
     return ArrType::of($value);
 }
 
+const Arr = __NAMESPACE__ . '\Arr';
+
 function Many($value = null) {
     return Many::of($value);
 }
@@ -176,6 +178,8 @@ function Many($value = null) {
 function Maybe($value =  null) {
     return Maybe::of($value);
 }
+
+const Maybe = __NAMESPACE__ . '\Maybe';
 
 function Some($value) {
     return Some::of($value);

@@ -26,3 +26,10 @@ function arrToColumns($cols_per_row, $data, $callable = null) {
 		->map(_(HTML\div)('class="container"'))
 		->extract();
 }
+
+function arrToXML() {
+	$xml = \GAS\Array2XML\Array2XML::createXML('root', $array);
+    $root = $xml->getElementsByTagname("text")->item(0);
+    return $xml->saveXML($root);
+    //return \GAS\Array2XML($array);
+}

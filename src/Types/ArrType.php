@@ -54,7 +54,7 @@ class ArrType extends Type {
 	}
 
 	function implode($delimeter) {
-		return Str::of(A\implode($delimeter, $this->value));
+		return StrType::of(A\implode($delimeter, $this->value));
 	}
 
 	function isEmpty() {
@@ -96,7 +96,7 @@ class ArrType extends Type {
 	}
 
 	function join($delimeter = "") {
-		return Str::of(A\join($delimeter, $this->value));
+		return StrType::of(A\join($delimeter, $this->value));
 	}
 
 	function toUl(): Str {
@@ -105,7 +105,7 @@ class ArrType extends Type {
 			A\join(""),
 			A\map(S\wrap("<li>", "</li>"))
 		);
-		return Str::of($fn($this->value));
+		return StrType::of($fn($this->value));
 	}
 
 	function walk(callable $func) {
