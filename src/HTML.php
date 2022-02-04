@@ -12,7 +12,7 @@ use lray138\GAS\Types\Type;
 use function lray138\GAS\IO\dump;
 
 function isVoidElement($node_name) {
-  return Arr\in($node_name)(getVoidElements());
+  return Arr\contains($node_name)(getVoidElements());
 }
 
 function element($type, $content = "", $attributes = null) {
@@ -34,7 +34,7 @@ function element($type, $content = "", $attributes = null) {
   if(is_array($content) && array_key_exists("attr", $content)) {
     $attributes = array_merge($attributes, $content["attr"]);
     $content = $content["content"];
-  } 
+  }
 
   if(is_array($attributes) && count($attributes) > 0) {
       $out .= _processAttributes($attributes);
@@ -75,7 +75,8 @@ function getVoidElements() {
     "source", 
     "track", 
     "wbr",
-    "useElement"
+    "useElement",
+    "path" // added Jan 23, 2022
   ];
 }
 
@@ -93,18 +94,6 @@ function _processAttributes($attributes) {
     Arr\walk($apply, $attributes);
 
     return $attr;
-
-    // return FP\compose(
-    //           function($x) {
-    //             if(strlen($x) > 0 && substr($x, 0, 1) !== " ") {
-    //               return " " . $x;
-    //             }
-    //             return $x;
-    //           },
-    //           Arr\join(" "), 
-    //           Arr\map(function($value, $key) {
-    //             return "$key='$value'";
-    //           }))($attributes);
 }
 
 function a2($href, string $content = "", $attributes = []) {
@@ -133,11 +122,11 @@ function a2($href, string $content = "", $attributes = []) {
 
 const a2 = __NAMESPACE__ . '\a2';
 
-function a($content, $attributes = []) {
-  return element("a", $content, $attributes);
-}
+// function a($content, $attributes = []) {
+//   return element("a", $content, $attributes);
+// }
 
-const a = __NAMESPACE__ . '\a';
+// const a = __NAMESPACE__ . '\a';
 
 function br($count = 1) {
   // return FP\compose(
@@ -154,7 +143,25 @@ function br($count = 1) {
           ->extract();
 }
 
-/* everything below can be auto generated */
+const br = __NAMESPACE__ . '\br';
+
+function comment($content, $attributes = []) {
+  return element("comment", $content, $attributes);
+}
+
+const comment = __NAMESPACE__ . '\comment';
+
+function doctype($content, $attributes = []) {
+  return element("doctype", $content, $attributes);
+}
+
+const doctype = __NAMESPACE__ . '\doctype';
+
+function a($content, $attributes = []) {
+  return element("a", $content, $attributes);
+}
+
+const a = __NAMESPACE__ . '\a';
 
 function abbr($content, $attributes = []) {
   return element("abbr", $content, $attributes);
@@ -162,23 +169,11 @@ function abbr($content, $attributes = []) {
 
 const abbr = __NAMESPACE__ . '\abbr';
 
-function acronym($content, $attributes = []) {
-  return element("acronym", $content, $attributes);
-}
-
-const acronym = __NAMESPACE__ . '\acronym';
-
 function address($content, $attributes = []) {
   return element("address", $content, $attributes);
 }
 
 const address = __NAMESPACE__ . '\address';
-
-function applet($content, $attributes = []) {
-  return element("applet", $content, $attributes);
-}
-
-const applet = __NAMESPACE__ . '\applet';
 
 function area($attributes = []) {
   return element("area", "", $attributes);
@@ -216,12 +211,6 @@ function base($attributes = []) {
 
 const base = __NAMESPACE__ . '\base';
 
-function basefont($content, $attributes = []) {
-  return element("basefont", $content, $attributes);
-}
-
-const basefont = __NAMESPACE__ . '\basefont';
-
 function bdi($content, $attributes = []) {
   return element("bdi", $content, $attributes);
 }
@@ -234,12 +223,6 @@ function bdo($content, $attributes = []) {
 
 const bdo = __NAMESPACE__ . '\bdo';
 
-function big($content, $attributes = []) {
-  return element("big", $content, $attributes);
-}
-
-const big = __NAMESPACE__ . '\big';
-
 function blockquote($content, $attributes = []) {
   return element("blockquote", $content, $attributes);
 }
@@ -251,12 +234,6 @@ function body($content, $attributes = []) {
 }
 
 const body = __NAMESPACE__ . '\body';
-
-// function br($attributes = []) {
-//   return element("br", "", $attributes);
-// }
-
-// const br = __NAMESPACE__ . '\br';
 
 function button($content, $attributes = []) {
   return element("button", $content, $attributes);
@@ -275,12 +252,6 @@ function caption($content, $attributes = []) {
 }
 
 const caption = __NAMESPACE__ . '\caption';
-
-function center($content, $attributes = []) {
-  return element("center", $content, $attributes);
-}
-
-const center = __NAMESPACE__ . '\center';
 
 function cite($content, $attributes = []) {
   return element("cite", $content, $attributes);
@@ -348,12 +319,6 @@ function dialog($content, $attributes = []) {
 
 const dialog = __NAMESPACE__ . '\dialog';
 
-function dir($content, $attributes = []) {
-  return element("dir", $content, $attributes);
-}
-
-const dir = __NAMESPACE__ . '\dir';
-
 function div($content, $attributes = []) {
   return element("div", $content, $attributes);
 }
@@ -402,12 +367,6 @@ function figure($content, $attributes = []) {
 
 const figure = __NAMESPACE__ . '\figure';
 
-function font($content, $attributes = []) {
-  return element("font", $content, $attributes);
-}
-
-const font = __NAMESPACE__ . '\font';
-
 function footer($content, $attributes = []) {
   return element("footer", $content, $attributes);
 }
@@ -419,18 +378,6 @@ function form($content, $attributes = []) {
 }
 
 const form = __NAMESPACE__ . '\form';
-
-function frame($content, $attributes = []) {
-  return element("frame", $content, $attributes);
-}
-
-const frame = __NAMESPACE__ . '\frame';
-
-function frameset($content, $attributes = []) {
-  return element("frameset", $content, $attributes);
-}
-
-const frameset = __NAMESPACE__ . '\frameset';
 
 function head($content, $attributes = []) {
   return element("head", $content, $attributes);
@@ -551,12 +498,6 @@ function nav($content, $attributes = []) {
 }
 
 const nav = __NAMESPACE__ . '\nav';
-
-function noframes($content, $attributes = []) {
-  return element("noframes", $content, $attributes);
-}
-
-const noframes = __NAMESPACE__ . '\noframes';
 
 function noscript($content, $attributes = []) {
   return element("noscript", $content, $attributes);
@@ -696,12 +637,6 @@ function span($content, $attributes = []) {
 
 const span = __NAMESPACE__ . '\span';
 
-function strike($content, $attributes = []) {
-  return element("strike", $content, $attributes);
-}
-
-const strike = __NAMESPACE__ . '\strike';
-
 function strong($content, $attributes = []) {
   return element("strong", $content, $attributes);
 }
@@ -810,12 +745,6 @@ function track($attributes = []) {
 
 const track = __NAMESPACE__ . '\track';
 
-function tt($content, $attributes = []) {
-  return element("tt", $content, $attributes);
-}
-
-const tt = __NAMESPACE__ . '\tt';
-
 function u($content, $attributes = []) {
   return element("u", $content, $attributes);
 }
@@ -828,11 +757,11 @@ function ul($content, $attributes = []) {
 
 const ul = __NAMESPACE__ . '\ul';
 
-// function var($content, $attributes = []) {
-//   return element("var", $content, $attributes);
-// }
+function varElement($content, $attributes = []) {
+  return element("varElement", $content, $attributes);
+}
 
-// const var = __NAMESPACE__ . '\var';
+const varElement = __NAMESPACE__ . '\varElement';
 
 function video($content, $attributes = []) {
   return element("video", $content, $attributes);
@@ -882,13 +811,17 @@ function h6($content, $attributes = []) {
 
 const h6 = __NAMESPACE__ . '\h6';
 
-function useElement($attributes) {
-  return element("use", "", $attributes);
+function useElement($attributes = []) {
+  return element("useElement", "", $attributes);
 }
 
-const useElement = __NAMESPACE__ . '\use';
+const useElement = __NAMESPACE__ . '\useElement';
+
+
+
 
 function indent($html) {
-  return (new \Gajus\Dindent\Indenter())->indent($html);
+    return (new \Gajus\Dindent\Indenter())->indent($html);
 }
 
+const indent = __NAMESPACE__ . '\indent';

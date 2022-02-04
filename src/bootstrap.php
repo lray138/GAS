@@ -31,6 +31,7 @@ require 'GasSystem.php';
 require 'GAS.php';
 require 'PHTML.php';
 require 'HTML.php';
+require 'HTMLForm.php';
 require 'IO.php';
 require 'Math.php';
 require 'Model.php';

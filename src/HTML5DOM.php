@@ -1,6 +1,6 @@
 <?php
 
-namespace lray138\GAS\DOMDocument;
+namespace lray138\GAS\HTML5DOM;
 
 use IvoPetkov\HTML5DOMDocument;
 
