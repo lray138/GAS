@@ -66,6 +66,11 @@ class Maybe extends Functor {
         return $f->map($this->extract());
     }
 
+    public function applyM($applicative) {
+    	return $this->map($applicative->extract());
+    	//return $applicative->apply($this);
+    }
+
 	public function __get($property) {
 		return $this->$property();
 	}
@@ -84,15 +89,35 @@ class Maybe extends Functor {
 		return new self($value);
 	}
 
-	public function then(callable $func) {
+	public function map($func) {
+		return $this->then($func);
+	}
+
+	public function bind($func) {
+		return $this->then($func);
+	}
+
+	// need to allow null to be passed in the case of a 
+	// apply where the file is not located
+	public function then($func) {
 
 		// this fails for empty arrays before with
 		// just ($this->value)
+
+		// if(is_null($this->value)) {
+		// 	return static::new();
+		// }
+
+		// return static::new($func($this->value));
+
 		if(is_null($this->value)) {
-			return static::new();
+			return new self();
+		} elseif(is_null($func)) {
+			return new self();
 		}
 
-		return static::new($func($this->value));
+		return new self($func($this->value));
+
 	}
 
 	public function toMany() {

@@ -7,7 +7,7 @@ class Type {
 	protected $value;
 
 	// constructors
-	public function __construct($value) {
+	public function __construct($value = null) {
 		$this->value = $value;
 	}
 

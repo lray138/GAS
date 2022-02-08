@@ -104,6 +104,10 @@ function unary() {
     return call_user_func_array(arity1, func_get_args());
 }
 
+function flipUnary($callable) {
+    return unary(flip($callable));
+}
+
 function arity1($cb) {
     $args = func_get_args();
     return arityN(1, Arr\head($args), ...Arr\tail($args));

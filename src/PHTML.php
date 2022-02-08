@@ -8,7 +8,7 @@ use lray138\GAS\{
 	Functional as FP,
 	Arr,
 	HTML,
-	DOMDocument as DOM
+	HTML5DOM as DOM
 };
 
 use function lray138\GAS\IO\dump;
@@ -45,7 +45,7 @@ function process($src, $dist) {
 	Types\ArrType
 };
 
-use function lray138\GAS\Functional\flipCurry2 as _;
+use function lray138\GAS\Functional\flip as _;
 		';
 		$out .= '
 ';

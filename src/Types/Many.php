@@ -88,7 +88,7 @@ class Many extends Type {
 	}
 
 	public function toStr() {
-		return Str::of($this->values);
+		return StrType::of($this->values);
 	}
 
 	public function value() {

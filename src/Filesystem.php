@@ -89,7 +89,7 @@ function getFilesInDir($directory) {
 function getFilesInDirRecursive($dir, $callable = null) {
 	$it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
 	return iterator_to_array(new \RecursiveIteratorIterator($it));
-	//return array_keys(iterator_to_array(new \RecursiveIteratorIterator($it)));
+	return array_keys(iterator_to_array(new \RecursiveIteratorIterator($it)));
 }
 
 function scan($directory) {

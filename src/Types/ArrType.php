@@ -89,10 +89,12 @@ class ArrType extends Type {
 		return ArrType::of(A\map($func, $this->value));
 	}
 
+	// I flipped the Arr\merge order since we want
+	// additional items to be last (i.e head_merge)
 	function merge($arr) {
-		return is_null($arr)
+		return is_null($arr) || $arr instanceof None
 			? $this
-			: ArrType::of(array_merge($this->value, $arr));
+			: ArrType::of(A\merge($arr, $this->value));
 	}
 
 	function join($delimeter = "") {

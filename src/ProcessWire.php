@@ -93,7 +93,7 @@ function updatePage($page, $data, $pages = null) {
 					$item->$key2 = $prod;
 				}
 
-				if(isset($product["purchase_unit_price"])) {
+				if(isset($product["purchase_unit_price"]) && !empty(trim($product["purchase_unit_price"]))) {
 					$product_page = $pages->get($product["purchase_set_product_page"]);
 					if(!$product_page->product_measured) {
 						$product_page->product_measured = true;	
