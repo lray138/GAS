@@ -70,6 +70,9 @@ class Maybe {
 		return $this->$property();
 	}
 
+	// so join... APril 18th at 00:07, so join??
+	// so join is extract, but I was thinking chain... I want chain....
+	// this is the PDO/Array example...
 	public function chain($fn) {
 		return $this->map($fn)->join();
 		//$this->value->map($fn)->flatten();

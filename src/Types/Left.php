@@ -2,10 +2,10 @@
 
 namespace lray138\GAS\Types;
 
-class Number extends Type {
-
-	protected $value;
+class Left {
 	
+	protected $value;
+
 	public static function of($value) {
 		return new self($value);
 	}
@@ -14,12 +14,20 @@ class Number extends Type {
 		$this->value = $value;
 	}
 
-	public function extract() {
-		return $this->value;
+	public function map() {
+		return  $this;
+	}
+
+	public function __call($method, $args) {
+		return $this;
+	}
+
+	public function bind() {
+		return $this;
 	}
 
 	public function __toString() {
-		return (string) $this->value;
+		return $this->value;
 	}
 
 }

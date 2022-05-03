@@ -182,6 +182,8 @@ function startsWith() {
     return call_user_func_array(curry2($startsWith), func_get_args());
 }
 
+const startsWith = __NAMESPACE__ . '\startsWith';
+
 /**
  * @param string $haystack
  * @param string $needle
@@ -242,10 +244,9 @@ function endsWithString($haystack, $needle)
  *
  * @return bool
  */
-function endsWithExpression($haystack, $needle)
-{
+function endsWithExpression($haystack, $needle) {
     $pattern = slice($needle, 1, length($needle) - 2);
-
+    
     return matches($haystack, "#{$pattern}$#");
 }
 
@@ -598,11 +599,29 @@ function trimLeft($haystack, $needle)
  * @param string $haystack
  * @param string $needle
  *
- * @return string
+ * @return string 
+ * I think this is Chris Pitt code.
  */
 function trimLeftWithString($haystack, $needle)
 {
     return ltrim($haystack, $needle);
+}
+
+
+function ltrim() {
+    $f = function($needle, $haystack) {
+        return \ltrim($haystack, $needle);
+    };
+
+    return FP\curry2($f)(...func_get_args());
+}
+
+function rtrim() {
+    $f = function($needle, $haystack) {
+        return \rtrim($haystack, $needle);
+    };
+
+    return FP\curry2($f)(...func_get_args());
 }
 
 /**
@@ -819,7 +838,6 @@ function toUpper($str) {
 }
 
 const toUpper = __NAMESPACE__ . '\toUpper';
-
 
 // https://www.php.net/manual/en/function.number-format.php
 // https://stackoverflow.com/questions/1699958/formatting-a-number-with-leading-zeros-in-php

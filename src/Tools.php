@@ -5,7 +5,8 @@ namespace lray138\GAS\Tools;
 use lray138\GAS\{
 	HTML,
 	Types,
-	Arr 
+	Arr,
+	RegexPatterns as RP
 };
 
 use function lray138\GAS\Functional\flipCurry2 as _;
@@ -33,3 +34,9 @@ function arrToXML() {
     return $xml->saveXML($root);
     //return \GAS\Array2XML($array);
 }
+
+function urlify($string) {
+	return preg_replace(RP\findUrl(), RP\replaceUrl(), $string);
+}
+
+const urlify = __NAMESPACE__ . '\urlify';

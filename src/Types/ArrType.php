@@ -1,10 +1,13 @@
 <?php 
 
 namespace lray138\GAS\Types;
+
 use lray138\GAS\{
-	Arr as A, 
+	Arr, 
 	Functional as FP, 
-	Str as S
+	Str as S,
+	HTML
+	, Types as T
 };
 
 use function lray138\GAS\IO\dump;
@@ -12,11 +15,45 @@ use function lray138\GAS\IO\dump;
 class ArrType extends Type {
 
 	public function push($value) {
-		return ArrType::of(A\push($value, $this->value));
+		return ArrType::of(Arr\push($value, $this->value));
+	}
+
+	public function bind($callable) {
+		return ArrType::of($callable($this->value));
 	}
 
 	public function pushKeyVal($key, $val) {
-		return ArrType::of(A\pushKeyVal($key, $val, $this->value));
+		return ArrType::of(Arr\pushKeyVal($key, $val, $this->value));
+	}
+
+	public function unshift($value) {
+		$arr = $this->value;
+		array_unshift($arr, $value);
+		return ArrType::of($arr);
+	}
+
+	// https://www.php.net/manual/en/array.sorting.php
+	public function sort($arg, $options = null) {
+
+		if(count($this->value) < 2) {
+			return $this;
+		}
+
+		// check for field first, since, for example "date" would be true
+		// for callable
+
+		if(is_array($this->value) && is_array($this->value[0])) {
+			
+		} elseif(is_array($this->value) && T\isArr($this->value[0])) {
+
+		}
+
+		if(is_callable($arg)) {
+			$arr = $this->value; 
+			usort($arr, $arg);
+			return ArrType::of($arr);
+		}
+
 	}
 
 	public function set($key, $val) {
@@ -24,7 +61,7 @@ class ArrType extends Type {
 		if($key instanceof \GAS\Types\Type) {
 			$key = $key->extract();
 		}
-		return ArrType::of(A\set($key, $val, $this->value));
+		return ArrType::of(Arr\set($key, $val, $this->value));
 	}
 
 	function filter($value = null) {
@@ -33,7 +70,7 @@ class ArrType extends Type {
 				return $x;
 			};
 		}
-		return ArrType::of(A\filter($value, $this->value));
+		return ArrType::of(Arr\filter($value, $this->value));
 	}
 
 	function fillKeys($value = null) {
@@ -46,15 +83,28 @@ class ArrType extends Type {
 	}
 
 	function get($key) {
+		// incase it is a StrType (i suppose)
 		if(is_object($key) && method_exists($key, "extract")) {
 			$key = $key->extract();
 		}
-		$value = A\get($key, $this->value);
+
+		// probably need to dertimine, I think pluck is more
+		// approprpiate
+		$value = Arr\get($key, $this->value);
+		
+		// wrap type if not an object
+		if(!is_object($value)) {
+       		$value = T\wrapType($value);
+       	}
+
 		return $value ?: None::of();
 	}
 
-	function implode($delimeter) {
-		return StrType::of(A\implode($delimeter, $this->value));
+	function implode($delimeter = "") {
+
+		// there may be cases... ha.  maybe cases where a value needs to be unwrapped?
+		// added Mon Apr 4 @ 16:30
+		return StrType::of(Arr\implode($delimeter, Arr\map(FP\extract, $this->value)));
 	}
 
 	function isEmpty() {
@@ -66,7 +116,7 @@ class ArrType extends Type {
 	}
 
 	function flatten() {
-		return new self(A\flatten($this->value));
+		return new self(Arr\flatten($this->value));
 	}
 
 	function size() {
@@ -74,19 +124,19 @@ class ArrType extends Type {
 	}
 
 	function first() {
-		return A\head($this->value);
+		return Arr\head($this->value);
 	}
 
 	function tail() {
-		return new self(A\tail($this->value));
-	}
-
-	function extract() {
-		return $this->value;
+		return new self(Arr\tail($this->value));
 	}
 
 	function map(callable $func) {
-		return ArrType::of(A\map($func, $this->value));
+		return ArrType::of(Arr\map($func, $this->value));
+	}
+
+	function max() {
+		return T\wrap(\max($this->value));
 	}
 
 	// I flipped the Arr\merge order since we want
@@ -94,24 +144,39 @@ class ArrType extends Type {
 	function merge($arr) {
 		return is_null($arr) || $arr instanceof None
 			? $this
-			: ArrType::of(A\merge($arr, $this->value));
+			: ArrType::of(Arr\merge($arr, $this->value));
 	}
 
 	function join($delimeter = "") {
-		return StrType::of(A\join($delimeter, $this->value));
+		return StrType::of(Arr\join($delimeter, $this->value));
 	}
 
-	function toUl(): Str {
+	function toUl($attributes = []): StrType {
 		$fn = FP\compose(
 			S\wrap("<ul>", "</ul>"),
-			A\join(""),
-			A\map(S\wrap("<li>", "</li>"))
+			Arr\join(""),
+			Arr\map(S\wrap("<li>", "</li>"))
 		);
-		return StrType::of($fn($this->value));
+
+		$fn = FP\compose(
+			Arr\join("")
+			, Arr\map(HTML\li)
+		);
+
+		return StrType::of(HTML\ul($fn($this->value), $attributes));
+	}
+
+	function toMaybe($callable = null) {
+		return Maybe::of($this);
 	}
 
 	function walk(callable $func) {
-		A\walk($func, $this->value);
+		Arr\walk($func, $this->value);
+	}
+
+	// in the Arr functional part, $initial would come first, here we don't need it to be first
+	function reduce($callable, $initial = null) {
+		return T\wrap(array_reduce($this->value, $callable, $initial));
 	}
 
 	public static function of($data = []) {
@@ -126,6 +191,10 @@ class ArrType extends Type {
 		// } elseif(!is_array($data)) {
 		// 	$data = [$data];
 		// }
+
+		if(is_null($data)) {
+			$data = [];
+		}
 
 		$this->value = $data;
 	}

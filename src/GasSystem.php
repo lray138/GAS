@@ -57,18 +57,23 @@ function getPathSegments($path) {
 	return array_filter(explode("/", $path));
 }
 
+// essentially there will always be a module
+// either the home module or some other one.
 function request($data) {
 	if(is_null($data["path"])) {
+		return null;
+	}
 
-	} else {
-		$bits = explode("/", $data["path"]);
-		$module_dir = Arr\join("/", [$data["doc_root"], "sites/main/modules", $bits[0]]);
-		if(FS\dirExists($module_dir)) {
-			$data["path"] = implode("/", Arr\tail($bits));
-			$data["current_slug"] = $bits[0];
-			return (include $module_dir . "/controllers/Main.php")($data);
-			//return (include $module_dir . "/" . ucfirst($bits[0]) . "Controller.php")($data);
-		}
+	$bits = explode("/", $data["path"]);
+	$module_dir = Arr\join("/", [$data["doc_root"], "sites/main/modules", $bits[0]]);
+	if(FS\dirExists($module_dir)) {
+		$data["path"] = implode("/", Arr\tail($bits));
+		$data["current_slug"] = $bits[0];
+
+
+		return (include $module_dir . "/controllers/Main.php")($data);
+
+		//return (include $module_dir . "/" . ucfirst($bits[0]) . "Controller.php")($data);
 	}
 }
 
@@ -77,6 +82,7 @@ function request($data) {
 */
 function main() {
 	$main = function($controller, $data) {
+
 		// if($controller["check_access"])
 
 		$callable = hasSegments($data["path"])
@@ -112,6 +118,21 @@ function main() {
 			$data["partials_dir"] = $controller["module"]["dir"] . "/partials";
 		}
 
+		$siteLoader = FP\curry3(function($dir, $site, $name) {
+			$name = !Str\endsWith(".php")($name) ? Str\append(".php")($name) : $name;
+			$dir = !Str\endsWith("/")($dir) ? Str\concat($dir, "/") : $dir;
+			
+			$pathname = $dir . $site . "/views/" . $name;
+
+			$file = FS\fileExists($pathname) 
+				? include $pathname
+				: null;
+
+			return T\Maybe($file);
+		});
+
+		$data["loadSiteView"] = $siteLoader($data["sites_dir"]);
+		$data["loadSitePartial"] = $loader($data["sites_dir"]);
 		$data["loadPartial"] = $loader($data["partials_dir"]);
 		$data["loadView"] = $loader($data["views_dir"]);
 		$data["loaders"]["partials"] = $loader($data["partials_dir"]);
@@ -161,7 +182,7 @@ function includeTemplate($filename, array $page) {
 function htmlResponse($data, $doctype = "<!DOCTYPE html>") {
 	return [
 		"type" => "html",
-		"data" => $doctype . FP\extract($data)
+		"data" => FP\extract($data)
 	];
 }
 

@@ -74,21 +74,8 @@ class Many extends Type {
 		return $this->values;
 	}
 
-	public function chain(callable $function) {
+	public function chain($function) {
 		return $this->map($function)->flatten();
-	}
-
-	public function toMaybe() {
-		$tmp = Maybe::of($this->values);
-		return $tmp;
-	}
-
-	public function toArr() {
-		return Arr::of($this->values);
-	}
-
-	public function toStr() {
-		return StrType::of($this->values);
 	}
 
 	public function value() {

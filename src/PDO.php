@@ -3,11 +3,13 @@
 namespace lray138\GAS\PDO;
 
 use lray138\GAS\{
-	Functional as FP,
-	Arr
+	Functional as FP
+	, Arr
+	, Types as T
 };
 
 use function lray138\GAS\IO\dump;
+use function lray138\GAS\Functional\flip as _;
 
 function getDefaultOptions() {
 	return [
@@ -21,12 +23,21 @@ function getDefaultCharset() {
 	return "utf8";
 }
 
+// this may be dumb but... 
+// a, b, c, d, e
+// where a can be either array of creds, or a server,
+// b is either options or username
+// c is always password (if present)
+// d is always database (if present)
+// e is always options (if present)
+// then you could create either way you want
+// if you wanted to curry apply later
 function create(array $creds, $options = null) {
 	if(!isset($creds["charset"])) {
 		$creds["charset"] = getDefaultCharset();
 	}
 
-	$pluck = FP\flipCurry2(Arr\pluck)($creds);
+	$pluck = FP\flip(Arr\pluck)($creds);
 
 	$dsn = "mysql:host=" . $pluck("host") . ";charset=" . $pluck('charset') . ";";
 
@@ -39,9 +50,10 @@ function create(array $creds, $options = null) {
 	}
 	
 	try {
-	     return new \PDO($dsn, $pluck("username"), $pluck("password"), $options);
+		return new \PDO($dsn, $pluck("username"), $pluck("password"), $options);
 	} catch (\PDOException $e) {
-	     throw new \PDOException($e->getMessage(), (int) $e->getCode());
+	   	//throw new \PDOException($e->getMessage(), (int) $e->getCode());
+		return T\Nothing();
 	}
 }
 
@@ -51,14 +63,25 @@ function useDatabase($database_name, $db) {
 	return $db;
 }
 
+
+// this is a case where 
+// we need to examine well... hermm...
+// we need $values first in the Functor context
 function execStmt() {
-	$f = function($stmt, $values) {
+	$f = function($values, $stmt) {
 		// be kind
 		if(!is_array($values)) {
 			$values = [$values];
 		}
-		$stmt->execute($values);
-		return $stmt;
+		try {
+			$stmt->execute($values);
+			return T\Either::right($stmt);
+		} catch (\Exception $e) {
+			return T\Either::left($e);
+		} catch (\Error $e) {
+			return T\Either::left($e);
+		}
+		
 	};
 
 	return FP\curry2($f)(...func_get_args());
@@ -67,21 +90,28 @@ function execStmt() {
 const execStmt = __NAMESPACE__ . '\execStmt';
 
 function fetch($stmt) {
-	return $stmt->fetch();
+	return T\Arr($stmt->fetch());
 }
 
 const fetch = __NAMESPACE__ . '\fetch';
 
-function fetchAll($stmt) {
-	return $stmt->fetchAll();
+// you could add options here... ?
+function fetchAll($stmt, $options = null) {
+	return T\Arr(Arr\map(T\Arr, $stmt->fetchAll()));
 }
 
 const fetchAll = __NAMESPACE__ . '\fetchAll';
 
 function prepare() {
-	$f = function($pdo, $stmt) {
-		$stmt = $pdo->prepare($stmt);
-		return $stmt;
+	$f = function($sql, $pdo) {
+		try {
+			$stmt = $pdo->prepare($sql);
+			return T\Either::right($stmt);
+		} catch (\Exception $e) {
+			return T\Either::left($e);
+		} catch (\Error $e) {
+			return T\Either::left($e);
+		}
 	};
 
 	return FP\curry2($f)(...func_get_args());
@@ -89,22 +119,45 @@ function prepare() {
 
 const prepare = __NAMESPACE__ . '\prepare';
 
-function prepareExecFetchAll($pdo, $stmt, $values = []) {
-	return FP\compose(
-		fetchAll,
-		FP\flipCurry2(execStmt)($values),
-		prepare($pdo)
-	)($stmt);
+// I think the trade off for curryign here is making the 
+// empty array always necessary, or you could always just 
+// say curry2 if you don't want too
+function prepareExecFetchAll($sql, $pdo, $values = []) {
+	// old way
+	// return FP\compose(
+	// 	fetchAll,
+	// 	FP\flip(execStmt)($values),
+	// 	prepare($pdo)
+	// )($stmt);
+
+	// really you'd want to do // it sort of doesn't matter
+	// anyway
+
+	return T\Maybe::of($pdo)
+		->chain(prepare($sql))
+		->chain(execStmt($values))
+		->either(function($x) {
+			return T\Either::left($x);
+		}, fetchAll)
+		;
 }
 
 const prepareExecFetchAll = __NAMESPACE__ . '\prepareExecFetchAll';
 
-function prepareExecFetch($pdo, $stmt, $values = []) {
-	return FP\compose(
-		fetch,
-		FP\flipCurry2(execStmt)($values),
-		prepare($pdo)
-	)($stmt);
+function prepareExecFetch($sql, $pdo, $values = []) {
+	// return FP\compose(
+	// 	fetch,
+	// 	FP\flip(execStmt)($values),
+	// 	prepare($pdo)
+	// )($stmt);
+
+	return T\Maybe::of($pdo)
+		->chain(prepare($sql))
+		->chain(execStmt($values))
+		->either(function($x) {
+			return T\Either::left($x);
+		}, fetch)
+		;
 }
 
 const prepareExecFetch = __NAMESPACE__ . '\prepareExecFetch';
@@ -116,7 +169,7 @@ function prepareExecLastId($pdo, $sql, $values) {
 		function($x) use ($pdo) {
 			return $pdo->lastInsertId();
 		},
-		FP\flipCurry2(execStmt)($values),
+		FP\flip(execStmt)($values),
 		prepare($pdo)
 	)($sql);
 }

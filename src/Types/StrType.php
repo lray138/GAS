@@ -7,8 +7,13 @@ use function lray138\GAS\IO\dump;
 
 class StrType extends Type {
 	
+	// weird early version of this I suppose... 
+	// public function explode(string $delimeter) {
+	// 	return ArrType::of(S\explode($delimeter, rtrim($this->value, $delimeter)))->map("\\lray138\\GAS\\Types\\StrType::of");
+	// }
+
 	public function explode(string $delimeter) {
-		return Arr::of(S\explode($delimeter, rtrim($this->value, $delimeter)))->map("\\GAS\\Types\\Str::of");
+		return ArrType::of(S\explode($delimeter, rtrim($this->value, $delimeter)));
 	}
 
 	public static function of($value) {
@@ -42,12 +47,13 @@ class StrType extends Type {
 	}
 
 	public function map(callable $f) {
-		return new self($f($this->value));
+		//return new self($f($this->value));
+		return wrap($f($this->value));
 	}
 
 	public function append($x) {
 		//return new self(S\concatN(count(func_get_args()), $this->value, ...func_get_args()));
-		$value = $x . $this->value;
+		$value = $this->value . $x;
 		return new self($value);
 	}
 
@@ -67,10 +73,6 @@ class StrType extends Type {
 		//return new self(FP\compose(S\prepend($a), S\append($b))($this->value));
 		$val = $a . $b;
 		return new self($a . $b);
-	}
-
-	public function extract() {
-		return $this->value;
 	}
 
 	public function length() {

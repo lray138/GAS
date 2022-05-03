@@ -427,7 +427,151 @@ function input($attributes = []) {
 
 const input = __NAMESPACE__ . '\input';
 
-function ins($content, $attributes = []) {
+function inputButton($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "button"]));
+  }
+
+  const inputButton = __NAMESPACE__ . '\inputButton';
+
+  function inputCheckbox($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "checkbox"]));
+  }
+
+  const inputCheckbox = __NAMESPACE__ . '\inputCheckbox';
+
+  function inputColor($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "color"]));
+  }
+
+  const inputColor = __NAMESPACE__ . '\inputColor';
+
+  function inputDate($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "date"]));
+  }
+
+  const inputDate = __NAMESPACE__ . '\inputDate';
+
+  function inputDatetimeLocal($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "datetimeLocal"]));
+  }
+
+  const inputDatetimeLocal = __NAMESPACE__ . '\inputDatetimeLocal';
+
+  function inputDatetime($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "datetime"]));
+  }
+
+  const inputDatetime = __NAMESPACE__ . '\inputDatetime';
+
+  function inputEmail($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "email"]));
+  }
+
+  const inputEmail = __NAMESPACE__ . '\inputEmail';
+
+  function inputFile($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "file"]));
+  }
+
+  const inputFile = __NAMESPACE__ . '\inputFile';
+
+  function inputHidden($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "hidden"]));
+  }
+
+  const inputHidden = __NAMESPACE__ . '\inputHidden';
+
+  function inputImage($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "image"]));
+  }
+
+  const inputImage = __NAMESPACE__ . '\inputImage';
+
+  function inputMonth($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "month"]));
+  }
+
+  const inputMonth = __NAMESPACE__ . '\inputMonth';
+
+  function inputNumber($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "number"]));
+  }
+
+  const inputNumber = __NAMESPACE__ . '\inputNumber';
+
+  function inputPassword($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "password"]));
+  }
+
+  const inputPassword = __NAMESPACE__ . '\inputPassword';
+
+  function inputRadio($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "radio"]));
+  }
+
+  const inputRadio = __NAMESPACE__ . '\inputRadio';
+
+  function inputRange($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "range"]));
+  }
+
+  const inputRange = __NAMESPACE__ . '\inputRange';
+
+  function inputReset($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "reset"]));
+  }
+
+  const inputReset = __NAMESPACE__ . '\inputReset';
+
+  function inputSearch($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "search"]));
+  }
+
+  const inputSearch = __NAMESPACE__ . '\inputSearch';
+
+  function inputSubmit($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "submit"]));
+  }
+
+  const inputSubmit = __NAMESPACE__ . '\inputSubmit';
+
+  function inputTel($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "tel"]));
+  }
+
+  const inputTel = __NAMESPACE__ . '\inputTel';
+
+  function inputTelephone($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "telephone"]));
+  }
+
+  const inputTelephone = __NAMESPACE__ . '\inputTelephone';
+
+  function inputText($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "text"]));
+  }
+
+  const inputText = __NAMESPACE__ . '\inputText';
+
+  function inputTime($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "time"]));
+  }
+
+  const inputTime = __NAMESPACE__ . '\inputTime';
+
+  function inputUrl($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "url"]));
+  }
+
+  const inputUrl = __NAMESPACE__ . '\inputUrl';
+
+  function inputWeek($attributes = []) {
+    return element("input", "", Arr\merge(FP\extract($attributes), ["type" => "week"]));
+  }
+
+  const inputWeek = __NAMESPACE__ . '\inputWeek';
+
+  function ins($content, $attributes = []) {
   return element("ins", $content, $attributes);
 }
 
@@ -818,10 +962,455 @@ function useElement($attributes = []) {
 const useElement = __NAMESPACE__ . '\useElement';
 
 
-
-
 function indent($html) {
     return (new \Gajus\Dindent\Indenter())->indent($html);
 }
 
 const indent = __NAMESPACE__ . '\indent';
+
+function tidy($html) {
+    $tidy_options = array('indent' => 3,'output-xhtml' => true);
+    $tidy = new \tidy();
+    $tidy->parseString($html, $tidy_options);
+    $tidy->cleanRepair();
+    //$body = $tidy->body();
+    return $tidy;
+}
+
+const tidy = __NAMESPACE__ . '\tidy';
+
+// https://ascii.cl/htmlcodes.htm
+// html name => html number
+// there's ia lso this: https://www.ascii-code.com/
+function getHTMLNamesToNumbersArray() {
+  return [
+    // "<br>"   => "<br/>", // for whatever reason the regex doesn't pick these up
+    // "<hr>"   => "<hr/>",
+    "&quot;"  => "&#34;",
+    "&amp;"   => "&#38;",
+    "&lt;"    => "&#60;",
+    "&gt;"    => "&#62;",
+    "&nbsp;"  => "&#160;",
+    "&iexcl;"   => "&#161;",
+    "&cent;"  => "&#162;",
+    "&pound;"   => "&#163;",
+    "&curren;"  => "&#164;",
+    "&yen;"   => "&#165;",
+    "&brvbar;"  => "&#166;",
+    "&sect;"  => "&#167;",
+    "&uml;"   => "&#168;",
+    "&copy;"  => "&#169;",
+    "&ordf;"  => "&#170;",
+    "&laquo;"   => "&#171;",
+    "&not;"   => "&#172;",
+    "&shy;"   => "&#173;",
+    "&reg;"   => "&#174;",
+    "&macr;"  => "&#175;",
+    "&deg;"   => "&#176;",
+    "&plusmn;"  => "&#177;",
+    "&sup2;"  => "&#178;",
+    "&sup3;"  => "&#179;",
+    "&acute;"   => "&#180;",
+    "&micro;"   => "&#181;",
+    "&para;"  => "&#182;",
+    "&middot;"  => "&#183;",
+    "&cedil;"   => "&#184;",
+    "&sup1;"  => "&#185;",
+    "&ordm;"  => "&#186;",
+    "&raquo;"   => "&#187;",
+    "&frac14;"  => "&#188;",
+    "&frac12;"  => "&#189;",
+    "&frac34;"  => "&#190;",
+    "&iquest;"  => "&#191;",
+    "&Agrave;"  => "&#192;",
+    "&Aacute;"  => "&#193;",
+    "&Acirc;"   => "&#194;",
+    "&Atilde;"  => "&#195;",
+    "&Auml;"  => "&#196;",
+    "&Aring;"   => "&#197;",
+    "&AElig;"   => "&#198;",
+    "&Ccedil;"  => "&#199;",
+    "&Egrave;"  => "&#200;",
+    "&Eacute;"  => "&#201;",
+    "&Ecirc;"   => "&#202;",
+    "&Euml;"  => "&#203;",
+    "&Igrave;"  => "&#204;",
+    "&Iacute;"  => "&#205;",
+    "&Icirc;"   => "&#206;",
+    "&Iuml;"  => "&#207;",
+    "&ETH;"   => "&#208;",
+    "&Ntilde;"  => "&#209;",
+    "&Ograve;"  => "&#210;",
+    "&Oacute;"  => "&#211;",
+    "&Ocirc;"   => "&#212;",
+    "&Otilde;"  => "&#213;",
+    "&Ouml;"  => "&#214;",
+    "&times;"   => "&#215;",
+    "&Oslash;"  => "&#216;",
+    "&Ugrave;"  => "&#217;",
+    "&Uacute;"  => "&#218;",
+    "&Ucirc;"   => "&#219;",
+    "&Uuml;"  => "&#220;",
+    "&Yacute;"  => "&#221;",
+    "&THORN;"   => "&#222;",
+    "&szlig;"   => "&#223;",
+    "&agrave;"  => "&#224;",
+    "&aacute;"  => "&#225;",
+    "&acirc;"   => "&#226;",
+    "&atilde;"  => "&#227;",
+    "&auml;"  => "&#228;",
+    "&aring;"   => "&#229;",
+    "&aelig;"   => "&#230;",
+    "&ccedil;"  => "&#231;",
+    "&egrave;"  => "&#232;",
+    "&eacute;"  => "&#233;",
+    "&ecirc;"   => "&#234;",
+    "&euml;"  => "&#235;",
+    "&igrave;"  => "&#236;",
+    "&iacute;"  => "&#237;",
+    "&icirc;"   => "&#238;",
+    "&iuml;"  => "&#239;",
+    "&eth;"   => "&#240;",
+    "&ntilde;"  => "&#241;",
+    "&ograve;"  => "&#242;",
+    "&oacute;"  => "&#243;",
+    "&ocirc;"   => "&#244;",
+    "&otilde;"  => "&#245;",
+    "&ouml;"  => "&#246;",
+    "&divide;"  => "&#247;",
+    "&oslash;"  => "&#248;",
+    "&ugrave;"  => "&#249;",
+    "&uacute;"  => "&#250;",
+    "&ucirc;"   => "&#251;",
+    "&uuml;"  => "&#252;",
+    "&yacute;"  => "&#253;",
+    "&thorn;"   => "&#254;",
+    "&yuml;"  => "&#255;",
+    "&euro;"  => "&#8364;"
+  ];
+}
+
+function getAltCodes() {
+   return ['alt 1' => '☺',    
+  'alt 2' => '☻',       
+  'alt 3' => '♥',       
+  'alt 4' => '♦',       
+  'alt 5' => '♣',       
+  'alt 6' => '♠',       
+  'alt 7' => '•',       
+  'alt 8' => '◘',       
+  'alt 9' => '○',       
+  'alt 10' => '◙',       
+  'alt 11' => '♂',       
+  'alt 12' => '♀',       
+  'alt 13' => '♪',       
+  'alt 14' => '♫',       
+  'alt 15' => '☼',       
+  'alt 16' => '►',       
+  'alt 17' => '◄',       
+  'alt 18' => '↕',       
+  'alt 19' => '‼',       
+  'alt 20' => '¶',       
+  'alt 21' => '§',       
+  'alt 22' => '▬',       
+  'alt 23' => '↨',       
+  'alt 24' => '↑',       
+  'alt 25' => '↓',       
+  'alt 26' => '→',       
+  'alt 27' => '←',       
+  'alt 28' => '∟',       
+  'alt 29' => '↔',       
+  'alt 30' => '▲',       
+  'alt 31' => '▼',       
+  'alt 32' => ' ',       
+  'alt 33' => '!',       
+  'alt 34' => '"',     
+  'alt 35' => '#',       
+  'alt 36' => '$',       
+  'alt 37' => '%',       
+  'alt 38' => '&',       
+  'alt 39' => '\'',       
+  'alt 40' => '(',       
+  'alt 41' => ')',       
+  'alt 42' => '*',       
+  'alt 43' => '+',       
+  'alt 44' => ',',       
+  'alt 45' => '-',       
+  'alt 46' => '.',       
+  'alt 47' => '/',       
+  'alt 48' => '0',       
+  'alt 49' => '1',       
+  'alt 50' => '2',       
+  'alt 51' => '3',       
+  'alt 52' => '4',       
+  'alt 53' => '5',       
+  'alt 54' => '6',       
+  'alt 55' => '7',       
+  'alt 56' => '8',       
+  'alt 57' => '9',       
+  'alt 58' => ':',       
+  'alt 59' => ';',       
+  'alt 60' => '<',       
+  'alt 61' => '=',       
+  'alt 62' => '>',      
+  'alt 63' => '?',       
+  'alt 64' => '@',       
+  'alt 65' => 'A',       
+  'alt 66' => 'B',       
+  'alt 67' => 'C',       
+  'alt 68' => 'D',       
+  'alt 69' => 'E',       
+  'alt 70' => 'F',       
+  'alt 71' => 'G',       
+  'alt 72' => 'H',       
+  'alt 73' => 'I',       
+  'alt 74' => 'J',       
+  'alt 75' => 'K',       
+  'alt 76' => 'L',       
+  'alt 77' => 'M',       
+  'alt 78' => 'N',       
+  'alt 79' => 'O',       
+  'alt 80' => 'P',       
+  'alt 81' => 'Q',       
+  'alt 82' => 'R',       
+  'alt 83' => 'S',       
+  'alt 84' => 'T',       
+  'alt 85' => 'U',       
+  'alt 86' => 'V',       
+  'alt 87' => 'W',       
+  'alt 88' => 'X',       
+  'alt 89' => 'Y',       
+  'alt 90' => 'Z',       
+  'alt 91' => '[',       
+  'alt 91' => '[',       
+  'alt 92' => '\\',         
+  'alt 93' => ']',           
+  'alt 94' => '^',       
+  'alt 95' => '_',       
+  'alt 96' => '`',       
+  'alt 97' => 'a',       
+  'alt 98' => 'b',       
+  'alt 99' => 'c',       
+  'alt 100' => 'd',       
+  'alt 101' => 'e',       
+  'alt 102' => 'f',       
+  'alt 103' => 'g',       
+  'alt 104' => 'h',       
+  'alt 105' => 'i',       
+  'alt 106' => 'j',       
+  'alt 107' => 'k',       
+  'alt 108' => 'l',       
+  'alt 109' => 'm',       
+  'alt 110' => 'n',       
+  'alt 111' => 'o',       
+  'alt 112' => 'p',       
+  'alt 113' => 'q',       
+  'alt 114' => 'r',       
+  'alt 115' => 's',       
+  'alt 116' => 't',       
+  'alt 117' => 'u',       
+  'alt 118' => 'v',       
+  'alt 119' => 'w',       
+  'alt 120' => 'x',       
+  'alt 121' => 'y',       
+  'alt 122' => 'z',       
+  'alt 123' => '{',       
+  'alt 124' => '|',       
+  'alt 125' => '}',       
+  'alt 126' => '~',       
+  'alt 127' => '⌂',       
+  'alt 155' => '¢',       
+  'alt 156' => '£',       
+  'alt 157' => '¥',       
+  'alt 158' => '₧',       
+  'alt 159' => 'ƒ',       
+  'alt 164' => 'ñ',       
+  'alt 165' => 'Ñ',       
+  'alt 166' => 'ª',       
+  'alt 167' => 'º',       
+  'alt 168' => '¿',       
+  'alt 169' => '®',       
+  'alt 170' => '¬',       
+  'alt 171' => '½',       
+  'alt 172' => '¼',       
+  'alt 173' => '¡',       
+  'alt 174' => '«',       
+  'alt 175' => '»',       
+  'alt 176' => '░',       
+  'alt 177' => '▒',       
+  'alt 178' => '▓',       
+  'alt 179' => '│',       
+  'alt 180' => '┤',       
+  'alt 181' => '╡',       
+  'alt 182' => '╢',       
+  'alt 183' => '╖',       
+  'alt 184' => '╕',       
+  'alt 185' => '╣',       
+  'alt 186' => '║',       
+  'alt 187' => '╗',       
+  'alt 188' => '╝',       
+  'alt 189' => '╜',       
+  'alt 190' => '╛',       
+  'alt 191' => '┐',       
+  'alt 192' => '└',       
+  'alt 193' => '┴',       
+  'alt 194' => '┬',       
+  'alt 195' => '├',       
+  'alt 196' => '─',       
+  'alt 197' => '┼',       
+  'alt 198' => '╞',       
+  'alt 199' => '╟',       
+  'alt 200' => '╚',       
+  'alt 201' => '╔',       
+  'alt 202' => '╩',       
+  'alt 203' => '╦',       
+  'alt 204' => '╠',       
+  'alt 205' => '═',       
+  'alt 206' => '╬',       
+  'alt 207' => '╧',       
+  'alt 208' => '╨',       
+  'alt 209' => '╤',       
+  'alt 210' => '╥',       
+  'alt 211' => '╙',       
+  'alt 212' => '╘',       
+  'alt 213' => '╒',       
+  'alt 214' => '╓',       
+  'alt 215' => '╫',       
+  'alt 216' => '╪',       
+  'alt 217' => '┘',       
+  'alt 218' => '┌',       
+  'alt 219' => '█',       
+  'alt 220' => '▄',       
+  'alt 221' => '▌',       
+  'alt 222' => '▐',       
+  'alt 223' => '▀',       
+  'alt 224' => 'α',       
+  'alt 225' => 'ß',       
+  'alt 226' => 'Γ',       
+  'alt 227' => 'π',       
+  'alt 228' => 'Σ',       
+  'alt 229' => 'σ',       
+  'alt 230' => 'µ',       
+  'alt 231' => 'τ',       
+  'alt 232' => 'Φ',       
+  'alt 233' => 'Θ',       
+  'alt 234' => 'Ω',       
+  'alt 235' => 'δ',       
+  'alt 236' => '∞',       
+  'alt 237' => 'φ',       
+  'alt 238' => 'ε',       
+  'alt 239' => '∩',       
+  'alt 240' => '≡',       
+  'alt 241' => '±',       
+  'alt 242' => '≥',       
+  'alt 243' => '≤',       
+  'alt 244' => '⌠',       
+  'alt 245' => '⌡',       
+  'alt 247' => '≈',       
+  'alt 248' => '°',       
+  'alt 249' => '·',       
+  'alt 250' => '·',       
+  'alt 251' => '√',       
+  'alt 252' => 'ⁿ',       
+  'alt 254' => '■',       
+  'alt 255' => ' ',       
+  'alt 0128' => '€',       
+  'alt 0130' => '‘',       
+  'alt 0132' => '„',       
+  'alt 0133' => '…',       
+  'alt 0134' => '†',       
+  'alt 0135' => '‡',       
+  'alt 0137' => '‰',       
+  'alt 0138' => 'Š',       
+  'alt 0139' => '‹',       
+  'alt 0140' => 'Œ',       
+  'alt 0142' => 'Ž',       
+  'alt 0145' => '‘',       
+  'alt 0146' => '’',       
+  'alt 0147' => '“',       
+  'alt 0148' => '”',       
+  'alt 0151' => '—',       
+  'alt 0153' => '™',       
+  'alt 0154' => 'š',       
+  'alt 0155' => '›',       
+  'alt 0156' => 'œ',       
+  'alt 0158' => 'ž',       
+  'alt 0159' => 'Ÿ',       
+  'alt 0164' => '¤',       
+  'alt 0166' => '¦',       
+  'alt 0168' => '¨',       
+  'alt 0169' => '©',       
+  'alt 0175' => '¯',       
+  'alt 0178' => '²',       
+  'alt 0179' => '³',       
+  'alt 0180' => '´',       
+  'alt 0183' => '·',       
+  'alt 0184' => '¸',       
+  'alt 0185' => '¹',       
+  'alt 0188' => '¼',       
+  'alt 0189' => '½',       
+  'alt 0190' => '¾',       
+  'alt 0192' => 'À',       
+  'alt 0193' => 'Á',       
+  'alt 0194' => 'Â',       
+  'alt 0195' => 'Ã',       
+  'alt 0196' => 'Ä',       
+  'alt 0197' => 'Å',       
+  'alt 0198' => 'Æ',       
+  'alt 0199' => 'Ç',       
+  'alt 0200' => 'È',       
+  'alt 0201' => 'É',       
+  'alt 0202' => 'Ê',       
+  'alt 0203' => 'Ë',       
+  'alt 0204' => 'Ì',       
+  'alt 0205' => 'Í',       
+  'alt 0206' => 'Ï',       
+  'alt 0207' => 'Ï',       
+  'alt 0208' => 'Ð',       
+  'alt 0210' => 'Ò',       
+  'alt 0211' => 'Ó',       
+  'alt 0212' => 'Ô',       
+  'alt 0213' => 'Õ',       
+  'alt 0214' => 'Ö',       
+  'alt 0215' => '×',       
+  'alt 0216' => 'Ø',       
+  'alt 0217' => 'Ù',       
+  'alt 0218' => 'Ú',       
+  'alt 0219' => 'Û',       
+  'alt 0220' => 'Ü',       
+  'alt 0221' => 'Ý',       
+  'alt 0222' => 'Þ',       
+  'alt 0223' => 'ß',       
+  'alt 0224' => 'à',       
+  'alt 0225' => 'á',       
+  'alt 0226' => 'â',       
+  'alt 0227' => 'ã',       
+  'alt 0228' => 'ä',       
+  'alt 0229' => 'å',       
+  'alt 0230' => 'æ',       
+  'alt 0231' => 'ç',       
+  'alt 0232' => 'è',       
+  'alt 0233' => 'é',       
+  'alt 0234' => 'ê',       
+  'alt 0235' => 'ë',       
+  'alt 0236' => 'ì',       
+  'alt 0237' => 'í',       
+  'alt 0238' => 'î',       
+  'alt 0239' => 'ï',       
+  'alt 0240' => 'ð',       
+  'alt 0242' => 'ò',       
+  'alt 0243' => 'ó',       
+  'alt 0244' => 'ô',       
+  'alt 0245' => 'õ',       
+  'alt 0246' => 'ö',       
+  'alt 0247' => '÷',       
+  'alt 0248' => 'ø',       
+  'alt 0249' => 'ú',       
+  'alt 0250' => 'û',       
+  'alt 0251' => 'ü',       
+  'alt 0252' => 'ù',       
+  'alt 0253' => 'ý',       
+  'alt 0254' => 'þ',       
+  'alt 0255' => 'ÿ'];
+
+}

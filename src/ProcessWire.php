@@ -28,8 +28,13 @@ function getPageLink($page, $attributes = []) {
 
 const getPageLink = __NAMESPACE__ . '\getPageLink';
 
+// I tried to call this with just a path and think if ... hmm
+function pageExists($pages, $parent_path, $name = null) {
 
-function pageExists($pages, $parent_path, $name) {
+	if(is_null($name)) {
+		$page = $pages->get($parent_path);
+		return  $page instanceof \ProcessWire\NullPage ? false : $page;
+	}
 
 	$path = $parent_path === "/"
 		? $parent_path . $name
@@ -54,7 +59,16 @@ function createPage($pages, $data) {
 
 	if(!isset($data["template"])) {
 		$parent = $pages->get($data["parent_path"]);
-		$data["template"] = getCommonRelativeChildTemplate($parent);
+
+		$data["template"] = getCommonSiblingChildTemplate($parent);
+
+		if(is_null($data["template"])) {
+			$data["template"] = getCommonRelativeChildTemplate($parent);
+		}
+
+		if(is_null($data["template"]) || empty($data["template"])) {
+			die(__FILE__ . ' line 71');
+		}
 	}
 
 	$exists = pageExists($pages, $data["parent_path"], $data["name"]);
@@ -69,6 +83,27 @@ function createPage($pages, $data) {
 	return updatePage($page, $data, $pages);
 }
 
+function getCommonSiblingChildTemplate($parent) {
+	$siblings = $parent->siblings(false);
+
+	foreach($siblings as $sibling) {
+		$children = $sibling->children();
+
+		if(count($children) === 0) continue;
+
+		return $children->first->template->name;
+	}
+
+	return null;
+}
+
+// would be cool to do a deeper dive on this
+// but referencing https://stackoverflow.com/questions/659025/how-to-remove-non-alphanumeric-characters
+function sanitizeName(string $str) {
+	$str = str_replace(" ", "-", $str);
+	return preg_replace('/[^a-z\d\-_]/i', '', $str);
+}
+
 function updatePage($page, $data, $pages = null) {
 
 	if(isset($data["title"])) {
@@ -79,6 +114,8 @@ function updatePage($page, $data, $pages = null) {
     // foreach($data["fields"] as $key => $value) {
     //   	$page->$key = $value;
     // }
+
+    $page->of(false);
 
     foreach($data["fields"] as $key=>$field ) {
   		if($key === "purchase_products") {
@@ -165,13 +202,18 @@ function getCommonRelativeChildTemplate($page, $depth = 0) {
 		$children = Arr\filter(function($page) {
 			return $page->hasChildren();
 		}, $page->children->getArray());
-	
+
+		if(count($children) === 0) {
+			return getCommonRelativeChildTemplate($page, Math\add(1, $depth));
+		}
+
 		$template_name = $children[0]->template->name;
 
-		if(is_null($template_name)) {
-			return getCommonRelativeChildTemplate($page, Math\add(1, $depth));
-		} 
+		// if(is_null($template_name)) {
+		// 	return getCommonRelativeChildTemplate($page, Math\add(1, $depth));
+		// } 
 	} else {
+
 		$page_original = $page;
 		$x = $depth;
 

@@ -16,6 +16,18 @@ function id($x) {
 
 const id = __NAMESPACE__ . '\id';
 
+
+function apply() {
+    // add type check here
+    $f = function($value, $function) {
+        return $function->apply($value);
+    };
+
+    return curry2($f)(...func_get_args());
+}
+
+const apply = __NAMESPACE__ . '\apply';
+
 //lstronj functional 
 // function flip($callback) {
 //     return function () use ($callback) {
@@ -23,13 +35,30 @@ const id = __NAMESPACE__ . '\id';
 //     };
 // }
 
-function flipCurry2($callable) {
-    return flip(curry2($callable));
-}
-
+// in this case, flip sort of intercepts 
+// in a currying situation anyway, so with
+// multiple placeholders (probably academic)
+// we need to account for that here (another time)
+// April 2, 2020 - 1 AM ;)
 function flipN() {
     $args = func_get_args();
-    if(count($args)-2 >= $args[0]) {
+
+    $placeholders = array_filter($args, function($x) {
+        return $x === __();
+    });
+
+    if(((\count($args) - count($placeholders))-2) >= $args[0]) {
+        // apply values to placeholders
+        if(count($placeholders) > 0) {
+            // reverse for multiple placeholders (probably academic)
+            $keys = array_keys($args, __(), true);
+            // add 2 to the starting index to account for arity and the closure
+            $sliced = array_slice($args, 2 + $args[0], count($placeholders));
+            foreach($keys as $i => $key) {
+                $args[$key] = $sliced[$i];
+            }
+        }
+
         return $args[1](...array_reverse(array_slice($args, 2, $args[0])));
     } else {
         return function() use ($args) {
@@ -57,9 +86,14 @@ function flip3() {
 }
 
 function extract($data) {
-    $out = $data instanceof \lray138\GAS\Types\Type 
-            ? $data->extract()
-            : $data;
+    // this needs to be updated
+    // $out = $data instanceof \lray138\GAS\Types\Type || $data instanceof \lray138\GAS\Types\Nothing
+    //         ? $data->extract()
+    //         : $data;
+    // return $out;
+    $out = is_object($data)
+        ? $data->extract()
+        : $data;
     return $out;
 }
 
@@ -162,7 +196,31 @@ function curry_n($count, callable $function, $bind = false) {
         return function (...$newArguments) use ($count, $function, $arguments, $accumulator, $bind) {
             $arguments = \array_merge($arguments, $newArguments);
 
-            if ($count <= \count($arguments)) {
+            $placeholders = array_filter($arguments, function($x) {
+                return $x === __();
+            });
+
+            // i.e. there may be more arguments than needed, but we meet 
+            // the minimum requirements
+            if ($count <= (\count($arguments) - count($placeholders))) {
+
+                // need to find indexes of place holders and swap
+                if(count($placeholders) > 0) {
+                    // reverse for multiple placeholders (probably academic)
+                    $keys = array_keys($arguments, __(), true);
+                    $sliced = array_slice($arguments, $count, count($placeholders));
+
+                    foreach($keys as $i => $key) {
+                        $arguments[$key] = $sliced[$i];
+                        // unset incase of default paremeters
+                        // otherwise they will be overwritten
+                        unset($arguments[$count+$i]);
+                        // probably not worth unsetting the placeholder keys
+                        //unset($keys[$key]);
+                    }
+
+                }
+
                 if($bind) $function = $function->bindTo($bind);
                 return \call_user_func_array($function, $arguments);
             }
@@ -170,13 +228,44 @@ function curry_n($count, callable $function, $bind = false) {
             return $accumulator($arguments);
         };
     };
+
     return $accumulator([]);
 }
 
-function curryN($count, $callable, $bind = false) {
-    return curry_n($count, $callable, $bind);
+
+// placeholder for currying
+function __() {
+    static $placeholder;
+    if ($placeholder === null) {
+        $placeholder = new \stdClass;
+    }
+    return $placeholder;
 }
 
+// $count, $callable, $bind = false
+// added this as a "gateway" so that it could be
+// full functional synatx i.e. curryN(5)(func)(a)(b)(c)
+// for my own satisfaction
+function curryN() {
+    $args = func_get_args();
+
+    if(count($args) === 1) {
+        $arity = $args[0];
+        return function() use ($arity) {
+            $args = func_get_args();
+            if(count($args) === 1) {
+                $callable = $args[0];
+                return curry_n($arity, $callable);
+            }
+            return curry_n($arity, $callable, ...$args);
+        };
+    } elseif(count($args) >= 2) {
+        return curry_n($args[0], $args[1])(...array_slice($args, 2));
+    }
+
+}
+
+// haven't had a bind case yet
 function curry2(callable $function, $bind = false) {
 	return curry_n(2, $function);
 }
@@ -185,8 +274,10 @@ function curry3(callable $function, $bind = false) {
 	return curry_n(3, $function);
 }
 
-// forgot where I pulled this from
-// I don't mind curryN to be honest
+// I got this from
+// https://github.com/lstrojny/functional-php/blob/main/src/Functional/Curry.php
+// this is basically a wrapper that calls 
+// I would disagree with auto currying required anyway... ?
 function curry($function, $required = true)
 {
     if (\method_exists('Closure', 'fromCallable')) {
@@ -211,10 +302,24 @@ function curry($function, $required = true)
     return curry_n($count, $function);
 }
 
-function unit($value) {
-    return $monad::unit($value);
+function chain() {
+    $f = function($function, $monad) {
+        return $monad->bind($function)->extract();
+    };
+
+    return curry2($f)(...func_get_args());
 }
 
-function bind($monad, $function) {
-    return $monad->bind($function);
+function bind() {
+    $f = function($function, $monad) {
+        return $monad->bind($function);
+    };
+
+    return curry2($f)(...func_get_args());
 }
+
+function not($bool) {
+    return !$bool;
+}
+
+const not = __NAMESPACE__ . '\not';

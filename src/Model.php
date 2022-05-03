@@ -21,7 +21,6 @@ function create() {
 		// 	return $stmt->fetchAll();
 		// };
 
-
 		$model["selectWhere"] = function($columns, $where, $options = []) use ($db, $table) {
 			//$query = SQL\selectWhere($table, $columns, $where, $options);
 			$sql = "SELECT " . $columns . " FROM " . $table . " WHERE " . $where;

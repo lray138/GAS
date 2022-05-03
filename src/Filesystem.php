@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+// https://www.php.net/manual/en/ref.filesystem.php
+
 namespace lray138\GAS\Filesystem;
 
 use lray138\GAS\{
@@ -32,7 +34,6 @@ function write($pathname, $contents, $create_dir_if_not_exists = false) {
 			createDir($dir);
 		}
 	}
-
 	file_put_contents($pathname, $contents);
 }
 
@@ -64,8 +65,9 @@ function getFiles($directory) {
 
 const getFiles = __NAMESPACE__ . '\getFiles';
 
-
-function getFilesInDir($directory) {
+// mode not implemented but would be the difference between
+// file object and a the full path that this currently provides.
+function getFilesInDir($directory, $mode = "") {
 	$prependDirectoryToFile = Arr\map(
 					function($x) use ($directory) {
 						if(!Str\lastCharIs("/", $directory)) {
@@ -83,13 +85,41 @@ function getFilesInDir($directory) {
 		 		$process(scandir($directory)));
 }
 
+const getFilesInDir = __NAMESPACE__ . '\getFilesInDir';
+
+function getDirsInFolder($directory, $filter = null) {
+
+	$prependDirectoryToFile = Arr\map(
+					function($x) use ($directory) {
+						if(!Str\lastCharIs("/", $directory)) {
+							return Str\prepend(Str\append("/", $directory), $x);
+						} 
+						return Str\prepend($directory, $x);
+					});
+
+	$process = FP\pipe(
+					Arr\filter(Arr\notIn([".", "..", ".DS_Store"])),
+		 			$prependDirectoryToFile);
+
+	$filter = !is_null($filter) 
+		? FP\compose($filter, "is_dir")
+		: "is_dir";
+
+	return Arr\filter(
+				"is_dir", 
+		 		$process(scandir($directory)));
+
+}
+
 // https://stackoverflow.com/questions/24783862/list-all-the-files-and-folders-in-a-directory-with-php-recursive-function
 // and
 // https://stackoverflow.com/questions/19724579/php-recursivedirectoryiterator-how-to-exclude-directory-paths-with-a-dot-and-do
-function getFilesInDirRecursive($dir, $callable = null) {
+function getFilesInDirRecursive($dir, $options = []) {
 	$it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
-	return iterator_to_array(new \RecursiveIteratorIterator($it));
-	return array_keys(iterator_to_array(new \RecursiveIteratorIterator($it)));
+	
+	return isset($options["return_type"]) && strtolower($options["return_type"]) === "fileinfo"
+		? iterator_to_array(new \RecursiveIteratorIterator($it))
+		: array_keys(iterator_to_array(new \RecursiveIteratorIterator($it)));
 }
 
 function scan($directory) {
@@ -146,9 +176,13 @@ function dirExists($filename) {
 	return is_dir($filename);
 }
 
+const dirExists = __NAMESPACE__ . '\dirExists';
+
 function isDir($filename) {
 	return is_dir($filename);
 }
+
+const isDir = __NAMESPACE__ . '\isDir';
 
 // function runCallback($callable, $args) {
 // 	$args = Arr\map(FP\extract)($args);
@@ -161,6 +195,8 @@ function fileExists($filename) {
 		return file_exists(FP\extract($filename));
 }
 
+const fileExists = __NAMESPACE__ . '\fileExists';
+
 function isFile($filename) {
 	return file_exists($filename);
 }
@@ -172,6 +208,12 @@ function createDir($filename) {
 	}
 }
 
+function createDirRecursive($dir, int $permissions = 0777) {
+	if(!is_dir($dir)) {
+		return mkdir($dir, $permissions, true);
+	}
+}
+
 function makeDir($filename) {
 	return createDir($filename);
 }
@@ -179,6 +221,14 @@ function makeDir($filename) {
 function move($from, $to) {
 	// // move by renaming
 	return rename($from, $to);
+}
+
+function rename() {
+		$f = function($from, $to) {
+			return \rename($from, $to);
+		};
+
+		return FP\curry2($f)(...func_get_args());
 }
 
 // came from PHP 
@@ -211,7 +261,7 @@ function includeFileFromDir() {
 }
 
 // via https://stackoverflow.com/questions/17363545/file-get-contents-is-not-working-for-some-url
-function getUrlContent($url, $cookies_file) {
+function getUrlContent($url, $cookies_file = null) {
 		//$cookies_file = dirname(dirname(__DIR__)) . "/output/cookies.txt";
     
     fopen($cookies_file, "w");

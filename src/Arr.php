@@ -4,6 +4,7 @@ namespace lray138\GAS\Arr;
 
 use lray138\GAS\Math;
 use lray138\GAS\Functional as FP;
+use lray138\GAS\HTML;
 use lray138\GAS\Types\ArrType;
 use function lray138\GAS\Functional\curry2;
 use function lray138\GAS\IO\dump as dump;
@@ -92,6 +93,20 @@ function unshift() {
     return call_user_func_array(FP\curry2($unshift), func_get_args());
 }
 
+function keyExists() {
+    $f = function($key, $array) {
+        return array_key_exists($key, FP\extract($array));
+    };
+
+    return FP\curry2($f)(...func_get_args());
+}
+
+function reverse(array $array) {
+    return array_reverse($array);
+}
+
+const reverse = __NAMESPACE__ . '\reverse';
+
 function reduce() {
     $reduce = function($callable, $initial, $array) {
         return array_reduce($array, $callable, $initial);
@@ -173,7 +188,9 @@ function last(array $arr) {
 }
 
 function pluck() {
-    $pluck = function($keys, array $array) {
+    $pluck = function($keys, $array) {
+        $array = FP\extract($array);
+
         if(is_array($keys)) {
             $out = [];
             walk(function($x) use ($array, &$out) {
@@ -491,12 +508,12 @@ function random(array $array)
     return $array[$index];
 }
 
-function toUl(array $array) {
+function toUl(array $array, $attributes = []) {
     $mapped = implode("", map(function($x) {
         return "<li>" . $x . "</li>";
     }, $array));
 
-    return "<ul>" . $mapped . "</ul>";
+    return HTML\ul($mapped, $attributes);
 }
 
 const toUl = __NAMESPACE__ . '\toUl';
@@ -518,3 +535,10 @@ function isAssoc(array $array) {
     $keys = array_keys($array);
         return array_keys($keys) !== $keys;
 }
+
+
+function isEmpty(array $array) {
+    return count($array) === 0;
+}
+
+const isEmpty = __NAMESPACE__ . '\isEmpty';

@@ -5,7 +5,8 @@ use lray138\GAS\{
 	Functional as FP,
 	Arr,
 	Str,
-	IO
+	IO,
+	Types as T
 };
 
 function useKeys() {
@@ -169,4 +170,21 @@ function handleConditions($prepare, $input) {
 	
 	*/
 
+}
+
+
+function columns($options) {
+	return T\Maybe($options)
+		->columns
+		->if(FP\chain("is_array"), FP\bind(Arr\implode(", ")))
+		->getOr("*");
+}
+
+function orderBy($options) {
+	$options = T\Maybe($options);
+	$order_by = $options
+		->order_by
+		->map(Str\prepend(" ORDER BY "))
+		->map(Str\append(" " . strtoupper($options->order_direction->getOr(""))))
+		->getOr("");
 }

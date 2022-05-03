@@ -14,7 +14,9 @@ class Maybe extends Functor {
 		return $this->then(function($value) use ($method) {
 			if(is_array($value)) {
 				return isset($value[$method]) ? $value[$method] : null;
-			} elseif(is_object($value)) {
+			} else if($value instanceof ArrType) {
+			 	return $value->$method;
+			} else if(is_object($value)) {
 				return isset($value->$method) ? $value->$method : null;
 				// above was commented out at one point but
 				// not sure why
@@ -23,12 +25,18 @@ class Maybe extends Functor {
 		});
 	}
 
-	private function isNothing() {
+	public function isNothing() {
 		return is_null($this->value);
 	}
 
 	public function getOrElse($default_value) {
 		return $this->isNothing() ? $default_value : $this->value;
+	}
+
+	// adding this alias on Apr 9, 2022 because I tried to use this
+	// but see the above... 
+	public function getOr($default_value) {
+		return $this->getOrElse($default_value);
 	}
 
 	public function join() {
@@ -76,6 +84,12 @@ class Maybe extends Functor {
 	}
 
 	public function chain($fn) {
+		// need extra check in... this is why there needs to be ..
+		// not sure what the pattern is.
+
+		//
+		// 
+
 		return $this->map($fn)->join();
 		//$this->value->map($fn)->flatten();
 		//return $this->map($fn)->join();
@@ -114,10 +128,17 @@ class Maybe extends Functor {
 			return new self();
 		} elseif(is_null($func)) {
 			return new self();
+		} elseif(isNothing($func) || isError($func)) {
+			return $func;
+		} 
+
+		$value = $func($this->value);
+
+		if(is_null($value)) {
+			return Nothing::of();
 		}
 
-		return new self($func($this->value));
-
+		return Some::of($value);
 	}
 
 	public function toMany() {
@@ -137,9 +158,9 @@ class Maybe extends Functor {
 		return $prop instanceof self ? $prop->extract() : $prop;
 	}
 
-	public function toArr() {
-		return !$this->isNothing() ? \GAS\Types\Arr::of($this->value) : null;
-	}
+	// public function toArr() {
+	// 	return !$this->isNothing() ? \GAS\Types\Arr::of($this->value) : null;
+	// }
 
 	public function get($property = null) {
 		return !is_null($property) 
@@ -149,13 +170,19 @@ class Maybe extends Functor {
 
 	public function __construct($value = null) {
 		// this is where the auto-unwrapping seems not correct???
+
+		// not sure when I wrote the above, but this is a case where
+		// if I'm trying to use chain and I have this, then chain 
+		// is pointless.
 		// if(is_object($value) && $value instanceof static) {
-		// 	$value = $value->value();
+		// 	$value = $value->extract();
 		// }
 
-		if(is_object($value) && $value instanceof \GAS\Types\None) {
-			$value = $value->value();
-		}
+		// so the above was commented out, but below is a more specific instance of 
+		// the above...
+		// if(is_object($value) && $value instanceof \GAS\Types\None) {
+		// 	$value = $value->value();
+		// }
 
 		$this->value = $value;
 	}

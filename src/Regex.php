@@ -15,13 +15,13 @@ CONST patterns = [
 ];
 
 
-function find($pattern, $subject, $matches = null, $flags = 0, $offset = 0) {
+function matchAll($pattern, $subject, $matches = null, $flags = 0, $offset = 0) {
 	preg_match_all($pattern, $subject, $matches);
 	return $matches;
 }
 
-function replace() {
-
+function replace($pattern, $replace, $string) {
+	return preg_replace($pattern, $replace, $string);
 }
 
 function patterns() {
