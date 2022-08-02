@@ -4,7 +4,7 @@ namespace lray138\GAS\ProcessWire;
 
 use lray138\GAS\Str;
 use lray138\GAS\Arr;
-use lray138\GAS\Math;
+use lray138\GAS\Numbers;
 use lray138\GAS\HTML;
 use lray138\GAS\Functional as FP;
 
@@ -30,7 +30,6 @@ const getPageLink = __NAMESPACE__ . '\getPageLink';
 
 // I tried to call this with just a path and think if ... hmm
 function pageExists($pages, $parent_path, $name = null) {
-
 	if(is_null($name)) {
 		$page = $pages->get($parent_path);
 		return  $page instanceof \ProcessWire\NullPage ? false : $page;
@@ -67,11 +66,29 @@ function createPage($pages, $data) {
 		}
 
 		if(is_null($data["template"]) || empty($data["template"])) {
-			die(__FILE__ . ' line 71');
+			die("Note template specified" . __FILE__ . ' line 71');
 		}
 	}
 
-	$exists = pageExists($pages, $data["parent_path"], $data["name"]);
+	// extra helpers
+	// if parent_path isn't provided (i.e. we give id), lookup
+	// if name isn't provided and title is use title for name
+	// processwire will handle that
+	if(!isset($data["parent_path"]) && isset($data["parent_id"])) {
+		$data["parent_path"] = $pages->get($data["parent_id"])->path;
+	} else if(!isset($data["parent_path"])) {
+		return false;
+	}
+
+	// burned out, hate this logic
+
+	if(!isset($data["name"]) && isset($data["title"])) {
+		$data["name"] = $data["title"];
+	} elseif(!isset($data["name"])) {
+		return false;
+	}
+
+	$exists = pageExists($pages, $data["parent_path"], $data["name"]);	
 
 	if($exists) {
 		$page = $exists;
@@ -105,6 +122,10 @@ function sanitizeName(string $str) {
 }
 
 function updatePage($page, $data, $pages = null) {
+	// can't decide if I like "data" or "fields";
+	if(!isset($data["fields"]) && isset($data["data"])) {
+		$data["fields"] = $data["data"];
+	}
 
 	if(isset($data["title"])) {
     	$page->title = $data["title"];
@@ -157,7 +178,6 @@ const createPage = __NAMESPACE__ . '\createPage';
 
 function createPageRecursive($pages, $data, $carry = []) {
 	if($data["parent_path"] === "") {
-		//dump($data);
 		// via https://processwire.com/talk/topic/2160-createupdate-a-page-programmatically/
 		// $home = $pages->get("/");
 		// $home->of(false);
@@ -171,14 +191,17 @@ function createPageRecursive($pages, $data, $carry = []) {
 
 	if(!isNullPage($parent)) {
 		$page = createPage($pages, $data);
+
 		if(count($carry) === 0) {
 			return $page;
 		}
+
 		$data = array_shift($carry);
 	} else {
 		array_unshift($carry, $data);
 
 		$parent_path = Str\beforeLast("/", $data["parent_path"]);
+		
 		if(empty($parent_path)){ 
 			$parent_path = "/";
 		}
@@ -204,7 +227,7 @@ function getCommonRelativeChildTemplate($page, $depth = 0) {
 		}, $page->children->getArray());
 
 		if(count($children) === 0) {
-			return getCommonRelativeChildTemplate($page, Math\add(1, $depth));
+			return getCommonRelativeChildTemplate($page, Numbers\add(1, $depth));
 		}
 
 		$template_name = $children[0]->template->name;
@@ -272,6 +295,9 @@ function getUniqueChildTemplates($page) {
 }
 
 function movePage($new_parent, $page) {
+
+
+	die('here');
 	$page->parent = $new_parent;
 	$page->save();
 }

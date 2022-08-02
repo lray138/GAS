@@ -36,6 +36,12 @@ function isNull($variable)
     return is_null($variable) || isNothing($variable);
 }
 
+function isType($variable)
+{
+     return $variable instanceof \lray138\GAS\Types\Type;
+}
+
+
 function isError($variable)
 {
      return $variable instanceof \lray138\GAS\Types\Error;
@@ -48,8 +54,10 @@ function isError($variable)
  */
 function isNothing($variable)
 {
-    return $variable instanceof \lray138\GAS\Types\None || $variable instanceof \lray138\GAS\Types\Nothing;
+    return is_null($variable) || $variable instanceof \lray138\GAS\Types\None || $variable instanceof \lray138\GAS\Types\Nothing;
 }
+
+const isNothing = __NAMESPACE__ . '\isNothing';
 
 /**
  * @param mixed $variable
@@ -140,8 +148,7 @@ function isArr($variable) {
  *
  * @return string
  */
-function getType($variable)
-{
+function getType($variable) {
     $functions = [
         "isNumber" => "number",
         "isBoolean" => "boolean",
@@ -175,6 +182,10 @@ function wrap($variable) {
 const wrap = __NAMESPACE__ . '\wrap';
 
 function wrapType($variable) {
+    // no need to wrap if it's already a type
+    if($variable instanceof Type) {
+        return $variable;
+    }
 
     $result = "Error";
 
@@ -188,6 +199,22 @@ function wrapType($variable) {
     ];
 
     $type = getType($variable);
+
+    $object_types = [
+        "DateTime" => "\lray138\GAS\Types\Time"
+        , "Moment\MomentFromVo" => "\lray138\GAS\Types\Time"
+    ];
+
+    if($type === "object") {
+        $class = get_class($variable);
+        if(isset($object_types[$class])) {
+            return $object_types[$class]::of($variable);
+        }
+
+        // this is not right
+        //return call_user_func("\\lray138\\GAS\\Types\\" . $result . "::of", $class);
+        return $variable;
+    }
 
     if(isset($types[$type])) {
         $result = $types[$type];
@@ -253,16 +280,17 @@ function Either($value) {
 const Either = __NAMESPACE__ . '\Either';
 
 function Left($message) {
-    return \lray138\GAS\Types\Either\Left::of($message);
+    $out = \lray138\GAS\Types\Either\Left::of($message);
+    return $out;
 }
 
 const Left = __NAMESPACE__ . '\Left';
 
 function Right($value) {
-    return \lray138\GAS\Types\Either\Left::of($value);
+    return \lray138\GAS\Types\Either\Right::of($value);
 }
 
-const Right = __NAMESPACE__ . '\Value';
+const Right = __NAMESPACE__ . '\Right';
 
 
 function Model() {
@@ -273,3 +301,18 @@ function Model() {
     return \lray138\GAS\Functional\curry2($f)(...func_get_args()); 
 }
 
+function Calendar() {
+    return \lray138\GAS\Types\Calendar::of();
+}
+
+function Time($datetime = null) {
+    return \lray138\GAS\Types\Time::of($datetime);
+}
+
+const Time = __NAMESPACE__ . '\Time';
+
+function Number($number = null) {
+    return is_null($number)
+        ? \lray138\GAS\Types\Number::of(0)
+        : \lray138\GAS\Types\Number::of($number);
+}

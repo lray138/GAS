@@ -8,7 +8,7 @@ use lray138\GAS\{
 	Str, 
 	Arr, 
 	Functional as FP, 
-	Math, 
+	Numbers,
 	HTML, 
 	SQL,
 	Filesystem as FS,
@@ -138,7 +138,7 @@ function main() {
 		$data["loaders"]["partials"] = $loader($data["partials_dir"]);
 		$data["loaders"]["views"] = $loader($data["views_dir"]);
 
-		$data["current_module"] = &$data["modules"][Math\sub1(count($data["modules"]))];
+		$data["current_module"] = &$data["modules"][Numbers\sub1(count($data["modules"]))];
 		
 		//if(FP\fileExists($data["current_module"] . "/"))
 

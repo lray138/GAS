@@ -37,7 +37,7 @@ abstract class Either
      * @param mixed $x The value to be wrapped.
      * @return A new Right-constructed type.
      */
-    final public static function of($x) : Either
+    public static function of($x) : Either
     {
         return self::right($x);
     }

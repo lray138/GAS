@@ -9,6 +9,8 @@ use lray138\GAS\{
 	Types as T
 };
 
+use function lray138\GAS\dump;
+
 function useKeys() {
 	$addKeys = function($keys, $values) {
 
@@ -18,21 +20,32 @@ function useKeys() {
 }
 
 // not a great candidate for currying... 
-function select() {
-	$select = function($table, $columns, $conditions) {
-		$sql = [
-			"SELECT",
-		    handleColumns($columns),
-		    "FROM",
-		    $table,
-		    "WHERE",
-		    handleConditions($prepare, $conditions)
-		];
 
-		return Arr\join(" ", $sql);
+// actually LOL'd because I tried to use this with table, options
+// and agree with the above, whenever that was.
+function select() {
+	$select = function(string $table, T\ArrType $options = null) {
+		// $sql = [
+		// 	"SELECT",
+		//     handleColumns($columns),
+		//     "FROM",
+		//     $table,
+		//     "WHERE",
+		//     handleConditions($prepare, $conditions)
+		// ];
+
+		$sql = "SELECT ". handleColumns($options) . " FROM $table";
+		$sql = $sql . Str\padLeft(" a", handleConditions($options));
+		$sql = $sql . Str\padLeft(" b", handleSorting($options));
+		$sql = $sql . Str\padLeft(" c", handleLimits($options));
+
+		// hmm this implementation is worse that whatever I was just doing that I'm
+		// trying to replace... har...
+
+		return $sql;
 	};
 
-	return call_user_func_array(FP\curry3($select), func_get_args());
+	return call_user_func_array(FP\curry2($select), func_get_args());
 }
 
 const select = __NAMESPACE__ . '\select';
@@ -101,21 +114,53 @@ function update($table, $data) {
 
 function handleColumns($input) {
 
+	if(is_array($input)) {
+		$input = T\Arr($input);
+	}
+
+	if(is_string($input) || $input->isString()) {
+		return $input;
+	}
+
+	if(T\isNothing($input) || T\isNothing($input->columns->isNothing()) || $input->columns->isLeft()) {
+		return "*";
+	}
+
+
+
+	return $input->columns->isString() 
+		? $input->columns 
+		: $input->columns->implode(", ");
+
+	// assuming this is from trying to be "clever" 
+	// and passing a key/val array rather than just passing
+	// the keys by themselves?
 	$handleData = function(array $data) {
 		return Arr\isAssoc($data)
 				? array_keys($data)
 				: $data;
 	};
 
+	return "*";
+
 	return !is_array($input) 
 			? $input 
 			: Arr\implode(", ", $handleData($input));
 }
 
-function handleConditions($prepare, $input) {
+function handleConditions($options = null) {
+	if(T\isNothing($options)) {
+		return "";
+	}
+
+}
+
+function handleConditionsOld($prepare, $input) {
 	if(!is_array($input)) {
 		return $input;
 	} 
+
+	// horrible documentation here... wonder wher I used this... 
 
 	$values = [];
 	$sql = FP\compose(
@@ -170,6 +215,28 @@ function handleConditions($prepare, $input) {
 	
 	*/
 
+}
+
+function handleSorting($options) {
+
+	if(T\isNothing($options)) {
+		return "";
+	}
+
+	return $options->order_by->prepend("ORDER BY ")
+		->append($options->order_direction->prepend(" "));
+
+	// if($options->order_by->isString()) {
+	// 	$out = "ORDER BY " . $options->order_by;
+
+	// 	if($options)
+	// }
+
+	return "";
+}
+
+function handleLimits() {
+	return "";
 }
 
 

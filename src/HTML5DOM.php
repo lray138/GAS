@@ -67,9 +67,9 @@ function getNodeTypes() {
     ];
 }
 
-function create($source) {
+function create($source, $options = null) {
     $dom = new HTML5DOMDocument();
-    $dom->loadHTML($source);
+    $dom->loadHTML($source, $options);
     return $dom;
 }
 

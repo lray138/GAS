@@ -23,6 +23,10 @@ function contains() {
     return FP\curry2($f)(...func_get_args());
 }
 
+function of(array $arr) {
+    return ArrType::of($arr);
+}
+
 /**
  * @param int $size
  * @param array|ArrType $haystack
@@ -180,15 +184,21 @@ function length(array $array)
     return count($array);
 }
 
-function last(array $arr) {
+function last($arr) {
     if(count($arr) > 0) {
         return head(array_reverse($arr));
     } 
     return null;
 }
 
+function pop($arr) {
+    return array_pop(FP\extract($arr));
+}
+
+// if multiple keys are provided it acts like
+// pick ? or some other whatever function
 function pluck() {
-    $pluck = function($keys, $array) {
+    $f = function($keys, $array) {
         $array = FP\extract($array);
 
         if(is_array($keys)) {
@@ -202,11 +212,10 @@ function pluck() {
         return has($keys, $array) ? $array[$keys] : null;
     };
  
-    return call_user_func_array(FP\curry2($pluck), func_get_args());
+    return FP\curry2($f)(...func_get_args());
 }
 
 const pluck = __NAMESPACE__ . '\pluck';
-
 
 function pluckOrNull() {
     $pluckOrNull = function($keys, array $array) {
@@ -222,6 +231,30 @@ function pluckOrNull() {
     };
  
     return call_user_func_array(FP\curry2($pluckOrNull), func_get_args());
+}
+
+function pluckOr() {
+    $f = function($key, $else, $arr) {
+        $plucked = pluck($key, $arr);
+
+        if(!is_null($plucked)) return $plucked;
+
+        return is_callable($else) 
+            ? $else($arr) 
+            : $else;
+    };
+
+    return FP\curry3($f)(...func_get_args());
+}
+
+const pluckOr = __NAMESPACE__ . '\pluckOr';
+
+function pluckFromOr() {
+    return FP\flipN(3)(pluckOr)(...func_get_args());
+}
+
+function pluckFromOrElse() {
+    return pluckFromOr(...func_get_args());
 }
 
 function push() {
@@ -411,6 +444,8 @@ const implode = __NAMESPACE__ . '\implode';
  * @param array    $array
  *
  * @return array
+ * @note there was a reason for the foreach but
+ * i forget why
  */
 function map() {
     $f = function($f, $array) {
@@ -432,6 +467,17 @@ function _map($fn, $array) {
     return $array;
 }
 
+// https://github.com/lstrojny/functional-php/blob/main/src/Functional/FlatMap.php
+// was recommended from 
+// https://gist.github.com/davidrjonas/8f820ab0c75534b45189eba1d1fbeb23
+function flatMap() {
+    $f = function($f, $array) {
+        return array_merge([], ...array_map($fn, $array));
+    };
+
+    return FP\curry2($f)(...func_get_args());
+};
+
 /**
  * @param array $array
  * @param array $merge
@@ -440,6 +486,25 @@ function _map($fn, $array) {
  */
 function merge() {
     $f = function($merge, $with) {
+        // if($with instanceof ArrType) {
+        //    return $with->merge($merge);
+        // }
+
+        $with = FP\extract($with);
+        $merge = FP\extract($merge);
+
+        if(is_null($merge)) {
+            return $with;
+        }
+
+        return array_merge($with, $merge);
+    };
+
+    return FP\curry2($f)(...func_get_args());
+}
+
+function mergeLeft() {
+    $f = function($with, $merge) {
         // if($with instanceof ArrType) {
         //    return $with->merge($merge);
         // }
@@ -520,6 +585,7 @@ const toUl = __NAMESPACE__ . '\toUl';
 
 // https://stackoverflow.com/questions/526556/how-to-flatten-a-multi-dimensional-array-to-simple-one-in-php/15939539
 function flatten(array $array) {
+    dump($array);
     $return = array();
     foreach ($array as $key => $value) {
        if (is_array($value)){ $return = array_merge($return, flatten($value));}

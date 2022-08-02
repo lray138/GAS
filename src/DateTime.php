@@ -3,8 +3,12 @@
 namespace lray138\GAS\DateTime;
 
 use lray138\GAS\Functional as FP;
+use function lray138\GAS\dump;
 
 function fromTimestamp($timestamp) {
+	if(empty($timestamp)) {
+		return null;
+	}
 	// noticed some old code where you could also do
 	// (new DateTime("@" . $timestamp))
 	return (new \DateTime())->setTimestamp($timestamp);
@@ -13,7 +17,6 @@ function fromTimestamp($timestamp) {
 const fromTimestamp = __NAMESPACE__ . '\fromTimestamp';
 
 function fromYearMonth() {
-
 	$fromYearMonth = function($year, $month) {
 		return new \DateTime("$year-$month-01");
 	};
@@ -21,6 +24,7 @@ function fromYearMonth() {
 	return call_user_func_array(FP\curry2($fromYearMonth), func_get_args());
 }
 
+// must have been from something else.
 function tomorrow() {
 	return now()->modify('+1 day');
 }
@@ -41,6 +45,9 @@ function fromString($string) {
 
 const fromString = __NAMESPACE__ . '\fromString';
 
+// a little expirimental with currying
+// the idea is you could build up the function 
+// so the last day is all that is needed at that point.
 function fromYearMonthDay() {
 	$fromYearMonthDay = function($year, $month, $day) {
 		return new \DateTime("$year-$month-$day");
@@ -172,6 +179,8 @@ function getFormatsObj(\DateTime $dt) {
 const getFormatObj = __NAMESPACE__ . '\getFormatsObj';
 
 
+
+
 // function getMonthName($number) {
 // 	$index = (int) $number;
 // 	return getMonthNames()[$index-1];
@@ -239,7 +248,7 @@ function roundDownToMinuteInterval(\DateTime $dateTime, $minuteInterval = 10)
 // '%h Hours                                                    =>  11 Hours
 // '%a Days                                                        =>  468 Days
 //////////////////////////////////////////////////////////////////////
-function dateDifference(\DateTime $date_1, \DateTime $date_2 , $differenceFormat = '%a' )
+function dateDifference(\DateTime $date_1, \DateTime $date_2 , $differenceFormat = '%i' )
 {   
     $interval = date_diff($date_1, $date_2);
  
@@ -248,6 +257,76 @@ function dateDifference(\DateTime $date_1, \DateTime $date_2 , $differenceFormat
     } 
 
     return $interval->format($differenceFormat);
+}
+
+function diff(\DateTime $a, \DateTime $b, $differenceFormat = '%i') {
+	return dateDifference($a, $b, $differenceFormat);
+}
+
+function toDateTime($var) {
+	if($var instanceof \DateTime) return $var;
+	// assume timestamp
+	if(is_int($var)) return (new \DateTime())->setTimestamp($var);
+}
+
+function niceDiffFormat($a, $b, $options = []) {
+	$a = toDateTime($a);
+	$b = toDateTime($b);
+
+	$delimeter = isset($options["delimeter"]) ? $options["delimeter"] : " ";
+
+	if(is_null($a) || is_null($b)) {
+		return "Problem with provided dates";
+	}
+
+	$interval = date_diff($a, $b);
+ 
+    if(!$interval) {
+    	return "false";
+    }
+
+    $map = [
+    	"y" => "years"
+    	, "m" => "months"
+    	, "d" => "days"
+    	, "h" => "hours"
+    	, "i" => "minutes"
+    	, "s" => "seconds"
+    ];
+
+    $filtered = array_reduce(array_keys($map), function($carry, $x) use ($delimeter, $map, $interval) {
+    	$formatted = $interval->format("%" . $x);
+    	// we know it's a string so "=="
+    	if($formatted == 0) return $carry;
+
+    	$field = $formatted < 2
+    		? substr($map[$x], 0, strlen($map[$x])-1)
+    		: $map[$x];
+
+    	$carry[] = $formatted . " " . $field;
+    	return $carry;
+    }, []);
+
+    return implode($delimeter, $filtered);
+
+    // $out = [];
+    // array_walk(array_keys($map), function($x) use ($interval, &$out) {
+    // 	$format = $interval->format("%" . $x);
+    // 	if($format != 0) {
+    // 		$out[$x] = $format;
+    // 	}
+    // });
+
+    // $out2 = [];
+    // array_walk($out, function($x, $y) use (&$out2, $map) {
+    // 	$field = $x < 2
+    // 		? substr($map[$y], 0, strlen($map[$y])-1)
+    // 		: $map[$y];
+    	
+    // 	$out2[] = $x . " " . $field;
+    // });
+
+    // return implode($delimeter, $out2);
 }
 
 function hoursToMinutes($hour) {
@@ -315,24 +394,6 @@ function firstDayOfWeek() {
 	return call_user_func_array(FP\curry2($firstDayOfTheWeek), func_get_args());
 }
 
-// function niceTime($taskTotal) {
-// 	if($taskTotal >= 60) {
-// 		$hours = floor($taskTotal/60);
-// 		echo $hours ." hour";
-// 		if($hours > 1) { echo "s";}
-	
-// 		$mins = ($taskTotal-(60*$hours));
-// 		if($mins > 0) {
-// 			if($hours > 0) {
-// 				echo " and ";
-// 			}
-// 			echo $mins ." mins";
-// 		}
-// 	} else {
-// 		echo $taskTotal . " mins";
-// 	}
-// }
-
 function niceTime($taskTotal) {
 	$out = "";
 	if($taskTotal >= 60) {
@@ -363,31 +424,37 @@ function getDayNumber2(DateTime $dt) {
 	return $dt->format("w");
 }
 
-function getDurationMins($start, $end) {
-		$since = $start->diff($end);
-		$minutes = $since->days * 24 * 60;
-		$minutes += $since->h * 60;
-		$minutes += $since->i;
-		$minutes += $since->s/60;
-		return $minutes;
+/*
+function getDurationMins(\DateTime $start, \DateTime $end) {
+	return round(abs($start->getTimestamp() - $end->getTimestamp()) / 3600,2);
+}
+*/
+
+function getDurationMins(\DateTime $start, \DateTime $end) {
+	$since = $start->diff($end);
+	$minutes = $since->days * 24 * 60;
+	$minutes += $since->h * 60;
+	$minutes += $since->i;
+	$minutes += $since->s/60;
+	return $minutes;
+}
+
+function getDurationString($start, $end) {
+	$since = $start->diff($end);
+	
+	$out = [];
+
+	if($since->h > 0) {
+		$out[] = $since->h . " hour";
 	}
 
-	function getDurationString($start, $end) {
-		$since = $start->diff($end);
-		
-		$out = [];
-
-		if($since->h > 0) {
-			$out[] = $since->h . " hour";
-		}
-
-		if($since->i > 0) {
-			$out[] = $since->i . " min";
-		}
-
-		if($since->s > 0) {
-			$out[] = $since->s . " sec";
-		}
-		
-		return implode(", ", $out);
+	if($since->i > 0) {
+		$out[] = $since->i . " min";
 	}
+
+	if($since->s > 0) {
+		$out[] = $since->s . " sec";
+	}
+	
+	return implode(", ", $out);
+}

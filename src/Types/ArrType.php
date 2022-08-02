@@ -32,8 +32,30 @@ class ArrType extends Type {
 		return ArrType::of($arr);
 	}
 
+	function removeLast() {
+    	$arr = $this->value;
+    	array_pop($arr);
+    	return T\Arr($arr);
+	}
+
+	public function lastItem() {
+		return $this->pop();
+	}
+
+	function pop() {
+		$arr = $this->value;
+		$arr = array_pop($arr);
+		return T\wrap($arr);
+	}
+
 	// https://www.php.net/manual/en/array.sorting.php
-	public function sort($arg, $options = null) {
+	public function sort($arg = null, $options = null) {
+
+		if(is_null($arg)) {
+			$arr = $this->value;
+			sort($arr);
+			return new static($arr);
+		}
 
 		if(count($this->value) < 2) {
 			return $this;
@@ -63,6 +85,7 @@ class ArrType extends Type {
 		}
 		return ArrType::of(Arr\set($key, $val, $this->value));
 	}
+
 
 	function filter($value = null) {
 		if(is_null($value)) {
@@ -97,18 +120,29 @@ class ArrType extends Type {
        		$value = T\wrapType($value);
        	}
 
-		return $value ?: None::of();
+		return is_null($value) || T\isNothing($value)
+			? T\Nothing()
+			: $value;
 	}
 
-	function implode($delimeter = "") {
+	public function implode($delimeter = "") {
 
 		// there may be cases... ha.  maybe cases where a value needs to be unwrapped?
 		// added Mon Apr 4 @ 16:30
 		return StrType::of(Arr\implode($delimeter, Arr\map(FP\extract, $this->value)));
 	}
 
-	function isEmpty() {
+	public function isEmpty() {
 		return count($this->value) === 0;
+	}
+
+	public function isLeft() {
+		return false;
+	}
+
+	function apply($just) {
+		//$f->map($this->extract());
+		return $just($this);
 	}
 
 	function count() {
@@ -119,12 +153,27 @@ class ArrType extends Type {
 		return new self(Arr\flatten($this->value));
 	}
 
+	function flatMap($callable) {
+		return $this->flatten();
+	}
+
+	function isString() {
+		return false;
+	}
+
 	function size() {
 		return $this->count();
 	}
 
-	function first() {
-		return Arr\head($this->value);
+	function first($callable) {
+
+		foreach($this->value as $key => $val) {
+			if($callable($val, $key)) {
+				return $val;
+			}
+		}
+
+		return false;
 	}
 
 	function tail() {
@@ -132,7 +181,8 @@ class ArrType extends Type {
 	}
 
 	function map(callable $func) {
-		return ArrType::of(Arr\map($func, $this->value));
+		//return ArrType::of(Arr\map($func, $this->value));
+		return new static(Arr\map($func, $this->value));
 	}
 
 	function max() {
@@ -152,6 +202,11 @@ class ArrType extends Type {
 	}
 
 	function toUl($attributes = []): StrType {
+
+		if(count($this->value) === 0) {
+			return StrType::of("");
+		}
+
 		$fn = FP\compose(
 			S\wrap("<ul>", "</ul>"),
 			Arr\join(""),
@@ -172,15 +227,37 @@ class ArrType extends Type {
 
 	function walk(callable $func) {
 		Arr\walk($func, $this->value);
+		return $this;
 	}
 
 	// in the Arr functional part, $initial would come first, here we don't need it to be first
 	function reduce($callable, $initial = null) {
-		return T\wrap(array_reduce($this->value, $callable, $initial));
+		$test = array_reduce($this->value, $callable, $initial);
+
+		if(isType($test)) {
+			return $test;
+		}
+
+		return T\wrap($test);
+	}
+
+	public function reverse() {
+		return T\Arr(array_reverse($this->value));
+	}
+
+	public function head() {
+		return $this->get(0);
+	}
+
+	public function rsort() {
+		$arr = $this->value;
+		rsort($arr);
+		return new static($arr);
 	}
 
 	public static function of($data = []) {
-		return new self($data);
+		//return new self($data);
+		return new static($data);
 	}
 
 	const of = __NAMESPACE__ . '\of';
@@ -208,7 +285,15 @@ class ArrType extends Type {
 	}
 
 	public function __call($name, $args) {
-		return NoMethod::of($name . " method doesn't exists in ");
+		if(isset($this->value[$name])) {
+			return $this->value[$name](...$args);
+		}
+
+		return NoMethod::of($name . " method doesn't exists in " . $this->value);
+	}
+
+	public function toJust() {
+		return Some::of($this);
 	}
 
 }

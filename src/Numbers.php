@@ -70,12 +70,11 @@ function absolute($number)
  * @return float
  */
 function add() {
-    $f = function($x, $y) {
-        return (float) $x + (float) $y;
-    };
-
+    $f = function($x, $y) { return (float) $x + (float) $y; };
     return FP\curry2($f)(...func_get_args());
 }
+
+const add = __NAMESPACE__ . '\add';
 
 /**
  * @param int|float $number

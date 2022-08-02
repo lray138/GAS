@@ -64,7 +64,8 @@ str_pad(
 */
 function padLeftN() {
     $padLeftN = function($n, $delimeter, $string) {
-        return \str_pad($string, $n, $delimeter, STR_PAD_LEFT);
+        $out = \str_pad($string, $n, $delimeter, STR_PAD_LEFT);
+        return $out;
     };
 
     return call_user_func_array(FP\curry3($padLeftN), func_get_args());
@@ -77,6 +78,25 @@ function padLeft() {
 }
 
 const padLeft = __NAMESPACE__ . '\padLeft';
+
+// the use case for this is kind of null and void , but 
+// interesting concept I guess.
+// need more on this but leaving for now
+function findLast($regex, $string) {
+    $matches = [];
+    preg_match_all($regex, $string, $matches);
+    if(count($matches) > 0) {
+        return $matches[0][count($matches[0])-1];
+    }
+    
+    return $matches;
+}
+
+function findFirst($regex, $string) {
+    $matches = [];
+    preg_match($regex, $string, $matches);
+    return $matches;
+}
 
 /**
  * @param mixed $variable
@@ -140,16 +160,15 @@ function afterFirst() {
 const afterFirst = __NAMESPACE__ . '\afterFirst';
 
 function beforeFirst() {
-    $beforeFirst = function($needle, $haystack) {
-        //return Str\Arr\head(array_filter(explode($needle, $haystack)));
+    $f = function($needle, $haystack) {
         return FP\compose(
             Arr\head,
             Arr\filterEmpty,
-            explode("/")
+            explode($needle)
         )($haystack);
     };
 
-    return call_user_func_array(curry2($beforeFirst), func_get_args());
+    return curry2($f)(...func_get_args());
 }
 
 // added trim right so that I can .. hmmm...
@@ -381,6 +400,8 @@ function matchAll() {
 
     return call_user_func_array(curry2($matchAll), func_get_args());
 }
+
+const matchAll = __NAMESPACE__ . '\matchAll';
 
 /**
  * @param string       $haystack
@@ -676,6 +697,17 @@ function trimRightWithExpression($haystack, $needle)
     return (string) preg_replace("#{$pattern}$#", "", $haystack);
 }
 
+// adding this because I tried to use concat like this,
+// I thought I had a function that did this, but it looks like
+function join($delimeter, $bits = null) {
+    if(!is_null($bits)) {
+        return implode($delimeter, array_slice(func_get_args(), 1));
+    }
+
+    return function(...$args) use ($delimeter) {
+        return implode($delimeter, $args);
+    };
+}
 
 function concat() {
     $concat = function($x, $y) {
@@ -844,3 +876,9 @@ const toUpper = __NAMESPACE__ . '\toUpper';
 function numberFormat($number) {
     return number_format($number);
 }
+
+function removeQuotes($str) {
+    return replace(["'", '"'], '', $str);
+}
+
+const removeQuotes = __NAMESPACE__ . '\removeQuotes';

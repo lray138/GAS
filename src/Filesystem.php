@@ -37,6 +37,13 @@ function write($pathname, $contents, $create_dir_if_not_exists = false) {
 	file_put_contents($pathname, $contents);
 }
 
+
+function createFile($pathname) {
+	file_put_contents($pathname, "");
+}
+
+const createFile = __NAMESPACE__ . '\createFile';
+
 // here is an example not not necessarilly getting much milage out of
 // default currying and if currying is needed then do it inline
 function putContents($filename, $contents, $create_dir_if_not_exists = false) {
@@ -68,6 +75,22 @@ const getFiles = __NAMESPACE__ . '\getFiles';
 // mode not implemented but would be the difference between
 // file object and a the full path that this currently provides.
 function getFilesInDir($directory, $mode = "") {
+	if(in_array(strtolower($mode), ["object", "obj", "splfile"])) {
+		$files = [];
+
+		foreach (new \DirectoryIterator($directory) as $fileInfo) {
+			if($fileInfo->isDot() || $fileInfo->isDir()) continue;
+			$files[] = [
+				"path" => $fileInfo->getPath() 
+				, "pathname" => $fileInfo->getPathname()
+				, "filename" => $fileInfo->getFilename()
+				, "extension" => $fileInfo->getExtension()
+			];
+		}
+
+		return $files;
+	}
+
 	$prependDirectoryToFile = Arr\map(
 					function($x) use ($directory) {
 						if(!Str\lastCharIs("/", $directory)) {
@@ -81,7 +104,7 @@ function getFilesInDir($directory, $mode = "") {
 		 			$prependDirectoryToFile);
 
 	return Arr\filter(
-				"is_file", 
+				"is_file",
 		 		$process(scandir($directory)));
 }
 
@@ -133,13 +156,11 @@ function scan($directory) {
 	)(scandir($directory));
 }
 
-
 function getDirs($directory) {
 	return Arr\filter(function($filename) {
 		return isDir($filename);
 	})(scan($directory));
 }
-
 
 function includeFileReturnObject(string $filename, string $class_name, array $args = []) {
 	if(file_exists($filename)) {

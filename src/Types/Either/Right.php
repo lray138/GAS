@@ -66,5 +66,16 @@ final class Right extends Either
     {
         return $g($this->value);
     }
+
+    /**
+     * Transform the Right value with the right function.
+     * @param callable $f The transformer for a Left value.
+     * @param callable $g The transformer for a Right value.
+     * @return mixed Whatever the returned type is.
+     */
+    public function fold(callable $_, callable $g)
+    {
+        return $g($this->value);
+    }
     
 }

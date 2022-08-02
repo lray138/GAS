@@ -13,7 +13,7 @@ class Type {
 		$this->value = $value;
 	}
 
-	public static function of($value) {
+	public static function of($value = null) {
 		// return new self($value) returns Type, whereas we want the subclass
 		return new static($value);
 	}
@@ -27,9 +27,14 @@ class Type {
 		return $this->extract();
 	}
 
-	public function toArr($callable = null) {
-		$value = !is_null($callable) 
-					? $callable($this->value)
+	public function toArr($option = null) {
+
+		if(is_string($option)) {
+			return ArrType::of([$option => $this->value]);
+		}
+
+		$value = !is_null($option) 
+					? $option($this->value)
 					: $this->value;
 
 		if(!is_array($this->value)) {

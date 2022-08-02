@@ -10,9 +10,9 @@ class NoMethod extends Type {
 	
 	protected $value;
 
-	public static function of($value) {
-		return new self($value);
-	}
+	// public static function of($value) {
+	// 	return new self($value);
+	// }
 
 	public function extract() {
 		return $this->value;
@@ -23,7 +23,11 @@ class NoMethod extends Type {
 	}
 
 	public function __call($method, $args) {
-		
+		return $this;
+	}
+
+	public function __get($property) {
+		return $this;
 	}
 	
 	public function __construct($value) {

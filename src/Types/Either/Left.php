@@ -1,7 +1,7 @@
 <?php
 
 namespace lray138\GAS\Types\Either;
-//namespace PhpFp\Either\Constructor;
+//namespace PhpFp\Either\Constructor;  // left to show what he did
 
 use lray138\GAS\Types\Either;
 
@@ -52,6 +52,16 @@ final class Left extends Either
     }
 
     /**
+     * Applicative constructor for Either.
+     * @param mixed $x The value to be wrapped.
+     * @return A new Right-constructed type.
+     */
+    public static function of($x) : Either
+    {
+        return Either::left($x);
+    }
+
+    /**
      * Transform the Left value with the left function.
      * @param callable $f The transformer for a Left value.
      * @param callable $g The transformer for a Right value.
@@ -62,6 +72,27 @@ final class Left extends Either
         return $f($this->value);
     }
 
+    public function fold(callable $f, callable $_)
+    {
+        return $f($this->value);
+    }
+
+    // return this value
+    public function extract() {
+        return $this->value;
+    }
+
+    public function isLeft() {
+        return true;
+    }
+
+    public function isNothing() {
+        return false;
+    }
+
+    public function isString() {
+        return false;
+    }
 
     public function __call($method, $value) {
         return $this;

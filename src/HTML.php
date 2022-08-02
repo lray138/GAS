@@ -50,6 +50,8 @@ function element($type, $content = "", $attributes = null) {
   // Jan 1, 2022 @ 15:19 - added extract support for types being passed
   if(is_array($content)) {
     $content = Arr\join("", Arr\map(FP\extract, $content));
+  } else if($content instanceof \lray138\GAS\Types\Maybe) {
+    $content = $content->extract();
   }
 
   $out .= '>' . $content . '</' . $type . '>';

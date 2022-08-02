@@ -21,15 +21,18 @@ class Model {
 	private $db;
 
 	public function all($options = null) {
-		$sql = "SELECT " . SQL\columns($options) . " FROM " . $this->table . SQL\orderBy($options);
-		return PDO\prepareExecFetchAll($sql, $this->db);
+		$options = is_array($options) ? T\Arr($options) : $options;
+
+		$sql = is_null($options) 
+			? SQL\select($this->table, T\Arr())
+			: SQL\select($this->table, $options);
+		return PDO\prepareExecFetchAll($this->db, $sql, []);
 	}
 
 	public function oneWhere($column, $operand, $value, $options = null) {
 		$sql = "SELECT " . SQL\columns($options) . " FROM " . $this->table . " WHERE " . $column . " " . $operand . " ?";
 
-		return PDO\prepareExecFetch($sql, $this->db, [$value]);
-
+		return PDO\prepareExecFetch($this->db, $sql, [$value]);
 	}
 
 	public function __construct($table, $db) {

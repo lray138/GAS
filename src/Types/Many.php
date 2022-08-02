@@ -29,10 +29,10 @@ class Many extends Type {
 		return new Many($args);
 	}
 
-	public static function of($args) {
-		// return new static did not work
-		return new Many($args);
-	}
+	// public static function of($args) {
+	// 	// return new static did not work
+	// 	return new Many($args);
+	// }
 
 	public function __get($prop) {
 		return $this->map(function($x) use ($prop) {

@@ -6,7 +6,6 @@ use lray138\GAS\{Str as S, Functional as FP};
 use function lray138\GAS\IO\dump;
 
 class StrType extends Type {
-	
 	// weird early version of this I suppose... 
 	// public function explode(string $delimeter) {
 	// 	return ArrType::of(S\explode($delimeter, rtrim($this->value, $delimeter)))->map("\\lray138\\GAS\\Types\\StrType::of");
@@ -16,11 +15,11 @@ class StrType extends Type {
 		return ArrType::of(S\explode($delimeter, rtrim($this->value, $delimeter)));
 	}
 
-	public static function of($value) {
-		return new self($value);
-	}
+	// public static function of($value) {
+	// 	return new self($value);
+	// }
 
-	const of = __NAMESPACE__ . '\Str::of';
+//	const of = __NAMESPACE__ . '\Str::of'; was this here because of copy and paste.
 
 	public function __construct($value) {
 		if($value instanceof self) {
@@ -36,6 +35,14 @@ class StrType extends Type {
 		}
 
 		$this->value = $value;
+	}
+
+	public function concat($str) {
+		return new self($this->value . $str);
+	}
+
+	public function trim($str) {
+		return new self(trim($this->value, $str));
 	}
 
 	public function __toString() {
@@ -83,8 +90,20 @@ class StrType extends Type {
 		return empty($this->value);
 	}
 
+	public function isLeft() {
+		return false;
+	}
+
 	public function rtrim($delimeter = "") {
 		return new self(rtrim($this->value, "/"));
+	}
+
+	public function isString() {
+		return true;
+	}
+
+	public function toNothingIfEmpty() {
+		return empty($this->extract()) ? Nothing::of() : $this;
 	}
 
 }

@@ -1,13 +1,15 @@
-<?php 
+<?php namespace lray138\GAS\Types;
 
-namespace lray138\GAS\Types;
-
-class Maybe extends Functor {
+class Maybe implements Functor\PointedFunctor {
 
 	public function within(callable $func) {
         return $this->then(function($value) use ($func) {
             return static::new($func($value));
         });
+    }
+
+    public static function of($value): Maybe {
+    	return new static($value);
     }
 
 	public function __call($method, $parameters) {
@@ -103,8 +105,8 @@ class Maybe extends Functor {
 		return new self($value);
 	}
 
-	public function map($func) {
-		return $this->then($func);
+	public function map(callable $f): Maybe {
+		return $this->then($f);
 	}
 
 	public function bind($func) {
@@ -162,11 +164,11 @@ class Maybe extends Functor {
 	// 	return !$this->isNothing() ? \GAS\Types\Arr::of($this->value) : null;
 	// }
 
-	public function get($property = null) {
-		return !is_null($property) 
-					? $this->getProperty($property)
-					: $this->value;
-	}
+	// public function get($property = null) {
+	// 	return !is_null($property) 
+	// 				? $this->getProperty($property)
+	// 				: $this->value;
+	// }
 
 	public function __construct($value = null) {
 		// this is where the auto-unwrapping seems not correct???
@@ -187,9 +189,9 @@ class Maybe extends Functor {
 		$this->value = $value;
 	}
 
-	public static function of($x) {
-		return new self($x);
-	}
+	// public static function of($x) {
+	// 	return new self($x);
+	// }
 
 	public static function unit($x) {
 		return new self($x);

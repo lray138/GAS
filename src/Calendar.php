@@ -4,6 +4,11 @@ namespace lray138\GAS\Calendar;
 
 use lray138\GAS\Functional as FP;
 use lray138\GAS\DateTime as DT;
+use lray138\GAS\Types\Time;
+use lray138\GAS\Types\ArrType;
+use lray138\GAS\Arr;
+
+use function lray138\GAS\dump;
 
 function getYear($options = null) {
 	if(is_null($options)) {
@@ -18,6 +23,10 @@ function getYear($options = null) {
 
 const getYear = __NAMESPACE__ . '\getYear';
 
+// this was created before the types was really dialed in
+// so, I would expect now that maybe Calendar should be a class anyway... dunno... not really
+// but... this should return the Type array is what I would expect...
+// if it relies on Time type, maybe that makes it appropriate for that.
 function getYearMonthDates() {
 	$getYearMonthDates = function($year, $month) {
 
@@ -41,13 +50,13 @@ function getYearMonthDates() {
 
 			for($j = 1; $j <= 7; $j++) {
 				if($current_day <= 0) {
-					$date_time = (new \DateTime($year . "-" . $month . "-01"))->add(date_interval_create_from_date_string(($current_day-1) . ' days'));
+					$date_time = (new Time($year . "-" . $month . "-01"))->add(date_interval_create_from_date_string(($current_day-1) . ' days'));
 					$current_month = false;
 				} elseif($current_day > $days_in_month) {
-					$date_time = (new \DateTime($year . "-" . $month . "-" . $days_in_month))->add(date_interval_create_from_date_string(($current_day-$days_in_month) . ' days'));
+					$date_time = (new Time($year . "-" . $month . "-" . $days_in_month))->add(date_interval_create_from_date_string(($current_day-$days_in_month) . ' days'));
 					$current_month = false;
 				} else {
-					$date_time = (new \DateTime($year . "-" . $month . "-" . $current_day));
+					$date_time = (new Time($year . "-" . $month . "-" . $current_day));
 					$current_month = true;
 				}
 
@@ -62,7 +71,7 @@ function getYearMonthDates() {
 			$rows[] = $row;
 		}
 
-		return $rows;
+		return ArrType::of($rows);
 	};
 
 	return call_user_func_array(FP\curry2($getYearMonthDates), func_get_args());
@@ -99,4 +108,29 @@ function getMonthNamesShort() {
 	return array_map(function($x) {
 		return substr($x, 0, 3);
 	}, getMonthNames());
+}
+
+function create(Time $time = null) {
+	$time = is_null($time) 
+		? new Time()
+		: $time;
+
+	return getYearMonthDates($time->getYYYY(), $time->getMM());
+};
+
+function getWeekDays($start = "Sun") {
+	$days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+	if($start !== "Sun") {
+		$day = array_shift($days);
+		$days[] = $day;
+	}
+
+	return $days;
+}
+
+function getWeekDaysShort($start = "Sun") {
+	return Arr\map(function($x) {
+		return substr($x, 0, 3);
+	}, getWeekDays($start));
 }

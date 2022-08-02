@@ -4,6 +4,8 @@ use lray138\GAS\Arr;
 
 use function lray138\GAS\IO\dump;
 
+use lray138\GAS\Types\Either;
+
 function identity($x) { 
     return $x; 
 }
@@ -15,7 +17,6 @@ function id($x) {
 }
 
 const id = __NAMESPACE__ . '\id';
-
 
 function apply() {
     // add type check here
@@ -323,3 +324,83 @@ function not($bool) {
 }
 
 const not = __NAMESPACE__ . '\not';
+
+// via FunctionalPHP Packt
+function filterM(callable $f, $collection)
+{
+    $monad = $f(head($collection));
+
+    $_filterM = function($collection) use($monad, $f, &$_filterM){
+        if(count($collection) == 0) {
+            return $monad->of([]);
+        }
+
+        $x = head($collection);
+        $xs = tail($collection);
+
+        return $f($x)->bind(function($bool) use($x, $xs, $monad, $_filterM) {
+            return $_filterM($xs)->bind(function(array $acc) use($bool, $x, $monad) {
+                if($bool) {
+                    array_unshift($acc, $x);
+                }
+
+                return $monad->of($acc);
+            });
+        });
+    };
+
+    return $_filterM($collection);
+}
+
+// via FunctionalPHP Packt
+function foldM(callable $f, $initial, $collection)
+{
+    $monad = $f($initial, head($collection));
+
+    $_foldM = function($acc, $collection) use($monad, $f, &$_foldM){
+        if(count($collection) == 0) {
+            return $monad->of($acc);
+        }
+
+        $x = head($collection);
+        $xs = tail($collection);
+
+        return $f($acc, $x)->bind(function($result) use($acc, $xs, $_foldM) {
+            return $_foldM($result, $xs);
+        });
+    };
+
+    return $_foldM($initial, $collection);
+}
+
+function head($collection) {
+    foreach ($collection as $value) {
+        return $value;
+    }
+
+    return null;
+}
+
+function tail($collection) {
+    $tail = [];
+    $isHead = true;
+
+    foreach($collection as $key => $value) {
+        if($isHead) {
+            $isHead = false;
+            continue;
+        }
+
+        $tail[$key] = $value;
+    }
+
+    return $tail;
+}
+
+function tryCatch(callable $f): Either {
+   try {
+        return Either::of($f());
+    } catch (\Exception $e) {
+        return Either::left($e);
+    }
+}

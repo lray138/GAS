@@ -2,18 +2,17 @@
 
 namespace lray138\GAS\Types;
 
-// bad extension
-class Nothing {
+class Nothing extends Maybe {
 	
 	protected $value = null;
 
 	public function value() { }
 
-	public static function of($value = null) {
+	public static function of($value = null): Maybe {
 		return new self();
 	}
 
-	// for use in HTML generation
+	// flagged for its use in \lray138\GAS\HTML generation 
 	public function __toString() {
 		return "";
 	}
@@ -26,7 +25,12 @@ class Nothing {
 		return $this;
 	}
 
-	public function map() {
+	// wonder if I created this before the "call" method
+	public function map(callable $f): Maybe {
+		return $this;
+	}
+
+	public function apply($f): Maybe {
 		return $this;
 	}
 
@@ -36,6 +40,18 @@ class Nothing {
 
 	public function isNothing() {
 		return true;
+	}
+
+	public function is() {
+		return false;
+	}
+
+	public function isNot() {
+		return true;
+	}
+
+	public function isStr() {
+		return false;
 	}
 
 }
