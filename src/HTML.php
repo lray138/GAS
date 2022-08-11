@@ -15,6 +15,17 @@ function isVoidElement($node_name) {
   return Arr\contains($node_name)(getVoidElements());
 }
 
+// run FP extract in case it's a Monad
+function flatten($array) {
+  $out = "";
+  foreach($array as $a) {
+      $out .= is_array($a) 
+        ? flatten($a)
+        : FP\extract($a);
+  }
+  return $out;
+}
+
 function element($type, $content = "", $attributes = null) {
 
   if($content instanceof Type) {
@@ -49,7 +60,8 @@ function element($type, $content = "", $attributes = null) {
 
   // Jan 1, 2022 @ 15:19 - added extract support for types being passed
   if(is_array($content)) {
-    $content = Arr\join("", Arr\map(FP\extract, $content));
+    $content = flatten($content);
+    //$content = Arr\join("", Arr\map(FP\extract, $content));
   } else if($content instanceof \lray138\GAS\Types\Maybe) {
     $content = $content->extract();
   }
@@ -57,6 +69,15 @@ function element($type, $content = "", $attributes = null) {
   $out .= '>' . $content . '</' . $type . '>';
   
   return $out;
+}
+
+function array_map_recursive($callback, $array)
+{
+  $func = function ($item) use (&$func, &$callback) {
+    return is_array($item) ? array_map($func, $item) : call_user_func($callback, $item);
+  };
+
+  return array_map($func, $array);
 }
 
 function getVoidElements() {

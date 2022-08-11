@@ -53,7 +53,8 @@ final class Right extends Either
      */
     public function map(callable $f) : Either
     {
-        return Either::right($f($this->value));
+        return Either::of($f($this->value));
+        //return Either::right($f($this->value));
     }
 
     /**
@@ -77,5 +78,9 @@ final class Right extends Either
     {
         return $g($this->value);
     }
-    
+
+    public function isRight() {
+        return true;
+    }
+
 }

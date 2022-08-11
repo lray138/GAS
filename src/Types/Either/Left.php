@@ -98,4 +98,8 @@ final class Left extends Either
         return $this;
     }
 
+    public function isRight() {
+        return false;
+    }
+
 }

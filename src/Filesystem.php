@@ -34,6 +34,7 @@ function write($pathname, $contents, $create_dir_if_not_exists = false) {
 			createDir($dir);
 		}
 	}
+	
 	file_put_contents($pathname, $contents);
 }
 

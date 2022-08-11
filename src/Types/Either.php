@@ -39,7 +39,8 @@ abstract class Either
      */
     public static function of($x) : Either
     {
-        return self::right($x);
+        return is_null($x) ? self::left() : self::right($x);
+        //return self::right($x);
     }
 
     /**
@@ -106,5 +107,13 @@ abstract class Either
     final private function __construct($value)
     {
         $this->value = $value;
+    }
+
+    public function getOr($value) {
+        return $this->isRight() ? $this->value : $value;
+    }
+
+        public function getOrElse($value) {
+        return $this->isRight() ? $this->value : $value;
     }
 }

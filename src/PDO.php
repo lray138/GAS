@@ -95,16 +95,16 @@ function execStmt() {
 
 const execStmt = __NAMESPACE__ . '\execStmt';
 
-function fetch($stmt) {
-	return T\Arr($stmt->fetch());
-}
+// function fetch($stmt) {
+// 	return T\Arr($stmt->fetch());
+// }
 
 const fetch = __NAMESPACE__ . '\fetch';
 
-// you could add options here... ?
-function fetchAll($stmt, $options = null) {
-	return T\Arr(Arr\map(T\Arr, $stmt->fetchAll()));
-}
+// // you could add options here... ?
+// function fetchAll($stmt, $options = null) {
+// 	return T\Arr(Arr\map(T\Arr, $stmt->fetchAll()));
+// }
 
 const fetchAll = __NAMESPACE__ . '\fetchAll';
 
@@ -128,19 +128,23 @@ const prepare = __NAMESPACE__ . '\prepare';
 // I think the trade off for curryign here is making the 
 // empty array always necessary, or you could always just 
 // say curry2 if you don't want too
-function prepareExecFetchAll(\PDO $pdo, $sql, $values = []) {
-	$f = function($pdo, $sql, $values = []) {
+function prepareExecFetchAll() {
+	$f = function(\PDO $pdo, $sql, $values = []) {
 		if(!is_array($values)) {
 			$values = [];
 		}
-				
-		return T\Maybe::of($pdo)
-			->chain(prepare($sql))
+			
+		$out = T\Maybe::of($pdo)
+			->chain(_(prepare)($sql))
 			->chain(execStmt($values))
 			->either(function($x) {
 				return T\Either::left($x);
-			}, fetchAll)
+			}, function($x) {
+				return T\Arr(Arr\map(T\Arr, $x->fetchAll()));
+			});
 			;
+
+		return $out;
 	};
 
 	return FP\curry3($f)(...func_get_args());
@@ -154,14 +158,14 @@ function prepareExecFetchAll(\PDO $pdo, $sql, $values = []) {
 
 	// really you'd want to do // it sort of doesn't matter
 	// anyway
+}
 
-	return T\Maybe::of($pdo)
-		->chain(prepare($sql))
-		->chain(execStmt($values))
-		->either(function($x) {
-			return T\Either::left($x);
-		}, fetchAll)
-		;
+function fetchAll() {
+	return prepareExecFetchAll(...func_get_args());
+}
+
+function fetch() {
+	return prepareExecFetch(...func_get_args());
 }
 
 function prepareExec() {
@@ -185,13 +189,16 @@ function prepareExecFetch() {
 			$values = [$values];
 		}
 
-		return T\Maybe::of($pdo)
+		$out = T\Maybe::of($pdo)
 			->chain(prepare($sql))
 			->chain(execStmt($values))
 			->either(function($x) {
 				return T\Either::left($x);
-			}, fetch)
-		;
+			}, function($x) {
+				return T\Arr($x->fetch());
+			});
+
+		return $out;
 	};
 
 	return FP\curry3($f)(...func_get_args());
