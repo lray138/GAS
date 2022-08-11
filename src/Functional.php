@@ -93,12 +93,13 @@ function extract($data) {
         return $data->extract();
     }
 
-    // get just is from Chem/bingo
+    // get just is from Chem/bingo 
+    // get Just is tricky
     if(method_exists($data, "getJust")) {
-        return $data->getJust();
+        return $data->getOrElse("");
     }
 
-    return $data;
+    return "";
 }
 
 const extract = __NAMESPACE__ . '\extract';
