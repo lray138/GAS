@@ -87,15 +87,18 @@ function flip3() {
 }
 
 function extract($data) {
-    // this needs to be updated
-    // $out = $data instanceof \lray138\GAS\Types\Type || $data instanceof \lray138\GAS\Types\Nothing
-    //         ? $data->extract()
-    //         : $data;
-    // return $out;
-    $out = is_object($data)
-        ? $data->extract()
-        : $data;
-    return $out;
+    if(!is_object($data)) return $data;
+
+    if(method_exists($data, "extract")) {
+        return $data->extract();
+    }
+
+    // get just is from Chem/bingo
+    if(method_exists($data, "getJust")) {
+        return $data->getJust();
+    }
+
+    return $data;
 }
 
 const extract = __NAMESPACE__ . '\extract';
