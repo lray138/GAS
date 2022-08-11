@@ -41,12 +41,16 @@ function varDump($var) {
 const varDump = __NAMESPACE__ . '\varDump';
 
 function dump() {
+    $args = count(func_get_args()) > 0 
+        ? func_get_args()
+        : [null];
+
     if(!isCLI()) {
         echo "<pre>";
-        var_dump(...func_get_args());
+        var_dump(...$args);
         echo "</pre>";
     } else {
-        var_dump(...func_get_args());
+        var_dump(...$args);
     }
 }
 

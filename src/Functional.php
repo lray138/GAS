@@ -404,3 +404,31 @@ function tryCatch(callable $f): Either {
         return Either::left($e);
     }
 }
+
+function Just($value) {
+    return Maybe::of($value);
+}
+
+function Maybe($value) {
+    return Maybe::of($value);
+}
+
+function pluck() {
+    $f = function($key, $source) {
+        if(is_array($source)) {
+            return isset($source[$key]) ? $source[$key] : null;
+        }
+
+        if(is_object($source)) {
+            return isset($source->$key) ? $source->$key : null;
+        }
+    };
+
+    return curry2($f)(...func_get_args()); 
+}
+
+const pluck = __NAMESPACE__ . '\pluck';
+
+function pluckFrom() {
+    return flip(pluck)(...func_get_args());
+}
