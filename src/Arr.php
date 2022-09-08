@@ -218,6 +218,8 @@ function pluck() {
         //     return $out;
         // } 
 
+        if(!is_array($keys)) $keys = [$keys];
+
         foreach($keys as $key) {
             if(isset($array[$key])) {
                 return $array[$key];

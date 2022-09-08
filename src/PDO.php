@@ -40,28 +40,41 @@ function getDefaultCharset() {
 // e is always options (if present)
 // then you could create either way you want
 // if you wanted to curry apply later
-function create(array $creds, $options = null): Either {
+function create(array $creds, $options = null): \PDO {
 	if(!isset($creds["charset"])) {
 		$creds["charset"] = getDefaultCharset();
 	}
 
 	$pluck = FP\flip(Arr\pluck)($creds);
 
-	$dsn = "mysql:host=" . $pluck("host") . ";charset=" . $pluck('charset') . ";";
-
-	if(isset($creds["database"])) {
-		$dsn .= "dbname=" . $pluck("database");
-	}
+	$dsn = "mysql:host=" . $pluck(["host", "hostname"]) . ";charset=" . $pluck('charset') . ";";
+	$dsn .= "dbname=" . $pluck(["database", "db", "dbname", "db_name"]);
 
 	if(is_null($options)) {
 		$options = getDefaultOptions();
 	}
 
-	return FP\tryCatch(fn() => new \PDO($dsn, $pluck("username"), $pluck("password"), $options));
+	//return FP\tryCatch(fn() => );
+	return new \PDO($dsn, $pluck(["username", "user"]), $pluck(["password", "pass"]), $options);
 }
 
 function connect(array $creds, $options = null) {
 	return create($creds, $options);
+}
+
+function init($creds, $options = null) {
+	$pdo = create($creds, $options);
+
+	return [
+		"pdo" => $pdo 
+		, "fetch" => fetch($pdo)
+		, "fetchAll" => fetchAll($pdo)
+		, "qFetch" => qFetch($pdo)
+		, "qFetchAll" => qFetchAll($pdo)
+		, "query" => query($pdo)
+		, "prepare" => prepare($pdo)
+		, "insert" => insert($pdo)
+	];
 }
 
 function useDatabase($db, $database_name) {
@@ -112,11 +125,11 @@ function prepare() {
 	$f = function($pdo, $sql) {
 		try {
 			$stmt = $pdo->prepare($sql);
-			return T\Either::right($stmt);
+			return $stmt;
 		} catch (\Exception $e) {
-			return T\Either::left($e);
+			//return T\Either::left($e);
 		} catch (\Error $e) {
-			return T\Either::left($e);
+			//return T\Either::left($e);
 		}
 	};
 
@@ -128,36 +141,18 @@ const prepare = __NAMESPACE__ . '\prepare';
 // I think the trade off for curryign here is making the 
 // empty array always necessary, or you could always just 
 // say curry2 if you don't want too
+// the actual answer to this would be qFetchAll for query
+// and fetchAll for the rest... 
 function prepareExecFetchAll() {
-	$f = function(\PDO $pdo, $sql, $values = []) {
+	$f = function(\PDO $pdo, $sql, $values = [], $options = null) {
 		if(!is_array($values)) {
 			$values = [];
 		}
 			
-		$out = T\Maybe::of($pdo)
-			->chain(_(prepare)($sql))
-			->chain(execStmt($values))
-			->either(function($x) {
-				return T\Either::left($x);
-			}, function($x) {
-				return T\Arr(Arr\map(T\Arr, $x->fetchAll()));
-			});
-			;
-
-		return $out;
+		return prepareExec($pdo, $sql, $values)->fetchAll();
 	};
 
 	return FP\curry3($f)(...func_get_args());
-
-	// old way
-	// return FP\compose(
-	// 	fetchAll,
-	// 	FP\flip(execStmt)($values),
-	// 	prepare($pdo)
-	// )($stmt);
-
-	// really you'd want to do // it sort of doesn't matter
-	// anyway
 }
 
 function fetchAll() {
@@ -175,7 +170,8 @@ function prepareExec() {
 		}
 
 		$stmt = $pdo->prepare($sql);
-		return $stmt->execute($values);
+		$stmt->execute($values);
+		return $stmt;
 	};
 
 	return FP\curry3($f)(...func_get_args());
@@ -184,58 +180,62 @@ function prepareExec() {
 const prepareExecFetchAll = __NAMESPACE__ . '\prepareExecFetchAll';
 
 function prepareExecFetch() {
-	$f = function($sql, $pdo, $values) {
+	$f = function($pdo, $sql, $values) {
 		if(!is_array($values)) {
 			$values = [$values];
 		}
 
-		$out = T\Maybe::of($pdo)
-			->chain(prepare($sql))
-			->chain(execStmt($values))
-			->either(function($x) {
-				return T\Either::left($x);
-			}, function($x) {
-				return T\Arr($x->fetch());
-			});
-
-		return $out;
+		return prepareExec($pdo, $sql, $values)->fetch();
 	};
 
 	return FP\curry3($f)(...func_get_args());
-
-	// return FP\compose(
-	// 	fetch,
-	// 	FP\flip(execStmt)($values),
-	// 	prepare($pdo)
-	// )($stmt);
-
-	// return T\Maybe::of($pdo)
-	// 	->chain(prepare($sql))
-	// 	->chain(execStmt($values))
-	// 	->either(function($x) {
-	// 		return T\Either::left($x);
-	// 	}, fetch)
-	// 	;
 }
 
 const prepareExecFetch = __NAMESPACE__ . '\prepareExecFetch';
 
 // probalby should be "insert" ? or maybe there is a nahh.. dunno
 // model??? I have that...
-function prepareExecLastId($pdo, $sql, $values) {
-	return FP\compose(
-		function($x) use ($pdo) {
-			return $pdo->lastInsertId();
-		},
-		FP\flip(execStmt)($values),
-		prepare($pdo)
-	)($sql);
+function prepareExecLastId() {
+	$f = function($pdo, $sql, $values) {
+		$stmt = prepareExec($pdo, $sql, $values);
+		return $pdo->lastInsertId();
+	};
+	return FP\curry3($f)(...func_get_args());
+}
+
+function insert() {
+	return prepareExecLastId(...func_get_args());
 }
 
 const prepareExecLastId = __NAMESPACE__ . '\prepareExecLastId';
 
-function queryFetchAll($sql, $pdo, $data = []) {
-	return prepareExecFetchAll($sql, $pdo, $data);
+function queryFetchAll() {
+	$f = function($pdo, $sql) {
+		return query($pdo, $sql)->fetchAll();
+	};
+	return FP\curry2($f)(...func_get_args());
 }
 
 const queryExecLastId = __NAMESPACE__ . '\queryExecLastId';
+
+function queryFetch() {
+	$f = function($pdo, $sql) {
+		return query($pdo, $sql)->fetch();
+	};
+	return FP\curry2($f)(...func_get_args());
+}
+
+function qFetch() {
+	return queryFetch(...func_get_args());
+}
+
+function qFetchAll() {
+	return queryFetchAll(...func_get_args());
+}
+
+function query() {
+	$f = function($pdo, $sql) {
+		return $pdo->query($sql);
+	};
+	return FP\curry2($f)(...func_get_args());
+}
