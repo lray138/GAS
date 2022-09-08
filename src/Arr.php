@@ -27,6 +27,15 @@ function of(array $arr) {
     return ArrType::of($arr);
 }
 
+function some($callable, $arr) {
+    foreach($arr as $a) {
+        if($callable($a)) return true;
+    }
+    return false;
+}
+
+const some = __NAMESPACE__ . '\some';
+
 /**
  * @param int $size
  * @param array|ArrType $haystack
@@ -201,21 +210,53 @@ function pluck() {
     $f = function($keys, $array) {
         $array = FP\extract($array);
 
-        if(is_array($keys)) {
-            $out = [];
-            walk(function($x) use ($array, &$out) {
-                if(has($x, $array)) $out[] = $array[$x];
-            })($keys);
-            return $out;
-        } 
+        // if(is_array($keys)) {
+        //     $out = [];
+        //     walk(function($x) use ($array, &$out) {
+        //         if(has($x, $array)) $out[] = $array[$x];
+        //     })($keys);
+        //     return $out;
+        // } 
 
-        return has($keys, $array) ? $array[$keys] : null;
+        foreach($keys as $key) {
+            if(isset($array[$key])) {
+                return $array[$key];
+            }
+        }
+
+        return null;
+        //return has($keys, $array) ? $array[$keys] : null;
     };
  
     return FP\curry2($f)(...func_get_args());
 }
 
 const pluck = __NAMESPACE__ . '\pluck';
+
+
+// if multiple keys are provided it acts like
+// pick ? or some other whatever function
+function pick() {
+    $f = function($keys, $array) {
+        $array = FP\extract($array);
+
+        if(!is_array($keys)) $keys = [$keys];
+
+        $out = [];
+        foreach($keys as $key) {
+            if(isset($array[$key])) {
+                $out[$key] = $array[$key];
+            }
+        }
+
+        return $out;
+        //return has($keys, $array) ? $array[$keys] : null;
+    };
+ 
+    return FP\curry2($f)(...func_get_args());
+}
+
+const pick = __NAMESPACE__ . '\pick';
 
 function pluckOrNull() {
     $pluckOrNull = function($keys, array $array) {

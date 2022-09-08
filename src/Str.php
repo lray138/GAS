@@ -23,6 +23,8 @@ function contains() {
     return call_user_func_array(curry2($contains), func_get_args());
 }
 
+const contains = __NAMESPACE__ . '\contains';
+
 function addLeadingZero($number) {
     if($number < 10) {
         return "0$number";

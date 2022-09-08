@@ -436,3 +436,26 @@ const pluck = __NAMESPACE__ . '\pluck';
 function pluckFrom() {
     return flip(pluck)(...func_get_args());
 }
+
+
+function map() {
+    $f = function($callable, $iterable) {
+        $out = [];
+        foreach($iterable as $i) {
+            $out[] = $callable($i);
+        }
+        return $out;
+    };
+
+    return curry2($f)(...func_get_args());
+}
+
+function walk() {
+    $f = function($callable, $interable) {
+        foreach($iterable as $i) {
+            $callable($i);
+        }
+    };
+
+    return curry2($f)(...func_get_args());
+}
