@@ -21,9 +21,7 @@ function useKeys() {
 
 // not a great candidate for currying... 
 
-// actually LOL'd because I tried to use this with table, options
-// and agree with the above, whenever that was.
-function select() {
+function select(string $table, T\ArrType $options = null) {
 	$select = function(string $table, T\ArrType $options = null) {
 		// $sql = [
 		// 	"SELECT",
@@ -34,10 +32,10 @@ function select() {
 		//     handleConditions($prepare, $conditions)
 		// ];
 
-		$sql = "SELECT ". handleColumns($options) . " FROM $table";
-		$sql = $sql . Str\padLeft(" a", handleConditions($options));
-		$sql = $sql . Str\padLeft(" b", handleSorting($options));
-		$sql = $sql . Str\padLeft(" c", handleLimits($options));
+		$sql = implode(" ", ["SELECT ". handleColumns($options) . " FROM $table"
+		, handleConditions($options)
+		, handleSorting($options)
+		, handleLimits($options)]);
 
 		// hmm this implementation is worse that whatever I was just doing that I'm
 		// trying to replace... har...
@@ -45,7 +43,7 @@ function select() {
 		return $sql;
 	};
 
-	return call_user_func_array(FP\curry2($select), func_get_args());
+	return FP\curry2($select)(...func_get_args());
 }
 
 const select = __NAMESPACE__ . '\select';

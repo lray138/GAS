@@ -26,8 +26,8 @@ function textInput($data = []) {
 	if(is_null($data["name"])) return "";
 	extract($data);
 	
-	$id = is_null($id) ? $name : $id;
-	$label = is_null($label) ? nameToLabel($name) : $label;
+	$id = !isset($id) ? $name : $id;
+	$label = !isset($label) ? nameToLabel($name) : $label;
 
 	unset($data["id"], $data["name"], $data["label"]);
 
@@ -58,8 +58,8 @@ function textarea($data = []) {
 	if(is_null($data["name"])) return "";
 	extract($data);
 
-	$id = is_null($id) ? $name : $id;
-	$label = is_null($label) ? nameToLabel($name) : $label;
+	$id = !isset($id) ? $name : $id;
+	$label = !isset($label) ? nameToLabel($name) : $label;
 
 	return _(HTML\label)('class="form-label" for="' . $name . '"')($label)
 		. HTML\textarea("", 'class="form-control" name="' . $name . '" id="' . $id .'"');

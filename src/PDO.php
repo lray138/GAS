@@ -40,7 +40,7 @@ function getDefaultCharset() {
 // e is always options (if present)
 // then you could create either way you want
 // if you wanted to curry apply later
-function create(array $creds, $options = null): \PDO {
+function create(array $creds, $options = null) {
 	if(!isset($creds["charset"])) {
 		$creds["charset"] = getDefaultCharset();
 	}
@@ -55,7 +55,12 @@ function create(array $creds, $options = null): \PDO {
 	}
 
 	//return FP\tryCatch(fn() => );
-	return new \PDO($dsn, $pluck(["username", "user"]), $pluck(["password", "pass"]), $options);
+	try {
+		return new \PDO($dsn, $pluck(["username", "user"]), $pluck(["password", "pass"]), $options);
+	} catch (\Exception $e) {
+		die($e);
+	}
+	
 }
 
 function connect(array $creds, $options = null) {
@@ -148,8 +153,12 @@ function prepareExecFetchAll() {
 		if(!is_array($values)) {
 			$values = [];
 		}
+
+		$mode = isset($options["mode"]) 
+			? $options["mode"]
+			: \PDO::FETCH_ASSOC;
 			
-		return prepareExec($pdo, $sql, $values)->fetchAll();
+		return prepareExec($pdo, $sql, $values)->fetchAll($mode);
 	};
 
 	return FP\curry3($f)(...func_get_args());
@@ -180,12 +189,16 @@ function prepareExec() {
 const prepareExecFetchAll = __NAMESPACE__ . '\prepareExecFetchAll';
 
 function prepareExecFetch() {
-	$f = function($pdo, $sql, $values) {
+	$f = function($pdo, $sql, $values, $options = []) {
 		if(!is_array($values)) {
 			$values = [$values];
 		}
 
-		return prepareExec($pdo, $sql, $values)->fetch();
+		$mode = isset($options["mode"]) 
+			? $options["mode"]
+			: \PDO::FETCH_ASSOC;
+
+		return prepareExec($pdo, $sql, $values)->fetch($mode);
 	};
 
 	return FP\curry3($f)(...func_get_args());

@@ -9,7 +9,7 @@ use lray138\GAS\{
 
 use function lray138\GAS\Functional\flip as _;
 use function lray138\GAS\dump;
-use function lray138\GAS\Tools\attributesStringToArrType as Attributes;
+use function lray138\GAS\GasTools\attributesStringToArrType as Attributes;
 
 
 /* *

@@ -18,15 +18,15 @@ function getParent($page) {
 	return $page->parent;
 }
 
+const getPageLink = __NAMESPACE__ . '\getPageLink';
+
 // special options should be unset from what would otherwise be
 // attributes
 function getPageLink($page, $attributes = []) {
-	$href = isset($attributes["base_url"]) ? $attributes["base_url"] . $page->path : $page->path;
+	$href = isset($attributes["base_url"]) ? $attributes["base_url"] . $page->url : $page->url;
 	unset($attributes["base_url"]);
-	return HTML\a($href, $page->title, $attributes);
+	return HTML\a($page->title, ["href" => $href]);
 }
-
-const getPageLink = __NAMESPACE__ . '\getPageLink';
 
 // I tried to call this with just a path and think if ... hmm
 function pageExists($pages, $parent_path, $name = null) {

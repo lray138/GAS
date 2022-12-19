@@ -316,3 +316,8 @@ function Number($number = null) {
         ? \lray138\GAS\Types\Number::of(0)
         : \lray138\GAS\Types\Number::of($number);
 }
+
+
+function Boolean($boolean) {
+    return \lray138\GAS\Types\Boolean::of($boolean);
+}

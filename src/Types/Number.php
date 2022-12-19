@@ -3,6 +3,7 @@
 namespace lray138\GAS\Types;
 
 use lray138\GAS\Numbers;
+use lray138\GAS\Types as T;
 use function lray138\GAS\dump;
 
 // the reason for using the "Numbers" function is that it 
@@ -14,14 +15,14 @@ use function lray138\GAS\dump;
 
 class Number extends Type {
 
+	const of = __CLASS__ . '::of';
+
 	protected $value;
-	
-	// public static function of($value) {
-	// 	return new self($value);
-	// }
 
 	public function __construct($value) {
-		$this->value = $value;
+		$this->value = is_numeric($value) 
+			? (float) $value 
+			: 0;
 	}
 
 	public function extract() {
@@ -41,7 +42,7 @@ class Number extends Type {
 	}
 
 	public function divide($number) {
-		return new self(Numbers\divide($this->value, $number));
+		return new self(Numbers\divide($number, $this->value));
 	}
 
 	public function divideBy($number) {
@@ -61,7 +62,20 @@ class Number extends Type {
 	}
 
 	public function format($decimals) {
-		return new self(\number_format($this->extract(), $decimals));
+		return T\Str(\number_format($this->extract(), $decimals));
+	}
+
+	public function isGreaterThan($number) {
+		return $number instanceof self
+			? T\Boolean($this->extract() > $number->extract())
+			: T\Boolean($this->extract() > $number);
+	}
+
+	public function __call($method, $args) {
+		if(function_exists("\lray138\GAS\Numbers\\$method")) {
+			$func = "\lray138\GAS\Numbers\\$method";
+			return new self(call_user_func_array($func, [...$args, $this->extract()]));
+		} 
 	}
 
 }

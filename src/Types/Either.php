@@ -39,7 +39,7 @@ abstract class Either
      */
     public static function of($x) : Either
     {
-        return is_null($x) ? self::left() : self::right($x);
+        return is_null($x) ? self::left(null) : self::right($x);
         //return self::right($x);
     }
 

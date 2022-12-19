@@ -12,7 +12,10 @@ use lray138\GAS\{
 
 use function lray138\GAS\IO\dump;
 
-class ArrType extends Type {
+class ArrType extends Type implements \Iterator {
+
+	public const of  = __CLASS__ . '::of';
+	protected int $position = 0;
 
 	public function push($value) {
 		return ArrType::of(Arr\push($value, $this->value));
@@ -260,8 +263,6 @@ class ArrType extends Type {
 		return new static($data);
 	}
 
-	const of = __NAMESPACE__ . '\of';
-
 	public function __construct($data = []) {
 		// if($data instanceof self) {
 		// 	$data = $data->extract();
@@ -284,16 +285,40 @@ class ArrType extends Type {
 		$this->value[$property] = $value;
 	}
 
-	public function __call($name, $args) {
-		if(isset($this->value[$name])) {
-			return $this->value[$name](...$args);
-		}
+	public function __call($method, $args) {
+		// this is where we get a little "hacky/geeky" 
+		// perhaps, note on Sept 10, 2022 as I'm updating this stuff
+		if(isset($this->value[$method])) {
+			return $this->value[$method](...$args);
+		} else if(function_exists("\lray138\GAS\Arr\\$method")) {
+			$func = "\lray138\GAS\Arr\\$method";
+			return new self(call_user_func_array($func, [...$args, $this->extract()]));
+		} 
 
-		return NoMethod::of($name . " method doesn't exists in " . $this->value);
+		return NoMethod::of($method . " method doesn't exists in stored value");
 	}
 
 	public function toJust() {
 		return Some::of($this);
 	}
-
+	
+	public function rewind() {
+        $this->position = 0;
+    }
+ 
+    public function current() {
+        return $this->extract()[$this->position];
+    }
+ 
+    public function key(): int {
+        return $this->position;
+    }
+ 
+    public function next(): int {
+        return ++$this->position;
+    }
+ 
+    public function valid() {
+        return isset($this->extract()[$this->position]);
+    }
 }

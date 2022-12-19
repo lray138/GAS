@@ -4,6 +4,7 @@ use lray138\GAS\Arr;
 
 use function lray138\GAS\IO\dump;
 
+
 use lray138\GAS\Types\Either;
 
 function identity($x) { 
@@ -433,6 +434,15 @@ function pluck() {
 
 const pluck = __NAMESPACE__ . '\pluck';
 
+
+function pick(array $properties, $source) {
+    $out = [];
+    foreach($properties as $prop) {
+        $out[$prop] = pluck($prop, $source);
+    }
+    return $out;
+}
+
 function pluckFrom() {
     return flip(pluck)(...func_get_args());
 }
@@ -451,7 +461,7 @@ function map() {
 }
 
 function walk() {
-    $f = function($callable, $interable) {
+    $f = function($callable, $iterable) {
         foreach($iterable as $i) {
             $callable($i);
         }
@@ -459,3 +469,48 @@ function walk() {
 
     return curry2($f)(...func_get_args());
 }
+
+function filter() {
+    $f = function($callable, $iterable) {
+        
+    };
+
+    return curry2($f)(...func_get_args());
+}
+
+// from ace/bingo
+function extend(array ...$lists): array
+{
+  $ret = [];
+
+  for ($idx = 0; $idx < \count($lists); ++$idx) {
+    $list = $lists[$idx];
+
+    foreach ($list as $key => $val) {
+      if (\is_string($key)) {
+        $ret[$key] = $val;
+      } else {
+        $ret[] = $val;
+      }
+    }
+  }
+
+  return $ret;
+}
+
+// from ace bingo
+function flatten(array $list): array
+{
+  $flattened = fold(
+    function ($acc, $value) {
+      return \is_array($value) ?
+        extend($acc, flatten($value)) :
+        extend($acc, [$value]);
+    },
+    $list,
+    []
+  );
+
+  return $flattened;
+}
+

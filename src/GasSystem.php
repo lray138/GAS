@@ -69,11 +69,7 @@ function request($data) {
 	if(FS\dirExists($module_dir)) {
 		$data["path"] = implode("/", Arr\tail($bits));
 		$data["current_slug"] = $bits[0];
-
-
 		return (include $module_dir . "/controllers/Main.php")($data);
-
-		//return (include $module_dir . "/" . ucfirst($bits[0]) . "Controller.php")($data);
 	}
 }
 

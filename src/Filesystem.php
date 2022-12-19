@@ -65,6 +65,11 @@ function getModifiedTimestamp($filename) {
 	return filemtime($filename);
 }
 
+// I tried to call this when it was "timestamp"
+function getModifiedTime($filename) {
+	return filemtime($filename);
+}
+
 const getModifiedTimestamp = __NAMESPACE__ . '\getModifiedTimestamp';
 
 function getFiles($directory) {
@@ -75,10 +80,10 @@ const getFiles = __NAMESPACE__ . '\getFiles';
 
 // mode not implemented but would be the difference between
 // file object and a the full path that this currently provides.
-function getFilesInDir($directory, $mode = "") {
-	if(in_array(strtolower($mode), ["object", "obj", "splfile"])) {
+function getFilesInDir($directory, $options = []) {
+	if(isset($options["mode"]) 
+		&& in_array(strtolower($options["mode"]), ["object", "obj", "splfile"])) {
 		$files = [];
-
 		foreach (new \DirectoryIterator($directory) as $fileInfo) {
 			if($fileInfo->isDot() || $fileInfo->isDir()) continue;
 			$files[] = [
@@ -88,21 +93,22 @@ function getFilesInDir($directory, $mode = "") {
 				, "extension" => $fileInfo->getExtension()
 			];
 		}
-
 		return $files;
 	}
 
 	$prependDirectoryToFile = Arr\map(
-					function($x) use ($directory) {
-						if(!Str\lastCharIs("/", $directory)) {
-							return Str\prepend(Str\append("/", $directory), $x);
-						} 
-						return Str\prepend($directory, $x);
-					});
+		function($x) use ($directory) {
+			if(!Str\lastCharIs("/", $directory)) {
+				return Str\prepend(Str\append("/", $directory), $x);
+			} 
+			return Str\prepend($directory, $x);
+		});
 
+	// leave a comment, like and subscribe
 	$process = FP\pipe(
-					Arr\filter(Arr\notIn([".", "..", ".DS_Store"])),
-		 			$prependDirectoryToFile);
+		Arr\filter(Arr\notIn([".", "..", ".DS_Store"])),
+		(isset($options["filter"]) ? Arr\filter($options["filter"]) : fn($x) => $x),
+		$prependDirectoryToFile);
 
 	return Arr\filter(
 				"is_file",
@@ -112,7 +118,6 @@ function getFilesInDir($directory, $mode = "") {
 const getFilesInDir = __NAMESPACE__ . '\getFilesInDir';
 
 function getDirsInFolder($directory, $filter = null) {
-
 	$prependDirectoryToFile = Arr\map(
 					function($x) use ($directory) {
 						if(!Str\lastCharIs("/", $directory)) {

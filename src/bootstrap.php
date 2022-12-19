@@ -23,6 +23,7 @@ file is probably less clutter.
 
 require 'Arr.php';
 require 'Calendar.php';
+require 'CalDates.php';
 require 'DateTime.php';
 require 'HTML5DOM.php';
 require 'Functional.php';
@@ -39,9 +40,10 @@ require 'Regex.php';
 require 'RegexPatterns.php';
 require 'Str.php';
 require 'SQL.php';
+require 'Test.php';
 require 'Types.php';
 require 'Tree.php';
-require 'Tools.php';
+require 'GasTools.php';
 require 'Views.php';
 require 'XML.php';
 require 'HTML/Bootstrap5/index.php';

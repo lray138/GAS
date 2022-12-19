@@ -21,6 +21,7 @@ class Boolean extends Type {
 	public function isNot() {
 		return $this->value === false;
 	}
+
 	/**
 	 * 
 	 */ 

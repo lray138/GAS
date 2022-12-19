@@ -1,6 +1,6 @@
 <?php 
 
-namespace lray138\GAS\Calendar;
+namespace lray138\GAS\CalDates;
 
 use lray138\GAS\Functional as FP;
 use lray138\GAS\DateTime as DT;
@@ -152,74 +152,16 @@ function getWeekDaysShort($start = "Sun") {
 	}, getWeekDays($start));
 }
 
-function toTable($calendar, $options = []) {
-
-	if(is_object($calendar) && method_exists($calendar, "head")) {
-			$dt = $calendar->head()->filter(function($x){
-				return $x["current_month"] === true;
-			})
-			->head()
-			->date_time;
-	} else {
-		
-		dump($calendar);
-	}
-
-
-
-	return $calendar
-		// day
-		->map(Arr\map(function($day) {
-			    $dt = $day["date_time"];
-				$id = T\Arr([$dt->getYYYY(), $dt->getM(), $dt->getD()])
-					->implode("-");
-				
-				$label = $dt->getD();
-				$out = T\Arr([
-					"label" 			=> $label
-					, "id" 				=> $id
-					, "current_month" 	=> $day["current_month"]
-					, "date_time" 		=> $dt
-				]);
-
-				if(isset($day["content"])) {
-					$out = $out->set("content", $day["content"]);
-				}
-
-				return $out;
-			}))
-		// day
-		->map(Arr\map(function($day) use ($options) {
-			$class = $day->current_month->isTrue()
-				? "calendar__day"
-				: "calendar__day outside";
-
-			if(!$day->content->isNothing()) {
-				$day_link = $day->content;
-			} else {
-				$day_link = isset($options["day_link"]) 
-					? $options["day_link"]($day)
-					: HTML\a($day->label, [
-						"href" => $day->id->replace("-", "/")
-										  ->prepend($base_url)
-					]);
+function findDate($monthDates, $datetime) {
+	foreach($monthDates as $week_key => $week) {
+		foreach($week as $day_key => $day) {
+			if($datetime->format("Y-m-d") == $day["date_time"]->format("Y-m-d")) {
+				return [
+					"week_key" => $week_key,
+					"day_key" => $day_key
+				];
 			}
-				
-			
 
-			return HTML\td($day_link, [
-				"class" => $class
-				, "id"  => $day->id
-				, 
-			]);
-		}))
-		->map(Arr\implode(""))
-		->map(HTML\tr)
-		->implode()
-		->prepend(HTML\tr(Arr\map(HTML\th)(getWeekDaysShort())))
-		->map(FP\compose(HTML\table, HTML\tbody))
-		->prepend($dt->format("F") . " " . $dt->format("Y"))
-	;
+		}
+	}
 }
-
-const toTable = __NAMESPACE__ . '\toTable';

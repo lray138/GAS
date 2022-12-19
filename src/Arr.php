@@ -651,3 +651,15 @@ function isEmpty(array $array) {
 }
 
 const isEmpty = __NAMESPACE__ . '\isEmpty';
+
+function addIndexKey(array $data) {
+
+    dump($data);
+
+
+    dump(array_flip(array_fill_keys(
+        range(0, count(array_values($data)))
+        , "index"
+    )));
+    return $data;
+}

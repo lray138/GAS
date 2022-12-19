@@ -17,6 +17,15 @@ function of($value) {
 
 function contains() {
     $contains = function($needle, $haystack) {
+        if(is_array($needle)) {
+            foreach($needle as $n) {
+                if(strpos($haystack, $n) === false) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
         return strpos($haystack, $needle) !== false;
     };
 
@@ -570,13 +579,16 @@ function splitWithExpression($haystack, $needle, $limit = 0)
  *
  * @return string
  */
-function trim($haystack, $needle)
-{
-    if (isExpression($needle)) {
-        return trimWithExpression($haystack, $needle);
-    }
+function trim() {
+    $f = function($haystack, $needle) {
+        if (isExpression($needle)) {
+            return trimWithExpression($haystack, $needle);
+        }
 
-    return trimWithString($haystack, $needle);
+        return trimWithString($haystack, $needle);
+    };
+
+    return FP\curry2($f)(...func_get_args());
 }
 
 /**
@@ -584,10 +596,13 @@ function trim($haystack, $needle)
  * @param string $needle
  *
  * @return string
+ * 
+ *  this code was from Chris Pitt typed PHP book, but was not in 
+ *  what I consider "functional order"
  */
-function trimWithString($haystack, $needle)
+function trimWithString($characters, $string)
 {
-    return \trim($haystack, $needle);
+    return \trim($string, $characters);
 }
 
 /**
@@ -609,12 +624,10 @@ function trimWithExpression($haystack, $needle)
  *
  * @return string
  */
-function trimLeft($haystack, $needle)
-{
+function trimLeft($needle, $haystack) {
     if (isExpression($needle)) {
         return trimLeftWithExpression($haystack, $needle);
     }
-
     return trimLeftWithString($haystack, $needle);
 }
 
@@ -625,11 +638,10 @@ function trimLeft($haystack, $needle)
  * @return string 
  * I think this is Chris Pitt code.
  */
-function trimLeftWithString($haystack, $needle)
-{
-    return ltrim($haystack, $needle);
+function trimLeftWithString($haystack, $needle) {
+    
+    return \ltrim($haystack, $needle);
 }
-
 
 function ltrim() {
     $f = function($needle, $haystack) {
@@ -643,7 +655,6 @@ function rtrim() {
     $f = function($needle, $haystack) {
         return \rtrim($haystack, $needle);
     };
-
     return FP\curry2($f)(...func_get_args());
 }
 
@@ -666,7 +677,7 @@ function trimLeftWithExpression($haystack, $needle)
  *
  * @return string
  */
-function trimRight($haystack, $needle)
+function trimRight($needle, $haystack)
 {
     if (isExpression($needle)) {
         return trimRightWithExpression($haystack, $needle);
@@ -683,7 +694,7 @@ function trimRight($haystack, $needle)
  */
 function trimRightWithString($haystack, $needle)
 {
-    return rtrim($haystack, $needle);
+    return \rtrim($haystack, $needle);
 }
 
 /**
@@ -713,7 +724,9 @@ function join($delimeter, $bits = null) {
 
 function concat() {
     $concat = function($x, $y) {
-        return $x . $y;
+        return is_array($x) 
+            ? \implode($x) . $y 
+            : $x . $y;
     };
     return call_user_func_array(curry2($concat), func_get_args());
 }
@@ -773,7 +786,6 @@ function append() {
 
 function wrap() {
     $wrap = function($a, $b, $c) {
-        // vs concatN
         return $a . $c . $b;
     };
 

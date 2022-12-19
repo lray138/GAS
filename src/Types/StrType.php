@@ -2,60 +2,46 @@
 
 namespace lray138\GAS\Types;
 
-use lray138\GAS\{Str as S, Functional as FP};
+use lray138\GAS\{
+	Str as S
+	, Functional as FP
+};
+
 use function lray138\GAS\IO\dump;
 
 class StrType extends Type {
-	// weird early version of this I suppose... 
-	// public function explode(string $delimeter) {
-	// 	return ArrType::of(S\explode($delimeter, rtrim($this->value, $delimeter)))->map("\\lray138\\GAS\\Types\\StrType::of");
-	// }
+
+	const of = __CLASS__ . '::of';
 
 	public function explode(string $delimeter) {
 		return ArrType::of(S\explode($delimeter, rtrim($this->value, $delimeter)));
 	}
 
-	// public static function of($value) {
-	// 	return new self($value);
-	// }
-
-//	const of = __NAMESPACE__ . '\Str::of'; was this here because of copy and paste.
-
 	public function __construct($value) {
-		if($value instanceof self) {
-			$value = $value->extract();
-		}
-
-		if(is_array($value)) {
-			$value = implode($value);
-		}
-
 		if(!is_string($value)) {
-			$value = (string) $value;
+			$this->value = "";
+		} else {
+			$this->value = $value;
 		}
-
-		$this->value = $value;
 	}
 
-	public function concat($str) {
-		return new self($this->value . $str);
+	public function concat($x) {
+		return new self($this->extract() . $x);
 	}
 
-	public function trim($str) {
-		return new self(trim($this->value, $str));
+	public function __call($method, $args) {
+		if(function_exists("\lray138\GAS\Str\\$method")) {
+			$func = "\lray138\GAS\Str\\$method";
+			return new self(call_user_func_array($func, [...$args, $this->extract()]));
+		} 
 	}
 
 	public function __toString() {
 		return $this->value;
 	}
 
-	public function replace($find, $replace) {
-		return new self(S\replace($find, $replace, $this->value));
-	}
-
 	public function map(callable $f) {
-		//return new self($f($this->value));
-		return wrap($f($this->value));
+		return new self($f($this->value));
 	}
 
 	public function append($x) {
@@ -77,7 +63,6 @@ class StrType extends Type {
 	}
 
 	public function wrap($a, $b) {
-		//return new self(FP\compose(S\prepend($a), S\append($b))($this->value));
 		$val = $a . $b;
 		return new self($a . $b);
 	}
@@ -92,10 +77,6 @@ class StrType extends Type {
 
 	public function isLeft() {
 		return false;
-	}
-
-	public function rtrim($delimeter = "") {
-		return new self(rtrim($this->value, "/"));
 	}
 
 	public function isString() {

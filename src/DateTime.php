@@ -2,6 +2,8 @@
 
 namespace lray138\GAS\DateTime;
 
+// https://www.php.net/manual/en/datetime.format.php
+
 use lray138\GAS\Functional as FP;
 use function lray138\GAS\dump;
 
@@ -118,6 +120,15 @@ function getDayNoLeadingZero(\DateTime $dt) {
 	return format("j", $dt);
 }
 
+function getD(\DateTime $dt) {
+	return $dt->format("j");
+}
+
+function getDChar(): string {
+	return "j";
+}
+
+const getDayNumberShort = __NAMESPACE__ . '\getDayNumberShort';
 function getDayNumberShort(\DateTime $dt) {
 	return getDayNoLeadingZero($dt);
 }
@@ -125,8 +136,6 @@ function getDayNumberShort(\DateTime $dt) {
 function getDayOfWeekNumber(\DateTime $dt) {
 	return $dt->format("w");
 }
-
-const getDayNumberShort = __NAMESPACE__ . '\getDayNumberShort';
 
 function getDayName(\DateTime $dt) {
 	return format("l", $dt);
@@ -146,6 +155,14 @@ function getMonth(\DateTime $dt) {
 
 function getMonthNameShort(\DateTime $dt) {
 	return format("M", $dt);
+}
+
+function getMMM(\DateTime $dt) {
+	return format("M", $dt);
+}
+
+function getMMMChar() {
+	return "M";
 }
 
 function getMonthName(\DateTime $dt) {
@@ -179,7 +196,24 @@ function getFormatsObj(\DateTime $dt) {
 const getFormatObj = __NAMESPACE__ . '\getFormatsObj';
 
 
+function getLastDayOfMonth(\DateTime $dt) {
+	$c = clone $dt;
+	return $c->modify('last day of')->setTime(23, 59, 59, 59);
+}
 
+function getFirstDayOfMonth(\DateTime $dt) {
+	return $dt->modify('first day of')->setTime(0, 0, 0, 0);
+}
+
+function isSameDayOfYear($a, $b) {
+	$format = "Y-m-d";
+	return $a->format($format) === $b->format($format);
+}
+
+function getEndOfDay(\DateTime $dt) {
+	$c = clone $dt;
+	return $c->setTime(23, 59, 59, 59);
+}
 
 // function getMonthName($number) {
 // 	$index = (int) $number;
@@ -439,6 +473,51 @@ function getDurationMins(\DateTime $start, \DateTime $end) {
 	return $minutes;
 }
 
+
+function getTimespan(\DateTime $start, \DateTime $end, $options = []): string {
+	$defaults = [
+		"month" => getMMMChar(),
+		"year" => "Y",
+		"day" => getDChar()
+	];
+
+	$getValue = function($val) use ($options, $defaults) {
+		return isset($options[$val])
+			? $options[$val]
+			: $defaults[$val];
+	};
+
+	$init = FP\curry2(function($bit, $date) use ($getValue) {
+		return $date->format($getValue($bit));
+	});
+
+	$month = $init("month");
+	$year = $init("year");
+	$day = $init("day");
+
+	if($year($start) === $year($end)) {
+		if($month($start) === $month($end)) {
+			if($day($start) === $day($end)) {
+				return $month($start) . " " . $day($start) . ", ". $year($start);
+			}
+
+			return !isset($options["no_days"])
+					? $month($start) . " " . $day($start) . " - " . $day($end) . ", " . $year($end)
+					: $month($start) . " " . $year($end);
+		} else {
+			return $month($start) . " " . $day($start) . " - " . $month($end) . " " . $day($end) . ", " . $year($end);
+		}
+	} else {
+		return FP\compose(
+			Arr\join(" - "),
+			Arr\map(function(\DateTime $d) {
+				return $month($d) . " " . $day($d) . ", " . $year($d);
+			})
+		)([$start, $end]);
+	}
+	return "";
+}
+
 function getDurationString($start, $end) {
 	$since = $start->diff($end);
 	
@@ -457,4 +536,37 @@ function getDurationString($start, $end) {
 	}
 	
 	return implode(", ", $out);
+}
+
+function addTime($time_string, \DateTime $dt) {
+	return modify("+" . $time_string, $dt);
+}
+
+function subTime($time_string, \DateTime $dt) {
+	return modify("-" . $time_string, $dt);
+}
+
+function modify($string, \DateTime $dt) {
+	$c = clone $dt;
+	return $c->modify($string);
+}
+
+function formatMM(\DateTime $dt) {
+	return $dt->format("m");
+}
+
+function getTimespanYearMonth($earliest_date, $latest_date): array {
+	$limit = addTime("1 month", $latest_date);
+	$out = [];
+	do {
+		if(!isset($out[$earliest_date->format("Y")])) {
+			$out[$earliest_date->format("Y")] = [
+				"year" => $earliest_date->format("Y"),
+				"months" => []
+			];
+		}
+		$out[$earliest_date->format("Y")]["months"][] = formatMM($earliest_date);
+		$earliest_date = addTime("1 month", $earliest_date);
+	} while($earliest_date->format("Y-m") != $limit->format("Y-m"));
+	return $out;
 }
