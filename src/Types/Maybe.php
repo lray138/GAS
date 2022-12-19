@@ -13,17 +13,22 @@ class Maybe implements Functor\PointedFunctor {
     }
 
 	public function __call($method, $parameters) {
+
 		return $this->then(function($value) use ($method) {
 			if(is_array($value)) {
 				return isset($value[$method]) ? $value[$method] : null;
 			} else if($value instanceof ArrType) {
 			 	return $value->$method;
-			} else if(is_object($value)) {
-				return isset($value->$method) ? $value->$method : null;
+			} else if(is_object($value) && method_exists($value, $method)) {
+				return $value->$method();
 				// above was commented out at one point but
 				// not sure why
+
+				// leaving this for a minute, but I can see now where the issue was
+				// and wondering if since it was sort of a demo/academic thing that got
+				// me here that there were some use cases not considered?
 				//return $value->$method;
-			} 
+			}
 		});
 	}
 
@@ -82,6 +87,13 @@ class Maybe implements Functor\PointedFunctor {
     }
 
 	public function __get($property) {
+		$value = $this->extract();
+		if(is_array($value) && isset($value[$property])) {
+			return Some::of($value[$property]);
+		} else if (is_object($value) && isset($value->$property)) {
+			return Some::of($value->$property);
+		}
+
 		return $this->$property();
 	}
 
