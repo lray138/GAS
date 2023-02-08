@@ -628,7 +628,6 @@ const toUl = __NAMESPACE__ . '\toUl';
 
 // https://stackoverflow.com/questions/526556/how-to-flatten-a-multi-dimensional-array-to-simple-one-in-php/15939539
 function flatten(array $array) {
-    dump($array);
     $return = array();
     foreach ($array as $key => $value) {
        if (is_array($value)){ $return = array_merge($return, flatten($value));}

@@ -514,3 +514,8 @@ function flatten(array $list): array
   return $flattened;
 }
 
+function nullIfEmpty($x) {
+    return empty($x) ? null : $x;
+}
+
+const nullIfEmpty = __NAMESPACE__ . '\nullIfEmpty';

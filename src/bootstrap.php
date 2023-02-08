@@ -24,7 +24,9 @@ file is probably less clutter.
 require 'Arr.php';
 require 'Calendar.php';
 require 'CalDates.php';
+require 'CalView.php';
 require 'DateTime.php';
+require 'DateFormat.php';
 require 'HTML5DOM.php';
 require 'Functional.php';
 require 'Filesystem.php';

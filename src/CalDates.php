@@ -112,12 +112,31 @@ function getMonthNamesShort() {
 	}, getMonthNames());
 }
 
-function create(Time $time = null) {
-	$time = is_null($time) 
-		? new Time()
-		: $time;
+// originally this was set to accept \Time month
+// I don't like that anymore 
+function create($time = null, $month = '') {
 
-	return getYearMonthDates($time->getYYYY(), $time->getMM());
+	if(is_null($time)) {
+		$year = (new \DateTime())->format("YYYY");
+	} else {
+
+		if(is_object($time)) {
+			return getYearMonthDates($time->getYYYY(), $time->getMM());
+		}
+
+		$year = is_object($time)
+			? $time->format("YYYY")
+			: $time;
+	}
+
+	$args = [$year];
+
+	if(!empty($month)) {
+		$args[] = $month;
+	}
+
+	//return getYearMonthDates($time->getYYYY(), $time->getMM());
+	return call_user_func(__NAMESPACE__ . "\getYearMonthDates", ...$args);
 };
 
 function fromDateTime(\DateTime $time = null) {

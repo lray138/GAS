@@ -5,6 +5,7 @@ namespace lray138\GAS\DateTime;
 // https://www.php.net/manual/en/datetime.format.php
 
 use lray138\GAS\Functional as FP;
+use lray138\GAS\Arr;
 use function lray138\GAS\dump;
 
 function fromTimestamp($timestamp) {
@@ -510,7 +511,7 @@ function getTimespan(\DateTime $start, \DateTime $end, $options = []): string {
 	} else {
 		return FP\compose(
 			Arr\join(" - "),
-			Arr\map(function(\DateTime $d) {
+			Arr\map(function(\DateTime $d) use ($month, $day, $year) {
 				return $month($d) . " " . $day($d) . ", " . $year($d);
 			})
 		)([$start, $end]);
@@ -546,10 +547,16 @@ function subTime($time_string, \DateTime $dt) {
 	return modify("-" . $time_string, $dt);
 }
 
-function modify($string, \DateTime $dt) {
-	$c = clone $dt;
-	return $c->modify($string);
+function modify() {
+	$f = function($string, \DateTime $dt) {
+		$c = clone $dt;
+		return $c->modify($string);
+	};
+
+	return call_user_func(FP\curry2($f), ...func_get_args());
 }
+
+const modify = __NAMESPACE__ . '\modify';
 
 function formatMM(\DateTime $dt) {
 	return $dt->format("m");
@@ -569,4 +576,8 @@ function getTimespanYearMonth($earliest_date, $latest_date): array {
 		$earliest_date = addTime("1 month", $earliest_date);
 	} while($earliest_date->format("Y-m") != $limit->format("Y-m"));
 	return $out;
+}
+
+function getDateRange($from, $to, $options = []) {
+	
 }

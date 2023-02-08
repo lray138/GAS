@@ -94,7 +94,12 @@ class Type {
 	}
 
 	public function bind($callable) {
-		return new self($callable($this->value));
+		return (new self($callable($this->value)))->extract();
+		//return new self($callable($this->value)->extract());
+	}
+
+	public function map(callable $func) {
+		return new self($func($this->extract()));
 	}
 
 

@@ -1,5 +1,7 @@
 <?php namespace lray138\GAS\Types;
 
+
+
 class Maybe implements Functor\PointedFunctor {
 
 	public function within(callable $func) {
@@ -12,15 +14,44 @@ class Maybe implements Functor\PointedFunctor {
     	return new static($value);
     }
 
+    private function pluck($key, $source) {
+        if(is_array($source)) {
+            return isset($source[$key]) ? $source[$key] : null;
+        }
+
+        if(is_object($source)) {
+            return isset($source->$key) ? $source->$key : null;
+        }
+    }
+
 	public function __call($method, $parameters) {
 
-		return $this->then(function($value) use ($method) {
+		return $this->then(function($value) use ($method, $parameters) {
+
 			if(is_array($value)) {
 				return isset($value[$method]) ? $value[$method] : null;
 			} else if($value instanceof ArrType) {
 			 	return $value->$method;
-			} else if(is_object($value) && method_exists($value, $method)) {
-				return $value->$method();
+			} else if(is_object($value)) {
+				// "find" for ProcessWire exists but was not being found
+				// && method_exists($value, $method)
+
+				try {
+					return $value->$method(...$parameters);
+				} catch(\Exception $e) {
+					// should really be Left
+					return null;
+				} catch(\Error $e) {
+					// perhaps a "prop"
+					if(count($parameters) == 0) {
+						return $this->pluck($method, $value);
+
+						return $value->$method;
+					}
+
+					return null;
+				}
+				
 				// above was commented out at one point but
 				// not sure why
 
@@ -30,6 +61,8 @@ class Maybe implements Functor\PointedFunctor {
 				//return $value->$method;
 			}
 		});
+
+
 	}
 
 	public function isNothing() {
@@ -88,13 +121,24 @@ class Maybe implements Functor\PointedFunctor {
 
 	public function __get($property) {
 		$value = $this->extract();
+		$attempt_method = true;
+
+		if(is_array($property)) {
+			$property = $property["tryProp"];
+			$attempt_method = false;
+		}
+
 		if(is_array($value) && isset($value[$property])) {
+			// so silly to want to inject Some vs. Just
 			return Some::of($value[$property]);
 		} else if (is_object($value) && isset($value->$property)) {
 			return Some::of($value->$property);
-		}
+		} 
 
-		return $this->$property();
+		// try as method otherwise
+		return $attempt_method
+			? $this->$property()
+			: null;
 	}
 
 	public function chain($fn) {
@@ -122,7 +166,7 @@ class Maybe implements Functor\PointedFunctor {
 	}
 
 	public function bind($func) {
-		return $this->then($func);
+		return $this->then($func)->extract();
 	}
 
 	// need to allow null to be passed in the case of a 

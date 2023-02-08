@@ -237,6 +237,8 @@ function Many($value = null) {
     return Many::of($value);
 }
 
+const Many = __NAMESPACE__ . '\Many';
+
 function Maybe($value =  null) {
     return Maybe::of($value);
 }
