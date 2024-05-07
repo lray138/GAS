@@ -65,6 +65,9 @@ function fromYMD() {
 }
 
 function create($val = null) {
+	if(is_int($val)) {
+		return (new \DateTime())->setTimestamp($val);
+	}
 	return (new \DateTime($val));
 }
 
@@ -85,6 +88,15 @@ const now = __NAMESPACE__ . '\now';
 
 function format() {
 	$format = function($format, \DateTime $dt) {
+		$formats = [
+			"mysql" => "Y-m-d H:i:s",
+			"shell" => "YmdHi"
+		];
+
+		if(array_key_exists($format, $formats)) {
+			return $dt->format($formats[$format]);
+		}
+
 		return $dt->format($format);
 	};
 
@@ -283,6 +295,7 @@ function roundDownToMinuteInterval(\DateTime $dateTime, $minuteInterval = 10)
 // '%h Hours                                                    =>  11 Hours
 // '%a Days                                                        =>  468 Days
 //////////////////////////////////////////////////////////////////////
+// I can see now I had %i because I would have been more concerened with minutes
 function dateDifference(\DateTime $date_1, \DateTime $date_2 , $differenceFormat = '%i' )
 {   
     $interval = date_diff($date_1, $date_2);
@@ -294,8 +307,12 @@ function dateDifference(\DateTime $date_1, \DateTime $date_2 , $differenceFormat
     return $interval->format($differenceFormat);
 }
 
-function diff(\DateTime $a, \DateTime $b, $differenceFormat = '%i') {
-	return dateDifference($a, $b, $differenceFormat);
+function diff(\DateTime $a, \DateTime $b) {
+	return $b->diff($a);
+}
+
+function prettyDiff($a, $b, $options = []) {
+	return niceDiffFormat($a, $b, $options);
 }
 
 function toDateTime($var) {
@@ -501,10 +518,9 @@ function getTimespan(\DateTime $start, \DateTime $end, $options = []): string {
 			if($day($start) === $day($end)) {
 				return $month($start) . " " . $day($start) . ", ". $year($start);
 			}
-
-			return !isset($options["no_days"])
-					? $month($start) . " " . $day($start) . " - " . $day($end) . ", " . $year($end)
-					: $month($start) . " " . $year($end);
+			return isset($options["no_days"]) && $options["no_days"] == true
+					? $month($start) . " " . $year($end)
+					: $month($start) . " " . $day($start) . " - " . $day($end) . ", " . $year($end);
 		} else {
 			return $month($start) . " " . $day($start) . " - " . $month($end) . " " . $day($end) . ", " . $year($end);
 		}
@@ -578,6 +594,23 @@ function getTimespanYearMonth($earliest_date, $latest_date): array {
 	return $out;
 }
 
-function getDateRange($from, $to, $options = []) {
-	
+const fromUTCString = __NAMESPACE__ . '\fromUTCString';
+
+function fromUTCString(string $utcTimestamp) {
+	return new \DateTime($utcTimestamp, new \DateTimeZone('UTC'));
+}
+
+const toEST = __NAMESPACE__ . '\toEST';
+
+function toEST(\DateTime $dt) {
+	return $dt->setTimezone(new \DateTimeZone('America/New_York'));
+}
+
+// convert to EST from UTC
+function UTCtoEST(string $utcTimestamp) : \DateTime {
+    // Create a DateTime object with the UTC timestamp and set the timezone to UTC
+    $dateTimeUtc = new \DateTime($utcTimestamp, new \DateTimeZone('UTC'));
+    // Set the timezone to Eastern Standard Time (EST)
+    $dateTimeUtc->setTimezone(new \DateTimeZone('America/New_York'));
+    return $dateTimeUtc;
 }

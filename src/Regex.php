@@ -20,6 +20,25 @@ function matchAll($pattern, $subject, $matches = null, $flags = 0, $offset = 0) 
 	return $matches;
 }
 
+function matchOne($pattern, $subject, $match = null) {
+	preg_match($pattern, $subject, $match);
+	return $match;
+}
+
+function isMatch($patterns, $subject) {
+	if(!is_array($patterns)) {
+		$patterns = [$patterns];
+	}
+
+	foreach($patterns as $pattern) {
+		if(!preg_match($pattern, $subject)) {
+			return false;
+		}
+	}
+	
+	return true;
+}
+
 function replace($pattern, $replace, $string) {
 	return preg_replace($pattern, $replace, $string);
 }

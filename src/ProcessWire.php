@@ -18,14 +18,57 @@ function getParent($page) {
 	return $page->parent;
 }
 
+function getLabel($page, $label_name = null) {
+	$label_name = is_null($label_name) ? "page_label" : $label_name;
+	if(!is_null($page->$label_name) && !empty($page->$label_name)) {
+		return $page->$label_name;
+	}
+	return $page->title;
+}
+
+const children = __NAMESPACE__ . '\children';
+
+function children($page) {
+	return $page->children();
+}
+
+// added this April 20, 2023, had it but it was 'getPageLink'
+const pageLink = __NAMESPACE__ . '\pageLink';
+
+function pageLink($page, $options = []) {
+	return getPageLink($page, $options);
+}
+
 const getPageLink = __NAMESPACE__ . '\getPageLink';
 
 // special options should be unset from what would otherwise be
 // attributes
 function getPageLink($page, $attributes = []) {
-	$href = isset($attributes["base_url"]) ? $attributes["base_url"] . $page->url : $page->url;
+	$href = isset($attributes["use_path"]) ? $page->path : $page->url;
+	$href = isset($attributes["base_url"]) ? $attributes["base_url"] . $href : $href;
 	unset($attributes["base_url"]);
-	return HTML\a($page->title, ["href" => $href]);
+	unset($attributes["use_path"]);
+
+	$title = isset($attributes["text"]) 
+		? (function($text) use ($page) {
+			return is_callable($text)
+				? $text($page)
+				: $text;
+		})($attributes["text"])
+		: $page->title;
+
+	unset($attributes["text"]);
+	
+	return HTML\a($title, array_merge($attributes, ["href" => $href]));
+}
+
+const getEditLink = __NAMESPACE__ . '\getEditLink';
+
+function getEditLink($page, $attributes = []) {
+	$href = $page->editUrl();
+	$href = isset($attributes["base_url"]) ? $attributes["base_url"] . $href : $href;
+	unset($attributes["base_url"]);
+	return HTML\a($page->title, array_merge($attributes, ["href" => $href]));
 }
 
 // I tried to call this with just a path and think if ... hmm
@@ -33,6 +76,10 @@ function pageExists($pages, $parent_path, $name = null) {
 	if(is_null($name)) {
 		$page = $pages->get($parent_path);
 		return  $page instanceof \ProcessWire\NullPage ? false : $page;
+	}
+
+	if(strlen($parent_path) > 1 && Str\endsWith("/", $parent_path)) {
+		$parent_path = Str\beforeLast("/", $parent_path);
 	}
 
 	$path = $parent_path === "/"
@@ -50,7 +97,7 @@ function pageExists($pages, $parent_path, $name = null) {
 // but create page new does
 // and create page recursive uses the one with the lookup...
 
-function createPage($pages, $data) {
+function createPage(\ProcessWire\Pages $pages, $data = []) {
 	// the issue is, the page isn't created, we need the parent
 	// so first things first, we need to pass the parent, get common child
 	// if that's not there, we need go up a level, get sibligns, then children,
@@ -98,6 +145,7 @@ function createPage($pages, $data) {
 	}
 
 	return updatePage($page, $data, $pages);
+
 }
 
 function getCommonSiblingChildTemplate($parent) {
@@ -139,7 +187,12 @@ function updatePage($page, $data, $pages = null) {
     $page->of(false);
 
     foreach($data["fields"] as $key=>$field ) {
-  		if($key === "purchase_products") {
+		
+    	if(isset($data["helpers"])) {
+
+    		echo json_encode($key);
+    		die;
+    	} else if($key === "purchase_products") {
     		$page->save();
 			$products = $field;
 
@@ -164,9 +217,30 @@ function updatePage($page, $data, $pages = null) {
 				$page->purchase_products->add($item);
 			}
 			$page->save('purchase_products');
+
+		} else if($key === "purchase_payment") {
+			
+			foreach($field as $values) {
+				$item = $page->purchase_payment->getNewItem();
+
+				foreach($values as $key => $value) {
+					$item->$key = $value;
+				}
+
+				$item->save();
+				$page->purchase_payment->add($item);
+			}
+
+		} else if($key === "pages_people") {
+
+			foreach($field as $f) {
+				$page->pages_people->add($f);
+			}
+
 		} else {
 			$page->$key = $field;
 		}
+		
 	}
 
     $page->save();
@@ -215,6 +289,13 @@ function createPageRecursive($pages, $data, $carry = []) {
 	return createPageRecursive($pages, $data, $carry);
 };
 
+const getAllpages = __NAMESPACE__ . '\createPageRecursive';
+
+function getAllPages($pages, $soma = true) {
+	return $soma 
+		? $pages->find("has_parent!=2,id!=2|7,status<".\ProcessWire\Page::statusTrash.",include=all")
+		: $pages->find("template!=admin, has_parent!=2, include=all"); 
+}
 
 const createPageRecursive = __NAMESPACE__ . '\createPageRecursive';
 
@@ -234,7 +315,8 @@ function getCommonRelativeChildTemplate($page, $depth = 0) {
 
 		// if(is_null($template_name)) {
 		// 	return getCommonRelativeChildTemplate($page, Math\add(1, $depth));
-		// } 
+		// }
+
 	} else {
 
 		$page_original = $page;
@@ -276,7 +358,7 @@ function getCommonRelativeChildTemplate($page, $depth = 0) {
 }
 
 function getUniqueChildTemplates($page) {
-	// so this is where that one guy says don't use monads in PHP? 
+	// so this is where that one guy says don't use monads in PHP?  
 	// It would be cool to do something like ArrayMonad, right? and run stuff on it?
 	$templates = [];
 	foreach($page->children() as $p) {
@@ -294,12 +376,40 @@ function getUniqueChildTemplates($page) {
 	return $templates;
 }
 
+const descendant = __NAMESPACE__ . '\descendant';
+
+function descendant($selector, $page = null) {
+	$f = function($selector, $page) {
+		return $page->descendant($selector);
+	};
+
+	return FP\curry2($f)(...func_get_args());
+}
+
+const descendants = __NAMESPACE__ . '\descendants';
+
+function descendants($selector, $page = null) {
+	$f = function($selector, $page) {
+		return $page->descendants($selector);
+	};
+
+	return FP\curry2($f)(...func_get_args());
+}
+
+const movePage = __NAMESPACE__ . '\movePage';
+
 function movePage($new_parent, $page) {
-
-
 	die('here');
 	$page->parent = $new_parent;
 	$page->save();
 }
 
-const movePage = __NAMESPACE__ . '\movePage';
+const setCreatedDate = __NAMESPACE__ . '\setCreatedDate';
+
+function setCreatedDate($page, int $date) {
+	$page->of(false);
+	$page->created = $date;
+	$page->save(array('quiet' => true));
+	return $page;
+}
+

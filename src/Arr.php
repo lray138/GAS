@@ -489,6 +489,9 @@ const implode = __NAMESPACE__ . '\implode';
  * @return array
  * @note there was a reason for the foreach but
  * i forget why
+ * well i'm back on Jul 13, 2023 and if I use foreach I can pass the key in
+ * which can come in handy, although maybe I'm approachign the problem wrong
+ * ok, well now I know
  */
 function map() {
     $f = function($f, $array) {
@@ -640,10 +643,13 @@ const flatten = __NAMESPACE__ . '\flatten';
 
 //https://stackoverflow.com/questions/173400/how-to-check-if-php-array-is-associative-or-sequential
 function isAssoc(array $array) {
-    $keys = array_keys($array);
-        return array_keys($keys) !== $keys;
+    return isAssociative($array);
 }
 
+function isAssociative(array $array) {
+    $keys = array_keys($array);
+    return array_keys($keys) !== $keys;
+}
 
 function isEmpty(array $array) {
     return count($array) === 0;
@@ -652,13 +658,84 @@ function isEmpty(array $array) {
 const isEmpty = __NAMESPACE__ . '\isEmpty';
 
 function addIndexKey(array $data) {
-
-    dump($data);
-
-
-    dump(array_flip(array_fill_keys(
-        range(0, count(array_values($data)))
-        , "index"
-    )));
+    // dump(array_flip(array_fill_keys(
+    //     range(0, count(array_values($data)))
+    //     , "index"
+    // )));
     return $data;
+}
+
+function sortMaintainKeys(array $array, int $flags = SORT_REGULAR) {
+    asort($array, $flags);
+    return $array;
+}
+
+function sortReverseMaintainKeys(array $array, int $flags = SORT_REGULAR) {
+    arsort($array, $flags);
+    return $array;
+}
+
+function sortKeys(array $array, int $flags = SORT_REGULAR) {
+    ksort($array, $flags);
+    return $array;
+}
+
+function sortKeysReverse(array $array, int $flags = SORT_REGULAR) {
+    krsort($array, $flags);
+    return $array;
+}
+
+function sortNatural($array) {
+    natcasesort($array);
+    return $array;
+}
+
+function sortNaturalCaseSensitive($array) {
+    natsort($array);
+    return $array;
+}
+
+function sort(array $array, int $flags = SORT_REGULAR) {
+    sort($array, $flags);
+    return $array;
+}
+
+function sortReverse(array $array, int $flags = SORT_REGULAR) {
+    rsort($array, $flags);
+    return $array;
+}
+
+function shuffle(array $array, int $flags = SORT_REGULAR) {
+    shuffle($array);
+    return $array;
+}
+
+// probably tough to do FP style and maybe provide warning
+function multisort(array $array1, $array1_sort_order = SORT_ASC, $array1_sort_flags = SORT_REGULAR, array ...$rest) {
+    array_multisort($array1, $array1_sort_order, $array1_sort_flags, ...$rest);
+    $out = [];
+    $count = 1;
+    foreach(func_get_args() as $arg) {
+        if(is_array($arg)) {
+            $out["array{$count}"] = $arg;
+            #$out["array${count}"] = $arg;
+            $count++;
+        }
+    }
+    return $out;
+}
+
+function sortUserMaintainKeys(callable $callback, array $array = []) {
+    uasort($array, $callback);
+    return $array;
+}
+
+function sortUser(callable $callback, array $array = []) {
+    usort($array, $callback);
+    return $array;
+}
+
+function sortUserKeys(callable $callback, array $array = []) {
+    uksort($array, $callback);
+    return $array;
 }

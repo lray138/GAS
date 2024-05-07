@@ -224,27 +224,32 @@ function curry_n($count, callable $function, $bind = false) {
                         // probably not worth unsetting the placeholder keys
                         //unset($keys[$key]);
                     }
-
                 }
 
                 if($bind) $function = $function->bindTo($bind);
                 return \call_user_func_array($function, $arguments);
             }
-
+            
             return $accumulator($arguments);
         };
     };
-
     return $accumulator([]);
 }
 
+class Placeholder {
+    public function __toString() {
+        return "";
+    }
+}
 
 // placeholder for currying
 function __() {
     static $placeholder;
+
     if ($placeholder === null) {
-        $placeholder = new \stdClass;
+        $placeholder = new Placeholder();
     }
+
     return $placeholder;
 }
 

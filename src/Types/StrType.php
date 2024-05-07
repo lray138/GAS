@@ -75,6 +75,10 @@ class StrType extends Type {
 		return empty($this->value);
 	}
 
+	public function isNotEmpty() {
+		return !empty($this->value);
+	}
+
 	public function isLeft() {
 		return false;
 	}

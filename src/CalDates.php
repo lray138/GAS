@@ -12,6 +12,8 @@ use lray138\GAS\HTML;
 
 use function lray138\GAS\dump;
 
+// even this is kind of not descriptive now that I'm coming back to it
+// although I guess I'd know.
 function getYear($options = null) {
 	if(is_null($options)) {
 		$year = date("Y");
@@ -79,7 +81,11 @@ function getYearMonthDates() {
 	return call_user_func_array(FP\curry2($getYearMonthDates), func_get_args());
 }
 
-function getWeekDates($year, $week_num) {
+function getOccuredWeekDates($year, $week_num) {
+	
+}
+
+function getWeeksInMonth($year, $month) {
 
 }
 

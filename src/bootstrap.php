@@ -33,6 +33,7 @@ require 'Filesystem.php';
 require 'GasSystem.php';
 require 'GAS.php';
 require 'HTML.php';
+require 'Helpers.php';
 require 'IO.php';
 require 'Model.php';
 require 'Numbers.php';

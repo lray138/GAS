@@ -5,7 +5,8 @@ namespace lray138\GAS\XML;
 use lray138\GAS\Arr;
 
 // based on https://stackoverflow.com/questions/4554233/how-check-if-a-string-is-a-valid-xml-with-out-displaying-a-warning-in-php
-function isValid($xmlstr) {
+function isValid($xmlstr, $wrap = false) {
+    if($wrap) $xmlstr = "<div class=\"wrap\">" . $xmlstr . "</div>";
     libxml_use_internal_errors(true);
     $sxe = simplexml_load_string($xmlstr);
 

@@ -2,6 +2,9 @@
 
 namespace lray138\GAS\Numbers;
 
+
+const ordinal = __NAMESPACE__ . '\ordinal';
+
 // https://stackoverflow.com/questions/69262/is-there-an-easy-way-in-net-to-get-st-nd-rd-and-th-endings-for-number/69284#69284
 // https://stackoverflow.com/questions/3109978/display-numbers-with-ordinal-suffix-in-php
 function ordinal($num) {
@@ -19,8 +22,6 @@ function ordinal($num) {
     }
     return $num . $suff;
 }
-
-const ordinal = __NAMESPACE__ . '\ordinal';
 
 function padZeroRight($num) {
     return number_format($num, 2);
@@ -383,4 +384,26 @@ function multiply() {
     };
 
     return call_user_func_array(FP\curry2($multiply), func_get_args());
+}
+
+function equals($compare, $to = null) {
+    return FP\curry2(function($compare, $to) {
+        return $to === $compare;
+    })(...func_get_args());
+}
+
+function greaterThanOrEqualTo($compare, $to = null) {
+    $f = function($compare, $to) {
+        return $to >= $compare;
+    };
+
+    return FP\curry2($f)(...func_get_args());
+}
+
+function greaterThan($compare, $to = null) {
+    $f = function($compare, $to) {
+        return $to >= $compare;
+    };
+
+    return FP\curry2($f)(...func_get_args());
 }

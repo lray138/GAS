@@ -82,7 +82,12 @@ class Many extends Type {
 		return $this->values;
 	}
 
-	public function extract() {
-		return $this->values;
+	// dunno why this just came to me as a way to handle the type conversion
+	// but it did... May 2, 2023 @ 16:22
+	// just smirked after running it... hmm....
+	public function extract($callable = null) {
+		return is_null($callable) ? $this->values : $callable($this->values);
 	}
+
+	// looking at above and that's not great be... well, it could be but is more like "clear vs clever"
 }

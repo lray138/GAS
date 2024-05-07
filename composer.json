@@ -2,10 +2,10 @@
     "name": "lray138/gas",
     "description": "A collection of functions.",
     "require": {
-        "php": ">=7.4",
-        "ivopetkov/html5-dom-document-php": "2.3.*",
-        "gajus/dindent": "2.0.*",
-        "fightbulc/moment": "1.33.*"
+        "php": ">=8.2",
+        "ivopetkov/html5-dom-document-php": "2.*",
+        "gajus/dindent": "2.3.*",
+        "fightbulc/moment": "1.34.*"
     },
     "autoload": {
         "psr-4": {
@@ -14,5 +14,9 @@
         "files": [
             "src/bootstrap.php"
         ]
-    }
+    },
+    "keywords": [
+        "utilities",
+        "functions"
+    ]
 }

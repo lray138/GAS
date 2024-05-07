@@ -1,8 +1,8 @@
 <?php namespace lray138\GAS\Types;
 
-
-
 class Maybe implements Functor\PointedFunctor {
+
+	private $value;
 
 	public function within(callable $func) {
         return $this->then(function($value) use ($func) {
@@ -28,6 +28,8 @@ class Maybe implements Functor\PointedFunctor {
 
 		return $this->then(function($value) use ($method, $parameters) {
 
+			// in this case we're trying to call something that is a property
+			// this is the "back and forth" - wish I documented this better.
 			if(is_array($value)) {
 				return isset($value[$method]) ? $value[$method] : null;
 			} else if($value instanceof ArrType) {
@@ -123,6 +125,8 @@ class Maybe implements Functor\PointedFunctor {
 		$value = $this->extract();
 		$attempt_method = true;
 
+		// reviewing code and have no idea what this would be for
+		// June 9, 2023 15:34
 		if(is_array($property)) {
 			$property = $property["tryProp"];
 			$attempt_method = false;
@@ -241,7 +245,6 @@ class Maybe implements Functor\PointedFunctor {
 		// if(is_object($value) && $value instanceof \GAS\Types\None) {
 		// 	$value = $value->value();
 		// }
-
 		$this->value = $value;
 	}
 

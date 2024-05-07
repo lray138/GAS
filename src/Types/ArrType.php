@@ -21,6 +21,10 @@ class ArrType extends Type implements \Iterator {
 		return ArrType::of(Arr\push($value, $this->value));
 	}
 
+	public function sum() {
+		return ArrType::of(array_sum($this->value));
+	}
+
 	public function bind($callable) {
 		return ArrType::of($callable($this->value));
 	}
@@ -35,6 +39,14 @@ class ArrType extends Type implements \Iterator {
 		return ArrType::of($arr);
 	}
 
+	public function unique($flags = SORT_STRING) {
+		return ArrType::of(array_unique($this->extract(), $flags));
+	}
+
+	public function uniqueRegular() {
+		return $this->unique(SORT_REGULAR);
+	}
+
 	function removeLast() {
     	$arr = $this->value;
     	array_pop($arr);
@@ -45,10 +57,21 @@ class ArrType extends Type implements \Iterator {
 		return $this->pop();
 	}
 
+	public function last() {
+		return $this->pop();
+	}
+
 	function pop() {
 		$arr = $this->value;
 		$arr = array_pop($arr);
-		return T\wrap($arr);
+	
+		$out = T\wrap($arr);
+
+		if($out instanceof \lray138\GAS\Types\Error) {
+			return $arr;
+		}
+		
+		return $out;
 	}
 
 	// https://www.php.net/manual/en/array.sorting.php
@@ -108,6 +131,11 @@ class ArrType extends Type implements \Iterator {
 		return ArrType::of(array_combine($this->value, $array));
 	}
 
+	function toJSON() {
+		// getExtractable() ;)
+		return json_encode($this->getValue());
+	}
+
 	function get($key) {
 		// incase it is a StrType (i suppose)
 		if(is_object($key) && method_exists($key, "extract")) {
@@ -141,6 +169,10 @@ class ArrType extends Type implements \Iterator {
 
 	public function isLeft() {
 		return false;
+	}
+
+	public function slice($offset, $length = null, $preserve_keys = false) {
+		return ArrType::of(array_slice($this->extract(), $offset, $length, $preserve_keys));
 	}
 
 	function apply($just) {
@@ -224,6 +256,27 @@ class ArrType extends Type implements \Iterator {
 		return StrType::of(HTML\ul($fn($this->value), $attributes));
 	}
 
+	function toOl($attributes = []) {
+
+		if(count($this->value) === 0) {
+			return StrType::of("");
+		}
+
+		$fn = FP\compose(
+			S\wrap("<ol>", "</ol>"),
+			Arr\join(""),
+			Arr\map(S\wrap("<li>", "</li>"))
+		);
+
+		$fn = FP\compose(
+			Arr\join("")
+			, Arr\map(HTML\li)
+		);
+
+		return StrType::of(HTML\ol($fn($this->value), $attributes));
+
+	}
+
 	function toMaybe($callable = null) {
 		return Maybe::of($this);
 	}
@@ -302,10 +355,12 @@ class ArrType extends Type implements \Iterator {
 		return Some::of($this);
 	}
 	
+	#[\ReturnTypeWillChange]
 	public function rewind() {
         $this->position = 0;
     }
  
+ 	#[\ReturnTypeWillChange]
     public function current() {
         return $this->extract()[$this->position];
     }
@@ -314,10 +369,12 @@ class ArrType extends Type implements \Iterator {
         return $this->position;
     }
  
+ 	#[\ReturnTypeWillChange]
     public function next(): int {
         return ++$this->position;
     }
  
+ 	#[\ReturnTypeWillChange]
     public function valid() {
         return isset($this->extract()[$this->position]);
     }

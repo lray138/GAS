@@ -13,8 +13,18 @@ use lray138\GAS\{
 
 use function lray138\GAS\IO\dump;
 
+const sortBySize = __NAMESPACE__ . '\sortBySize';
+
+function sortBySize($x, $y) {
+	return filesize($x) > filesize($y) ? -1 : 1;
+}
+
 function getContents($filename) {
 	return file_get_contents($filename);
+}
+
+function getContents_($filename) {
+	return Str\of(file_get_contents($filenam));
 }
 
 function read($filename) {
@@ -27,15 +37,19 @@ function readFile($filename) {
 	return file_get_contents($filename);
 }
 
-function write($pathname, $contents, $create_dir_if_not_exists = false) {
-	if($create_dir_if_not_exists) {
-		$dir = Str\beforeLast("/", $pathname);
-		if(!dirExists($dir)) {
-			createDir($dir);
+function write($pathname, $contents = "", $create_dir_if_not_exists = false) {
+	$f = function($pathname, $contents, $create_dir_if_not_exists = false) {
+		if($create_dir_if_not_exists) {
+			$dir = Str\beforeLast("/", $pathname);
+			if(!dirExists($dir)) {
+				createDir($dir);
+			}
 		}
-	}
 	
-	file_put_contents($pathname, $contents);
+		file_put_contents($pathname, $contents);
+	};
+
+	return FP\curry2($f)(...func_get_args());
 }
 
 
@@ -80,7 +94,7 @@ const getFiles = __NAMESPACE__ . '\getFiles';
 
 // mode not implemented but would be the difference between
 // file object and a the full path that this currently provides.
-function getFilesInDir($directory, $options = []) {
+function getFilesInDir($directory, $options = []): array {
 	if(isset($options["mode"]) 
 		&& in_array(strtolower($options["mode"]), ["object", "obj", "splfile"])) {
 		$files = [];
@@ -115,6 +129,10 @@ function getFilesInDir($directory, $options = []) {
 		 		$process(scandir($directory)));
 }
 
+function getFilesInDir_($directory, $options = []) {
+	return Arr\of(getFilesInDir($directory, $options));
+}
+
 const getFilesInDir = __NAMESPACE__ . '\getFilesInDir';
 
 function getDirsInFolder($directory, $filter = null) {
@@ -140,6 +158,15 @@ function getDirsInFolder($directory, $filter = null) {
 
 }
 
+
+// ////////////////////////////////////////////////////////													//
+
+const getPathinfo = __NAMESPACE__ . '\getPathinfo';
+
+function getPathinfo($pathname) {
+	return json_decode(json_encode(pathinfo($pathname)));
+}
+
 // https://stackoverflow.com/questions/24783862/list-all-the-files-and-folders-in-a-directory-with-php-recursive-function
 // and
 // https://stackoverflow.com/questions/19724579/php-recursivedirectoryiterator-how-to-exclude-directory-paths-with-a-dot-and-do
@@ -158,8 +185,8 @@ function scan($directory) {
 	
 	return FP\compose(
 		Arr\map($prepend),
-		Arr\filter(Arr\notIn([".", "..", ".DS_Store"]))
-	)(scandir($directory));
+		Arr\filter(Arr\notIn([".", ".."]))
+	)(\scandir($directory));
 }
 
 function getDirs($directory) {
@@ -318,6 +345,10 @@ function getUrlContent($url, $cookies_file = null) {
     return $result;
 }
 
+function getSize($pathname) {
+	return filesize($pathname);
+}
+
 // for file comparison (one at the bottom is what I'm using even though that wasn't the issuee)
 // https://stackoverflow.com/questions/18849927/verifying-that-two-files-are-identical-using-pure-php
 function filesAreEqual($a, $b) {
@@ -344,6 +375,21 @@ function filesAreEqual($a, $b) {
 
   return $result;
 }
+
+const getCreatedTime = __NAMESPACE__ . '\getCreatedTime';
+
+function getCreatedTime($pathname) {
+	return filectime($pathname);
+}
+
+
+const getCreatedDateTime = __NAMESPACE__ . '\getCreatedDateTime';
+
+function getCreatedDateTime($pathname) {
+	return (new \DateTime())->setTimestamp(getCreatedTime($pathname));
+}
+
+const getModifiedTime = __NAMESPACE__ . '\getModifiedTime';
 
 // called via shell
 function setModifiedTime($shelltime, $filename) {

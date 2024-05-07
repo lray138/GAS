@@ -181,7 +181,9 @@ function doctype($content, $attributes = []) {
 const doctype = __NAMESPACE__ . '\doctype';
 
 function a($content, $attributes = []) {
-  return element("a", $content, $attributes);
+  return empty($attributes)
+    ? element("a", $content, ["href" => $content])
+    : element("a", $content, $attributes);
 }
 
 const a = __NAMESPACE__ . '\a';
@@ -992,11 +994,11 @@ function indent($html) {
 const indent = __NAMESPACE__ . '\indent';
 
 function tidy($html) {
-    $tidy_options = array('indent' => 3,'output-xhtml' => true);
+    $tidy_options = array('indent' => 4,'output-xhtml' => true);
     $tidy = new \tidy();
     $tidy->parseString($html, $tidy_options);
     $tidy->cleanRepair();
-    //$body = $tidy->body();
+    $body = $tidy->body();
     return $tidy;
 }
 
@@ -1026,6 +1028,7 @@ function getHTMLNamesToNumbersArray() {
     "&ordf;"  => "&#170;",
     "&laquo;"   => "&#171;",
     "&not;"   => "&#172;",
+    "&mdash;" => "&#151;",
     "&shy;"   => "&#173;",
     "&reg;"   => "&#174;",
     "&macr;"  => "&#175;",
@@ -1041,6 +1044,7 @@ function getHTMLNamesToNumbersArray() {
     "&sup1;"  => "&#185;",
     "&ordm;"  => "&#186;",
     "&raquo;"   => "&#187;",
+    "&rsquo;"  => "&#8217;",
     "&frac14;"  => "&#188;",
     "&frac12;"  => "&#189;",
     "&frac34;"  => "&#190;",

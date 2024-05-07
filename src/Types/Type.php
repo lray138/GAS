@@ -68,8 +68,8 @@ class Type {
 	}
 
 	// probably should return null??? dunno
-	public function if($bool_or_callable, $callable_or_value) {
-		
+	// this looks like a bad implementation (Wed Jul 19, 2023)
+	public function if($bool_or_callable, $callable_or_value = null) {
 		$out = function() use ($bool_or_callable, $callable_or_value) {
 			return is_callable($callable_or_value)
 				? $callable_or_value($this)

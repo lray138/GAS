@@ -11,8 +11,17 @@ use lray138\GAS\{
 use function lray138\GAS\Functional\{curry3, curry2};
 use function lray138\GAS\IO\dump;
 
+const DOUBLE_QUOTE = '"';
+const SINGLE_QUOTE = "'";
+
 function of($value) {
     return Types\Str::of($value);
+}
+
+const toInt = __NAMESPACE__ . '\toInt';
+
+function toInt(string $str) {
+    return (int) $str;
 }
 
 function contains() {
@@ -25,7 +34,54 @@ function contains() {
             }
             return true;
         }
-        
+        return strpos($haystack, $needle) !== false;
+    };
+
+    return call_user_func_array(curry2($contains), func_get_args());
+}
+
+function containsAny() {
+    $contains = function($needle, $haystack) {
+        if(is_array($needle)) {
+            foreach($needle as $n) {
+                if(strpos($haystack, $n) !== false) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return strpos($haystack, $needle) !== false;
+    };
+
+    return call_user_func_array(curry2($contains), func_get_args());
+}
+
+function containsNone() {
+    $contains = function($needle, $haystack) {
+        if(is_array($needle)) {
+            foreach($needle as $n) {
+                if(strpos($haystack, $n) !== false) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return strpos($haystack, $needle) !== false;
+    };
+
+    return call_user_func_array(curry2($contains), func_get_args());
+}
+
+function containsAll() {
+    $contains = function($needle, $haystack) {
+        if(is_array($needle)) {
+            foreach($needle as $n) {
+                if(strpos($haystack, $n) === false) {
+                    return false;
+                }
+            }
+            return true;
+        }
         return strpos($haystack, $needle) !== false;
     };
 
@@ -148,16 +204,18 @@ function beforeNth() {
     return FP\curry3($f)(...func_get_args());
 }
 
+// for example, after last '.' for extension, but 
+// we want to include the delimiter for better matching
 function afterLast() {
-    $afterLast = function($substring, $string) {
+    $afterLast = function($substring, $string, $include_delimeter = false) {
         $index = strrpos($string, $substring);
         // if we wanted to include the character we would not add 1... 
         $start = ($index !== 0) ? $index + 1 : strlen($substring);
         $length = ($index !== 0) ? strlen($string)-$index : (strlen($string) - strlen($substring));
-        return $index === false ? $string : substr($string, $start, $length);
+        $out = $index === false ? $string : substr($string, $start, $length);
+        return $include_delimeter ? $substring . $out : $out;
     };
-    return call_user_func_array(curry2($afterLast), func_get_args());
-    //return curry_n(2, $afterLast)(...$args);
+    return curry2($afterLast)(...func_get_args());
 }
 
 function afterFirst() {
@@ -255,6 +313,13 @@ function endsWith()
     };
 
     return call_user_func_array(curry2($endsWith), func_get_args());
+}
+
+function equals(string $compare, string $to = "") {
+    $f = function($compare, $to): bool {
+        return $compare === $to;
+    };
+    return FP\curryN(2, $f)(...func_get_args());
 }
 
 /**
@@ -402,11 +467,32 @@ function _match() {
     return call_user_func_array(curry2($match), func_get_args());
 }
 
+function matchOne() {
+
+}
+
 function matchAll() {
     $matchAll = function($pattern, $subject) {
         $matches = [];
-        preg_match_all($pattern, $subject, $matches);
-        return $matches;
+        $count = preg_match_all($pattern, $subject, $matches);
+
+        if($count === 0) {
+            return false;
+        }
+
+        $head = array_shift($matches);
+        $tail = $matches;
+
+        $out = [];
+        for ($i = 0; $i < $count; $i++) {
+            $match = ["full" => $head[$i]];
+            foreach($tail as $key => $t) {
+               $match["group_" . ($key+1)] = $t[$i];
+            }
+            $out[] = $match;
+        }
+
+        return $out;
     };
 
     return call_user_func_array(curry2($matchAll), func_get_args());
@@ -578,14 +664,15 @@ function splitWithExpression($haystack, $needle, $limit = 0)
  * @param string $needle
  *
  * @return string
+ * updating on Sat FEB 18, 2022, cause this is backwards actually
  */
 function trim() {
-    $f = function($haystack, $needle) {
+    $f = function($needle, $haystack) {
         if (isExpression($needle)) {
             return trimWithExpression($haystack, $needle);
         }
 
-        return trimWithString($haystack, $needle);
+        return trimWithString($needle, $haystack);
     };
 
     return FP\curry2($f)(...func_get_args());
@@ -599,10 +686,10 @@ function trim() {
  * 
  *  this code was from Chris Pitt typed PHP book, but was not in 
  *  what I consider "functional order"
+ *  ok, here's the prob then I switched it up there and not everywhere... 
  */
-function trimWithString($characters, $string)
-{
-    return \trim($string, $characters);
+function trimWithString($characters, $string) {
+    return is_null($characters) ? \trim($string) : \trim($string, $characters);
 }
 
 /**
@@ -723,19 +810,56 @@ function join($delimeter, $bits = null) {
 }
 
 function concat() {
-    $concat = function($x, $y) {
-        return is_array($x) 
-            ? \implode($x) . $y 
-            : $x . $y;
-    };
-    return call_user_func_array(curry2($concat), func_get_args());
+
+    return count(func_get_args()) > 1 
+        ? concatN(count(func_get_args()), ...func_get_args())
+        : concatN(2, ...func_get_args());
+
+   
+    // $concat = function($x, $y) {
+    //     return is_array($x) 
+    //         ? \implode($x) . $y 
+    //         : $x . $y;
+    // };
+    
+    // return call_user_func_array(curry2($concat), func_get_args());
 }
+
+const concat = __NAMESPACE__ . '\concat';
 
 function concatN() {
     $args = func_get_args();
 
+    $filtered = Arr\filter(function($x) {
+        return $x instanceof \lray138\GAS\Functional\Placeholder === false;
+    }, $args);
+
+    if(count($filtered)-1 < $args[0]) {
+       return function() use ($args) {
+            return concatN(...$args, ...func_get_args());
+       };
+    }
+
+    $f = function() use ($args, $filtered) {
+        $bits = func_get_args();
+        $out = "";
+
+        for ($i = 0; $i < count($bits); $i++) { 
+            $out .= $bits[$i];
+        }
+
+        return $out;
+    };
+
+    return FP\curryN($args[0], $f, ...Arr\tail($args));
+}
+
+// this didn't work with placeholders
+function concatNOld() {
+    $args = func_get_args();
+
     if(count($args)-1 >= $args[0]) {
-        
+
         return implode(array_slice($args, 1));
 
         // return array_reduce(

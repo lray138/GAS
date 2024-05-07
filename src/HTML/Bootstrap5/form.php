@@ -45,9 +45,12 @@ function textInput($data = []) {
 function textInputHiddenId($data = []) {
 	if(is_null($data["name"])) return "";
 	extract($data);
+
+	$id = !isset($id) ? $name : $id;
+	$label = !isset($label) ? nameToLabel($name) : $label;
 	
-	$id = is_null($id) ? $name : $id;
-	$label = is_null($label) ? nameToLabel($name) : $label;
+	// $id = is_null($id) ? $name : $id;
+	// $label = is_null($label) ? nameToLabel($name) : $label;
 
 	return _(HTML\label)('class="form-label" for="' . $name . '"')($label)
 	. HTML\input('type="text" class="form-control" name="' . $name . '" id="' . $id . '"')
@@ -64,4 +67,3 @@ function textarea($data = []) {
 	return _(HTML\label)('class="form-label" for="' . $name . '"')($label)
 		. HTML\textarea("", 'class="form-control" name="' . $name . '" id="' . $id .'"');
 }
-
