@@ -4,7 +4,7 @@
     "require": {
         "php": ">=8.2",
         "ivopetkov/html5-dom-document-php": "2.*",
-        "gajus/dindent": "2.3.*",
+        "gajus/dindent": "2.0.*",
         "fightbulc/moment": "1.34.*"
     },
     "autoload": {
