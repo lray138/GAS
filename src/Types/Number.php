@@ -6,6 +6,9 @@ use lray138\GAS\Numbers;
 use lray138\GAS\Types as T;
 use function lray138\GAS\dump;
 
+use FunctionalPHP\FantasyLand\Functor;
+use lray138\GAS\Traits\MapTrait;
+
 // the reason for using the "Numbers" function is that it 
 // will handle type unwrapping which I suppose... 
 // I'm on the fence a little but... it's suppose to be a 
@@ -25,9 +28,7 @@ class Number extends Type {
 			: 0;
 	}
 
-	public function extract() {
-		return $this->value;
-	}
+	use MapTrait;
 
 	public function __toString() {
 		return (string) $this->value;
@@ -37,20 +38,30 @@ class Number extends Type {
 		return new self(Numbers\add($this->value, $number));
 	}
 
+	// @note this should be equals
 	public function is($number) {
 		return $this->value == $number;
 	}
 
+	// keeping the relaxed "==" here 
+	public function equals($number) {
+		return $this->extract() == $number;
+	}
+
+	public function eq($number) {
+		return $this->equals($number);
+	}
+
 	public function divide($number) {
-		return new self(Numbers\divide($number, $this->value));
+		return new self($this->value / $number);
 	}
 
 	public function divideBy($number) {
-		return new self(Numbers\divide($this->value, $number));
+		return $this->divide($number);
 	}
 
-	public function getOr($other) {
-		return $this->value;
+	public function div($number) {
+		return $this->divide($number);
 	}
 
 	public function multiply($x) {
@@ -71,6 +82,7 @@ class Number extends Type {
 			: T\Boolean($this->extract() > $number);
 	}
 
+	// don't like this voodoo (2024-10-08 )
 	public function __call($method, $args) {
 		if(function_exists("\lray138\GAS\Numbers\\$method")) {
 			$func = "\lray138\GAS\Numbers\\$method";

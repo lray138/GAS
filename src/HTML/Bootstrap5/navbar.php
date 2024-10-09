@@ -7,6 +7,10 @@ use lray138\GAS\{
 };
 
 use function lray138\GAS\Functional\flip as _;
+
+/**
+ * @todo interesting to notice the original version of the PHTML 
+ */ 
 		
 function navbar(ArrType $data = null) {
     return _(HTML\nav)('class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="navbar"')([

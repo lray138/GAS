@@ -2,7 +2,6 @@
 
 namespace lray138\GAS\Numbers;
 
-
 const ordinal = __NAMESPACE__ . '\ordinal';
 
 // https://stackoverflow.com/questions/69262/is-there-an-easy-way-in-net-to-get-st-nd-rd-and-th-endings-for-number/69284#69284
@@ -23,19 +22,23 @@ function ordinal($num) {
     return $num . $suff;
 }
 
+const padZeroRight = __NAMESPACE__ . '\padZeroRight';
+
 function padZeroRight($num) {
     return number_format($num, 2);
 }
 
-const padZeroRight = __NAMESPACE__ . '\padZeroRight';
+const padZero = __NAMESPACE__ . '\padZero';
 
+// corrected edge case on Sep 25, 2024 @ 13:32 PM Where if it already had a zero it would still
+// be padded.  The main usecase for this is.  
 function padZero($num) {
-    return $num < 10 
+    return ($num < 10 && $num[0] !== "0")
         ? "0" . $num
         : $num;
 }
 
-const padZero = __NAMESPACE__ . '\padZero';
+const removeLeadingZero = __NAMESPACE__ . '\removeLeadingZero';
 
 function removeLeadingZero($num) {
     if($num < 10 && $num[0] == 0) {
@@ -44,8 +47,6 @@ function removeLeadingZero($num) {
 
     return $num;
 }
-
-const removeLeadingZero = __NAMESPACE__ . '\removeLeadingZero';
 
 ///// below is what use to be in "math" but think it makes sense to combine in here...
 

@@ -1,6 +1,8 @@
 <?php
 namespace lray138\GAS\Test;
 
+/* this was before I found PEST...  2024-10-08 15:44:00 WOW */
+
 // via https://www.blogbyben.com/2020/06/an-ultra-lightweight-php-unit-test.html
 // https://www.php.net/manual/en/function.assert.php
 // shared/lib/testing.php -- test framework

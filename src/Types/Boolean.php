@@ -10,10 +10,6 @@ class Boolean extends Type {
 		$this->value = $value;
 	}
 
-	public static function of($value = null) {
-		return new self($value);
-	}
-
 	public function is() {
 		return $this->value === true;
 	}
@@ -24,9 +20,14 @@ class Boolean extends Type {
 
 	/**
 	 * 
-	 */ 
+	 */
 	public function isTrue() {
 		return $this->is();
+	}
+
+
+	public function isFalse() {
+		return $this->extract() === false;
 	}
 
 }

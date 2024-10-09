@@ -5,6 +5,10 @@ use function lray138\GAS\IO\dump;
 
 use lray138\GAS\Arr as A;
 
+/**
+ * @todo remove this stuff.
+ */ 
+
 class Arr {
 	private $value;
 

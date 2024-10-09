@@ -6,611 +6,72 @@ namespace lray138\GAS\DateTime;
 
 use lray138\GAS\Functional as FP;
 use lray138\GAS\Arr;
-use function lray138\GAS\dump;
-
-function fromTimestamp($timestamp) {
-	if(empty($timestamp)) {
-		return null;
-	}
-	// noticed some old code where you could also do
-	// (new DateTime("@" . $timestamp))
-	return (new \DateTime())->setTimestamp($timestamp);
-}
-
-const fromTimestamp = __NAMESPACE__ . '\fromTimestamp';
-
-function fromYearMonth() {
-	$fromYearMonth = function($year, $month) {
-		return new \DateTime("$year-$month-01");
-	};
-
-	return call_user_func_array(FP\curry2($fromYearMonth), func_get_args());
-}
-
-// must have been from something else.
-function tomorrow() {
-	return now()->modify('+1 day');
-}
-
-function prevWeekday(\DateTime $date) {
-	return $date->modify('-1 weekday');
-}
-
-const prevWeekday = __NAMESPACE__ . '\prevWeekday';
-
-const fromYearMonth = __NAMESPACE__ . '\fromYearMonth';
-
-function fromString($string) {
-	// need a check for timestamp vs.
-	// ....
-	return is_null($string) ? NULL : new \DateTime($string);
-}
-
-const fromString = __NAMESPACE__ . '\fromString';
-
-// a little expirimental with currying
-// the idea is you could build up the function 
-// so the last day is all that is needed at that point.
-function fromYearMonthDay() {
-	$fromYearMonthDay = function($year, $month, $day) {
-		return new \DateTime("$year-$month-$day");
-	};
-	return call_user_func_array(FP\curry3($fromYearMonthDay), func_get_args());
-}
-
-const fromYearMonthDay = __NAMESPACE__ . '\fromYearMonthDay';
-
-function fromYMD() {
-	return call_user_func_array(fromYearMonthDay, func_get_args());
-}
-
-function create($val = null) {
-	if(is_int($val)) {
-		return (new \DateTime())->setTimestamp($val);
-	}
-	return (new \DateTime($val));
-}
-
-const create = __NAMESPACE__ . '\create';
-
-function current() {
-	return new \DateTime();
-}
-
-const current = __NAMESPACE__ . '\current';
-
-function now() {
-	return new \DateTime();
-}
-
-const now = __NAMESPACE__ . '\now';
-
-
-function format() {
-	$format = function($format, \DateTime $dt) {
-		$formats = [
-			"mysql" => "Y-m-d H:i:s",
-			"shell" => "YmdHi"
-		];
-
-		if(array_key_exists($format, $formats)) {
-			return $dt->format($formats[$format]);
-		}
-
-		return $dt->format($format);
-	};
-
-	return call_user_func_array(FP\curry2($format), func_get_args());
-}
-
-const format = __NAMESPACE__ . '\format';
-
-function formatShell(\DateTime $dt) {
-	return format("YmdHi", $dt);
-}
-
-const formatShell = __NAMESPACE__ . '\formatShell';
-
-function formatMySQL(\DateTime $dt) {
-	return format("Y-m-d H:i:s", $dt);
-}
-
-const formatMySQL = __NAMESPACE__ . '\formatMySQL';
-
-function getYear(\DateTime $dt) {
-	return format("Y", $dt);
-}
-
-function getDay(\DateTime $dt) {
-	return format("d", $dt);
-}
-
-function getDayNumber(\DateTime $dt) {
-	return format("d", $dt);
-}
-
-function getDayNoLeadingZero(\DateTime $dt) {
-	return format("j", $dt);
-}
-
-function getD(\DateTime $dt) {
-	return $dt->format("j");
-}
-
-function getDChar(): string {
-	return "j";
-}
-
-const getDayNumberShort = __NAMESPACE__ . '\getDayNumberShort';
-function getDayNumberShort(\DateTime $dt) {
-	return getDayNoLeadingZero($dt);
-}
-
-function getDayOfWeekNumber(\DateTime $dt) {
-	return $dt->format("w");
-}
-
-function getDayName(\DateTime $dt) {
-	return format("l", $dt);
-}
-
-function getDayNameShort(\DateTime $dt) {
-	return format("D", $dt);
-}
-
-function getMonthNoLeadingZero(\DateTime $dt) {
-	return format("n", $dt);
-}
-
-function getMonth(\DateTime $dt) {
-	return format("m", $dt);
-}
-
-function getMonthNameShort(\DateTime $dt) {
-	return format("M", $dt);
-}
-
-function getMMM(\DateTime $dt) {
-	return format("M", $dt);
-}
-
-function getMMMChar() {
-	return "M";
-}
-
-function getMonthName(\DateTime $dt) {
-	return format("F", $dt);
-}
-
-function getMonthNumberShort(\DateTime $dt) {
-	return getMonthNoLeadingZero($dt);
-}
-
-function getSeconds(\DateTime $dt) {
-	return format("s", $dt);
-}
-
-function getMinutes(\DateTime $dt) {
-	return format("i", $dt);
-}
-
-function getFormatsObj(\DateTime $dt) {
-	$out = new \StdClass;
-	$out->day = $dt->format("d");
-	$out->year = $dt->format("Y");
-	$out->month = $dt->format("m");
-	$out->string = $dt->format("M d, Y");
-	$out->shell = $dt->format("YmdHi");
-	$out->mysql = $dt->format("Y-m-d H:i:s");
-	$out->timestamp = $dt->getTimestamp();
-	return $out;
-}
-
-const getFormatObj = __NAMESPACE__ . '\getFormatsObj';
-
-
-function getLastDayOfMonth(\DateTime $dt) {
-	$c = clone $dt;
-	return $c->modify('last day of')->setTime(23, 59, 59, 59);
-}
-
-function getFirstDayOfMonth(\DateTime $dt) {
-	return $dt->modify('first day of')->setTime(0, 0, 0, 0);
-}
-
-function isSameDayOfYear($a, $b) {
-	$format = "Y-m-d";
-	return $a->format($format) === $b->format($format);
-}
-
-function getEndOfDay(\DateTime $dt) {
-	$c = clone $dt;
-	return $c->setTime(23, 59, 59, 59);
-}
-
-// function getMonthName($number) {
-// 	$index = (int) $number;
-// 	return getMonthNames()[$index-1];
-// }
-
-/**
- * Round minutes to the nearest interval of a DateTime object.
- * 
- * @param \DateTime $dateTime
- * @param int $minuteInterval
- * @return \DateTime
- */
-// https://ourcodeworld.com/articles/read/756/how-to-round-up-down-to-nearest-10-or-5-minutes-of-datetime-in-php
-function roundToNearestMinuteInterval() {
-	$round = function($minuteInterval, \DateTime $dateTime) {
-		return $dateTime->setTime($dateTime->format('H')
-								, round(($dateTime->format("i") + ($dateTime->format("s") / 60)) / $minuteInterval) * $minuteInterval
-								, 0);
-	};
-
-	return call_user_func_array(FP\curry2($round), func_get_args());
-}
-
-/**
- * Round up minutes to the nearest upper interval of a DateTime object.
- * 
- * @param \DateTime $dateTime
- * @param int $minuteInterval
- * @return \DateTime
- */
-function roundUpToMinuteInterval(\DateTime $dateTime, $minuteInterval = 10) {
-    return $dateTime->setTime(
-        $dateTime->format('H'),
-        ceil($dateTime->format('i') / $minuteInterval) * $minuteInterval,
-        0
-    );
-}
-
-/**
- * Round down minutes to the nearest lower interval of a DateTime object.
- * 
- * @param \DateTime $dateTime
- * @param int $minuteInterval
- * @return \DateTime
- */
-function roundDownToMinuteInterval(\DateTime $dateTime, $minuteInterval = 10)
-{
-    return $dateTime->setTime(
-        $dateTime->format('H'),
-        floor($dateTime->format('i') / $minuteInterval) * $minuteInterval,
-        0
-    );
-}
-
-//////////////////////////////////////////////////////////////////////
-//PARA: Date Should In YYYY-MM-DD Format
-//RESULT FORMAT:
-// '%y Year %m Month %d Day %h Hours %i Minute %s Seconds'        =>  1 Year 3 Month 14 Day 11 Hours 49 Minute 36 Seconds
-// '%y Year %m Month %d Day'                                    =>  1 Year 3 Month 14 Days
-// '%m Month %d Day'                                            =>  3 Month 14 Day
-// '%d Day %h Hours'                                            =>  14 Day 11 Hours
-// '%d Day'                                                        =>  14 Days
-// '%h Hours %i Minute %s Seconds'                                =>  11 Hours 49 Minute 36 Seconds
-// '%i Minute %s Seconds'                                        =>  49 Minute 36 Seconds
-// '%h Hours                                                    =>  11 Hours
-// '%a Days                                                        =>  468 Days
-//////////////////////////////////////////////////////////////////////
-// I can see now I had %i because I would have been more concerened with minutes
-function dateDifference(\DateTime $date_1, \DateTime $date_2 , $differenceFormat = '%i' )
-{   
-    $interval = date_diff($date_1, $date_2);
- 
-    if(!$interval) {
-    	return "false";
-    } 
-
-    return $interval->format($differenceFormat);
-}
-
-function diff(\DateTime $a, \DateTime $b) {
-	return $b->diff($a);
-}
-
-function prettyDiff($a, $b, $options = []) {
-	return niceDiffFormat($a, $b, $options);
-}
-
-function toDateTime($var) {
-	if($var instanceof \DateTime) return $var;
-	// assume timestamp
-	if(is_int($var)) return (new \DateTime())->setTimestamp($var);
-}
-
-function niceDiffFormat($a, $b, $options = []) {
-	$a = toDateTime($a);
-	$b = toDateTime($b);
-
-	$delimeter = isset($options["delimeter"]) ? $options["delimeter"] : " ";
-
-	if(is_null($a) || is_null($b)) {
-		return "Problem with provided dates";
-	}
-
-	$interval = date_diff($a, $b);
- 
-    if(!$interval) {
-    	return "false";
-    }
-
-    $map = [
-    	"y" => "years"
-    	, "m" => "months"
-    	, "d" => "days"
-    	, "h" => "hours"
-    	, "i" => "minutes"
-    	, "s" => "seconds"
-    ];
-
-    $filtered = array_reduce(array_keys($map), function($carry, $x) use ($delimeter, $map, $interval) {
-    	$formatted = $interval->format("%" . $x);
-    	// we know it's a string so "=="
-    	if($formatted == 0) return $carry;
-
-    	$field = $formatted < 2
-    		? substr($map[$x], 0, strlen($map[$x])-1)
-    		: $map[$x];
-
-    	$carry[] = $formatted . " " . $field;
-    	return $carry;
-    }, []);
-
-    return implode($delimeter, $filtered);
-
-    // $out = [];
-    // array_walk(array_keys($map), function($x) use ($interval, &$out) {
-    // 	$format = $interval->format("%" . $x);
-    // 	if($format != 0) {
-    // 		$out[$x] = $format;
-    // 	}
-    // });
-
-    // $out2 = [];
-    // array_walk($out, function($x, $y) use (&$out2, $map) {
-    // 	$field = $x < 2
-    // 		? substr($map[$y], 0, strlen($map[$y])-1)
-    // 		: $map[$y];
-    	
-    // 	$out2[] = $x . " " . $field;
-    // });
-
-    // return implode($delimeter, $out2);
-}
-
-function hoursToMinutes($hour) {
-	return $hour * 60;
-}
-
-function minutesToHours($mins) {
-	$hours = floor($mins/60);
-	$remainder = $mins%60;
-	return "$hours hours and $remainder mins";
-}
-
-// for now assumes action is not longer than a day...
-// hmm... also have https://stackoverflow.com/questions/365191/how-to-get-time-difference-in-minutes-in-php
-// as option
-function minutesBetween($date_1, $date_2) {
-	$bits = explode("-", dateDifference($date_1, $date_2, "%h-%i"));
-	$bits[0] = hoursToMinutes($bits[0]);
-	return array_sum($bits);
-}
-
-
-/**
-* calculate number of days in a particular month
-*
-* @author              The-Di-Lab <thedilab@gmail.com>
-* @param               number
-* @param               number
-* @return              number
-*/
-function daysInMonth(){	
-	$daysInMonth = function($year, $month) {
-		return date('t',strtotime($year.'-'.$month.'-01'));
-	};
-
-	return call_user_func_array(FP\curry2($daysInMonth), func_get_args());
-}
-
-// from calendar php
-function weeksInMonth(){					
-	$weeksInMonth = function($year, $month) {
-		// find number of weeks in this month
-		$daysInMonths = daysInMonth($year, $month);
-	
-		$numOfweeks = ($daysInMonths%7==0?0:1) + intval($daysInMonths/7);
-		$monthEndingDay= date('N',strtotime($year.'-'.$month.'-'.$daysInMonths));
-		$monthStartDay = date('N',strtotime($year.'-'.$month.'-01'));
-		$monthEndingDay==7?$monthEndingDay=0:'';
-		$monthStartDay==7?$monthStartDay=0:'';
-	
-		if($monthEndingDay < $monthStartDay){
-			$numOfweeks++;
-		}
-		return $numOfweeks;
-	};
-
-	return call_user_func_array(FP\curry2($weeksInMonth), func_get_args());
-}
-
-function firstDayOfWeek() {
-	$firstDayOfTheWeek = function($year, $month) {
-		return date('N', strtotime($year . '-' . $month . '-01'));
-	};
-
-	return call_user_func_array(FP\curry2($firstDayOfTheWeek), func_get_args());
-}
-
-function niceTime($taskTotal) {
-	$out = "";
-	if($taskTotal >= 60) {
-		$hours = floor($taskTotal/60);
-		$out .= $hours ." hour";
-		if($hours > 1) { $out .= "s";}
-	
-		$mins = ($taskTotal-(60*$hours));
-		if($mins > 0) {
-			if($hours > 0) {
-				$out .= " and ";
-			}
-			$out .= $mins ." mins";
-		}
-	} else {
-		$out .= $taskTotal . " mins";
-	}
-	return $out;
-}
-
-function formatMySQLDate(\DateTime $dt) {
-	return $dt->format("Y-m-d");
-}
-
-function getDayNumber2(DateTime $dt) {
-	//date('w'); // day of week
-	//date('l'); // dayname
-	return $dt->format("w");
-}
-
-/*
-function getDurationMins(\DateTime $start, \DateTime $end) {
-	return round(abs($start->getTimestamp() - $end->getTimestamp()) / 3600,2);
-}
-*/
-
-function getDurationMins(\DateTime $start, \DateTime $end) {
-	$since = $start->diff($end);
-	$minutes = $since->days * 24 * 60;
-	$minutes += $since->h * 60;
-	$minutes += $since->i;
-	$minutes += $since->s/60;
-	return $minutes;
-}
-
-
-function getTimespan(\DateTime $start, \DateTime $end, $options = []): string {
-	$defaults = [
-		"month" => getMMMChar(),
-		"year" => "Y",
-		"day" => getDChar()
-	];
-
-	$getValue = function($val) use ($options, $defaults) {
-		return isset($options[$val])
-			? $options[$val]
-			: $defaults[$val];
-	};
-
-	$init = FP\curry2(function($bit, $date) use ($getValue) {
-		return $date->format($getValue($bit));
-	});
-
-	$month = $init("month");
-	$year = $init("year");
-	$day = $init("day");
-
-	if($year($start) === $year($end)) {
-		if($month($start) === $month($end)) {
-			if($day($start) === $day($end)) {
-				return $month($start) . " " . $day($start) . ", ". $year($start);
-			}
-			return isset($options["no_days"]) && $options["no_days"] == true
-					? $month($start) . " " . $year($end)
-					: $month($start) . " " . $day($start) . " - " . $day($end) . ", " . $year($end);
-		} else {
-			return $month($start) . " " . $day($start) . " - " . $month($end) . " " . $day($end) . ", " . $year($end);
-		}
-	} else {
-		return FP\compose(
-			Arr\join(" - "),
-			Arr\map(function(\DateTime $d) use ($month, $day, $year) {
-				return $month($d) . " " . $day($d) . ", " . $year($d);
-			})
-		)([$start, $end]);
-	}
-	return "";
-}
-
-function getDurationString($start, $end) {
-	$since = $start->diff($end);
-	
-	$out = [];
-
-	if($since->h > 0) {
-		$out[] = $since->h . " hour";
-	}
-
-	if($since->i > 0) {
-		$out[] = $since->i . " min";
-	}
-
-	if($since->s > 0) {
-		$out[] = $since->s . " sec";
-	}
-	
-	return implode(", ", $out);
-}
-
-function addTime($time_string, \DateTime $dt) {
-	return modify("+" . $time_string, $dt);
-}
-
-function subTime($time_string, \DateTime $dt) {
-	return modify("-" . $time_string, $dt);
-}
-
-function modify() {
-	$f = function($string, \DateTime $dt) {
-		$c = clone $dt;
-		return $c->modify($string);
-	};
-
-	return call_user_func(FP\curry2($f), ...func_get_args());
-}
-
-const modify = __NAMESPACE__ . '\modify';
-
-function formatMM(\DateTime $dt) {
-	return $dt->format("m");
-}
-
-function getTimespanYearMonth($earliest_date, $latest_date): array {
-	$limit = addTime("1 month", $latest_date);
-	$out = [];
-	do {
-		if(!isset($out[$earliest_date->format("Y")])) {
-			$out[$earliest_date->format("Y")] = [
-				"year" => $earliest_date->format("Y"),
-				"months" => []
-			];
-		}
-		$out[$earliest_date->format("Y")]["months"][] = formatMM($earliest_date);
-		$earliest_date = addTime("1 month", $earliest_date);
-	} while($earliest_date->format("Y-m") != $limit->format("Y-m"));
-	return $out;
-}
-
-const fromUTCString = __NAMESPACE__ . '\fromUTCString';
-
-function fromUTCString(string $utcTimestamp) {
-	return new \DateTime($utcTimestamp, new \DateTimeZone('UTC'));
-}
-
-const toEST = __NAMESPACE__ . '\toEST';
-
-function toEST(\DateTime $dt) {
-	return $dt->setTimezone(new \DateTimeZone('America/New_York'));
-}
-
-// convert to EST from UTC
-function UTCtoEST(string $utcTimestamp) : \DateTime {
-    // Create a DateTime object with the UTC timestamp and set the timezone to UTC
-    $dateTimeUtc = new \DateTime($utcTimestamp, new \DateTimeZone('UTC'));
-    // Set the timezone to Eastern Standard Time (EST)
-    $dateTimeUtc->setTimezone(new \DateTimeZone('America/New_York'));
-    return $dateTimeUtc;
-}
+use function _lray138\GAS\dump;
+
+require __DIR__ . '/DateTime/fromTimestamp.php';
+require __DIR__ . '/DateTime/fromFormat.php';
+require __DIR__ . '/DateTime/fromYearMonth.php';
+require __DIR__ . '/DateTime/tomorrow.php';
+require __DIR__ . '/DateTime/prevWeekday.php';
+require __DIR__ . '/DateTime/fromString.php';
+require __DIR__ . '/DateTime/fromYearMonthDay.php';
+require __DIR__ . '/DateTime/fromYMD.php';
+require __DIR__ . '/DateTime/current.php';
+require __DIR__ . '/DateTime/now.php';
+require __DIR__ . '/DateTime/create.php';
+require __DIR__ . '/DateTime/format.php';
+require __DIR__ . '/DateTime/formatShell.php';
+require __DIR__ . '/DateTime/formatMySQL.php';
+require __DIR__ . '/DateTime/getYear.php';
+require __DIR__ . '/DateTime/getDay.php';
+require __DIR__ . '/DateTime/getDayNumber.php';
+require __DIR__ . '/DateTime/getDayNoLeadingZero.php';
+require __DIR__ . '/DateTime/getD.php';
+require __DIR__ . '/DateTime/getDChar.php';
+require __DIR__ . '/DateTime/getDayNumberShort.php';
+require __DIR__ . '/DateTime/getDayOfWeekNumber.php';
+require __DIR__ . '/DateTime/getDayName.php';
+require __DIR__ . '/DateTime/getDayNameShort.php';
+require __DIR__ . '/DateTime/getMonthNoLeadingZero.php';
+require __DIR__ . '/DateTime/getMonth.php';
+require __DIR__ . '/DateTime/getMonthNameShort.php';
+require __DIR__ . '/DateTime/getMMM.php';
+require __DIR__ . '/DateTime/getMMMChar.php';
+require __DIR__ . '/DateTime/getMonthName.php';
+require __DIR__ . '/DateTime/getMonthNumberShort.php';
+require __DIR__ . '/DateTime/getSeconds.php';
+require __DIR__ . '/DateTime/getMinutes.php';
+require __DIR__ . '/DateTime/getFormatsObj.php';
+require __DIR__ . '/DateTime/getLastDayOfMonth.php';
+require __DIR__ . '/DateTime/getFirstDayOfMonth.php';
+require __DIR__ . '/DateTime/isSameDayOfYear.php';
+require __DIR__ . '/DateTime/getEndOfDay.php';
+require __DIR__ . '/DateTime/roundToNearestMinuteInterval.php';
+require __DIR__ . '/DateTime/roundUpToMinuteInterval.php';
+require __DIR__ . '/DateTime/roundDownToMinuteInterval.php';
+require __DIR__ . '/DateTime/dateDifference.php';
+require __DIR__ . '/DateTime/diff.php';
+require __DIR__ . '/DateTime/prettyDiff.php';
+require __DIR__ . '/DateTime/toDateTime.php';
+require __DIR__ . '/DateTime/niceDiffFormat.php';
+require __DIR__ . '/DateTime/hoursToMinutes.php';
+require __DIR__ . '/DateTime/minutesToHours.php';
+require __DIR__ . '/DateTime/minutesBetween.php';
+require __DIR__ . '/DateTime/daysInMonth.php';
+require __DIR__ . '/DateTime/weeksInMonth.php';
+require __DIR__ . '/DateTime/firstDayOfWeek.php';
+require __DIR__ . '/DateTime/niceTime.php';
+require __DIR__ . '/DateTime/formatMySQLDate.php';
+require __DIR__ . '/DateTime/getDayNumber2.php';
+require __DIR__ . '/DateTime/getDurationMins.php';
+require __DIR__ . '/DateTime/getTimespan.php';
+require __DIR__ . '/DateTime/getTimespanDays.php';
+require __DIR__ . '/DateTime/getDurationString.php';
+require __DIR__ . '/DateTime/addTime.php';
+require __DIR__ . '/DateTime/subTime.php';
+require __DIR__ . '/DateTime/modify.php';
+require __DIR__ . '/DateTime/formatMM.php';
+require __DIR__ . '/DateTime/getTimespanYearMonth.php';
+require __DIR__ . '/DateTime/fromUTCString.php';
+require __DIR__ . '/DateTime/toEST.php';
+require __DIR__ . '/DateTime/UTCtoEST.php';

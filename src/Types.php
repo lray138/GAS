@@ -10,7 +10,6 @@ code from/based on Typed PHP by Christopher Pitt
 
 /**
  * @param mixed $variable
- *
  * @return bool
  */
 function isNumber($variable) {
@@ -19,7 +18,6 @@ function isNumber($variable) {
 
 /**
  * @param mixed $variable
- *
  * @return bool
  */
 function isBoolean($variable) {
@@ -28,7 +26,6 @@ function isBoolean($variable) {
 
 /**
  * @param mixed $variable
- *
  * @return bool
  */
 function isNull($variable)
@@ -36,11 +33,9 @@ function isNull($variable)
     return is_null($variable) || isNothing($variable);
 }
 
-function isType($variable)
-{
+function isType($variable) {
      return $variable instanceof \lray138\GAS\Types\Type;
 }
-
 
 function isError($variable)
 {
@@ -318,7 +313,6 @@ function Number($number = null) {
         ? \lray138\GAS\Types\Number::of(0)
         : \lray138\GAS\Types\Number::of($number);
 }
-
 
 function Boolean($boolean) {
     return \lray138\GAS\Types\Boolean::of($boolean);

@@ -22,9 +22,9 @@ file is probably less clutter.
 // removing above will delete after success, using psr-4 now.
 
 require 'Arr.php';
+require 'Math.php';
 require 'Calendar.php';
 require 'CalDates.php';
-require 'CalView.php';
 require 'DateTime.php';
 require 'DateFormat.php';
 require 'HTML5DOM.php';
@@ -43,7 +43,6 @@ require 'Regex.php';
 require 'RegexPatterns.php';
 require 'Str.php';
 require 'SQL.php';
-require 'Test.php';
 require 'Types.php';
 require 'Tree.php';
 require 'GasTools.php';

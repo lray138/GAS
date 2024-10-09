@@ -2,6 +2,9 @@
 
 namespace lray138\GAS\Types;
 
+use FunctionalPHP\FantasyLand\Functor;
+use lray138\GAS\Traits\MapTrait;
+
 use lray138\GAS\{
 	Str as S
 	, Functional as FP
@@ -9,7 +12,7 @@ use lray138\GAS\{
 
 use function lray138\GAS\IO\dump;
 
-class StrType extends Type {
+class StrType extends Type implements Functor {
 
 	const of = __CLASS__ . '::of';
 
@@ -17,9 +20,10 @@ class StrType extends Type {
 		return ArrType::of(S\explode($delimeter, rtrim($this->value, $delimeter)));
 	}
 
+	// cast it to string if it isn't
 	public function __construct($value) {
 		if(!is_string($value)) {
-			$this->value = "";
+			$this->value = (string) $value;
 		} else {
 			$this->value = $value;
 		}
@@ -40,9 +44,7 @@ class StrType extends Type {
 		return $this->value;
 	}
 
-	public function map(callable $f) {
-		return new self($f($this->value));
-	}
+	use MapTrait;
 
 	public function append($x) {
 		//return new self(S\concatN(count(func_get_args()), $this->value, ...func_get_args()));

@@ -1,10 +1,13 @@
-<?php
+<?php namespace lray138\GAS\Types;
 
-namespace lray138\GAS\Types;
+use lray138\GAS\Traits\{ChainTrait, PointedTrait, MapTrait, ApplyTrait};
+
+use FunctionalPHP\FantasyLand\Monad;
+use lray138\GAS\Types\Comonad;
 
 use function lray138\GAS\dump;
 
-class Type {
+class Type implements Monad, Comonad {
 
 	protected $value;
 
@@ -13,14 +16,26 @@ class Type {
 		$this->value = $value;
 	}
 
-	public static function of($value = null) {
-		// return new self($value) returns Type, whereas we want the subclass
-		return new static($value);
-	}
+	use PointedTrait;
+	use ChainTrait;
+	use ApplyTrait;
+
+	// public static function of($value = null) {
+	// 	// return new self($value) returns Type, whereas we want the subclass
+	// 	return new static($value);
+	// }
 
 	// extract methods
 	public function extract() {
 		return $this->value;
+	}
+
+	public function extend(callable $f) {
+		return new static($f($this));
+	}
+
+	public function duplicate() {
+		return new static(clone $this);
 	}
 
 	public function out() {
@@ -98,10 +113,7 @@ class Type {
 		//return new self($callable($this->value)->extract());
 	}
 
-	public function map(callable $func) {
-		return new self($func($this->extract()));
-	}
-
+	use MapTrait;
 
 	public function chain($callable) {
 		return (new self($callable($this->value)))->extract();
@@ -113,6 +125,10 @@ class Type {
 					: $this->extract();
 
 		return StrType::of($value);
+	}
+
+	public function toString($callable = null) {
+		return $this->toStr($callable);
 	}
 
 	public function isNothing() {

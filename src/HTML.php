@@ -1006,11 +1006,11 @@ const tidy = __NAMESPACE__ . '\tidy';
 
 // https://ascii.cl/htmlcodes.htm
 // html name => html number
-// there's ia lso this: https://www.ascii-code.com/
+// there's is also this: https://www.ascii-code.com/
 function getHTMLNamesToNumbersArray() {
   return [
     // "<br>"   => "<br/>", // for whatever reason the regex doesn't pick these up
-    // "<hr>"   => "<hr/>",
+    // "<hr>"   => "<hr/>", // regex does not match this
     "&quot;"  => "&#34;",
     "&amp;"   => "&#38;",
     "&lt;"    => "&#60;",

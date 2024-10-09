@@ -18,6 +18,10 @@ use lray138\GAS\Functional as FP;
 	  "day name long", "day name full", etc... 
 
 	* 
+
+
+	* it's July 6th 2024, I disagree with the above and think 
+	it should just all be in DateTime
 */
 
 function getYear(\DateTime $dt) {

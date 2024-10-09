@@ -1,23 +1,26 @@
 <?php namespace lray138\GAS\Types\Functor;
 
-class IdentityFunctor implements PointedFunctor 
-{
+use FunctionalPHP\FantasyLand\{Functor, Pointed};
+use lray138\GAS\Types\Comonad;
+use lray138\GAS\Traits\{
+    PointedTrait, 
+    ExtractValueTrait, 
+    MapTrait,
+    ExtendTrait,
+    DuplicateTrait
+};
+
+class IdentityFunctor implements Functor, Pointed, Comonad {
 	private $value;
 
     public function __construct($value) {
         $this->value = $value;
     }
 
-    public static function of($value): Functor {
-    	return new static($value);
-    }
-
-    public function map(callable $fn): Functor {
-        return new static($fn($this->value));
-    }
-
-    public function extract() {
-        return $this->value;
-    }
+    use PointedTrait;
+    use MapTrait;
+    use ExtractValueTrait;
+    use ExtendTrait;
+    use DuplicateTrait;
 
 }

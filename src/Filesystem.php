@@ -125,12 +125,12 @@ function getFilesInDir($directory, $options = []): array {
 		$prependDirectoryToFile);
 
 	return Arr\filter(
-				"is_file",
-		 		$process(scandir($directory)));
+		"is_file",
+		$process(scandir($directory)));
 }
 
 function getFilesInDir_($directory, $options = []) {
-	return Arr\of(getFilesInDir($directory, $options));
+		return Arr\of(getFilesInDir($directory, $options));
 }
 
 const getFilesInDir = __NAMESPACE__ . '\getFilesInDir';

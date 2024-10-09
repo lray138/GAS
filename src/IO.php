@@ -57,7 +57,6 @@ function dump() {
 const dump = __NAMESPACE__ . '\dump';
 
 function dumpNdie($var) {
-
     varDump($var);
     die;
 }

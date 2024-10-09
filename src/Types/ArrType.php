@@ -10,11 +10,14 @@ use lray138\GAS\{
 	, Types as T
 };
 
+use lray138\GAS\Traits\MapTrait;
+
 use function lray138\GAS\IO\dump;
 
 class ArrType extends Type implements \Iterator {
 
 	public const of  = __CLASS__ . '::of';
+	
 	protected int $position = 0;
 
 	public function push($value) {
@@ -215,8 +218,7 @@ class ArrType extends Type implements \Iterator {
 		return new self(Arr\tail($this->value));
 	}
 
-	function map(callable $func) {
-		//return ArrType::of(Arr\map($func, $this->value));
+	function map(callable $func): ArrType {
 		return new static(Arr\map($func, $this->value));
 	}
 
