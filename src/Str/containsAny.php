@@ -1,6 +1,6 @@
 <?php namespace lray138\GAS\Str;
 
-use function lray138\GAS\Functional\curry2;
+use function lray138\GAS\Functional\curryN;
 
 const containsAny = __NAMESPACE__ . '\containsAny';
 
@@ -13,6 +13,15 @@ const containsAny = __NAMESPACE__ . '\containsAny';
  * @return bool True if any needle is found in the haystack, otherwise false.
  */
 function containsAny() {
+    $f = function(array $needles, string $haystack) {
+        // this is from PHP docs, although I'd use '$c' for the carry
+        return array_reduce($needles, fn($a, $n) => $a || str_contains($haystack, $n), false);
+    };
+
+    return curryN(2)($f)(...func_get_args());
+}
+
+function containsAny_OLD() {
     $contains = function($needle, string $haystack) {
         if(is_array($needle)) {
             foreach($needle as $n) {

@@ -1,5 +1,7 @@
 <?php namespace lray138\GAS\Str;
 
+use lray138\GAS\Functionl\curry3;
+
 const replaceWithExpression = __NAMESPACE__ . '\replaceWithExpression';
 
 /**

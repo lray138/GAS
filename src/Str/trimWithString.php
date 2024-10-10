@@ -2,6 +2,8 @@
 
 const trimWithString = __NAMESPACE__ . '/trimWithString';
 
+use function lray138\GAS\Functional\curryN;
+
 /**
  * @param string $haystack
  * @param string $needle
@@ -12,6 +14,10 @@ const trimWithString = __NAMESPACE__ . '/trimWithString';
  *  what I consider "functional order"
  *  ok, here's the prob then I switched it up there and not everywhere... 
  */
-function trimWithString($characters, $string) {
-    return is_null($characters) ? \trim($string) : \trim($string, $characters);
+function trimWithString($characters, $string = null) {
+    $f = function($characters, $string) {
+        return is_null($characters) ? \trim($string) : \trim($string, $characters);
+    };
+
+    return curryN(2)($f)(...func_get_args());
 }

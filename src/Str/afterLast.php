@@ -2,7 +2,7 @@
 
 const afterLast = __NAMESPACE__ . '\afterLast';
 
-use function lray138\GAS\Functional\curry2 as curry;
+use function lray138\GAS\Functional\curryN;
 
 function afterLast() {
     $f = function($delimeter, $string, $include_delimeter = false) {
@@ -14,9 +14,8 @@ function afterLast() {
             
     };
 
-    return curry($f)(...func_get_args());
+    return curryN(2)($f)(...func_get_args());
 }
-
 
 /**
  * 

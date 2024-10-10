@@ -3,7 +3,7 @@
 const DOMToArray = __NAMESPACE__ . '/DOMToArray';
 
 /**
- * 
+ * @todo this is probably an array function like "fromDom"
  */
 function DOMToArray($root) {
     $result = array();

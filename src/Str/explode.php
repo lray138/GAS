@@ -1,6 +1,6 @@
 <?php namespace lray138\GAS\Str;
 
-use function lray138\GAS\Functional\curry2 as curry;
+use function lray138\GAS\Functional\curryN;
 
 /**
  * Function description.
@@ -8,5 +8,5 @@ use function lray138\GAS\Functional\curry2 as curry;
 const explode = __NAMESPACE__ . 'explode';
 
 function explode() {
-    return call_user_func_array(curry("explode"), func_get_args());
+    return curryN(2)("explode")(...func_get_args());
 }

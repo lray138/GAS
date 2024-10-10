@@ -4,8 +4,7 @@ const isRegex = __NAMESPACE__ . '\isRegex';
 
 /**
  * 
- * 
  */
-function isRegex($variable) {
-    return Types\isExpression($variable);
+function isRegex($s) {
+    return \lray138\GAS\Types\isExpression($s);
 }

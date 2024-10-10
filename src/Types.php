@@ -94,7 +94,16 @@ function isRegex($variable)
     // when it was an array, and basically was getting an error when an array was passed...
     // so for now just putting if 1 string... 
 
-    if(!is_string($variable)) return false;
+    // trimming with empty string throws an error here checking for regex
+    // adding the empty(trim)
+    if(!is_string($variable) || empty(trim($variable))) {
+        return false;
+    }
+
+    // Oct 9, 2024 @ 17:34 - adding this for edge cases.
+    if (preg_match('/[a-zA-Z0-9]/', substr($variable, 0, 1)) || preg_match('/[a-zA-Z0-9]/', substr($variable, -1))) {
+        return false; // Not a valid regex since the start/end characters are not symbols
+    }
 
     // I added this because it was choking on "<hr>" for HTML cleanup
     $notVoidTag = implode([substr($variable, 0, 1), substr($variable, strlen($variable)-1, 1)]) !== "<>";

@@ -2,10 +2,12 @@
 
 const append = __NAMESPACE__ . '/append';
 
+use function lray138\GAS\Functional\curryN;
+
 function append() {
-    $append = function($append, $to) {
+    $f = function($append, $to) {
         return concat($to, $append);
     };
 
-    return call_user_func_array(curry2($append), func_get_args());
+    return curryN(2)($f)(...func_get_args());
 }

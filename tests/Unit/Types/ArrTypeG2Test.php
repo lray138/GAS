@@ -4,8 +4,6 @@ use lray138\GAS\Types\StrTypeG2 as StrType;
 use lray138\GAS\Types\ArrTypeG2 as ArrType;
 use lray138\GAS\Types\NumberG2 as Number;
 
-require dirname(__DIR__) . '/helpers.php';
-
 it('concats with mempty', function() {
     $arr = new ArrType(["a"]);
     $mempty = ArrType::mempty(); // This should be ""

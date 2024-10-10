@@ -20,6 +20,12 @@ it('should work correctly with zero', function () {
     expect($result)->toBe("00");
 });
 
+it('should not add a 3rd zero', function () {
+    $number = "00";
+    $result = addLeadingZero($number);
+    expect($result)->toBe("00");
+});
+
 it('should not change numbers with leading zeros', function () {
     $number = "09";
     $result = addLeadingZero($number);

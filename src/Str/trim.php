@@ -1,5 +1,7 @@
 <?php namespace lray138\GAS\Str;
 
+use function lray138\GAS\Functional\curryN;
+
 const trim = __NAMESPACE__ . '/trim';
 
 /**
@@ -12,11 +14,11 @@ const trim = __NAMESPACE__ . '/trim';
 function trim() {
     $f = function($needle, $haystack) {
         if (isExpression($needle)) {
-            return trimWithExpression($haystack, $needle);
+            return trimWithExpression($needle, $haystack);
         }
 
         return trimWithString($needle, $haystack);
     };
 
-    return FP\curry2($f)(...func_get_args());
+    return curryN(2)($f)(...func_get_args());
 }

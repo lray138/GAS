@@ -1,7 +1,6 @@
 <?php namespace lray138\GAS\Str;
 
-
-// This file contains the implementation of the function: prepend
+use function lray138\GAS\Functional\curry2;
 
 const prepend = __NAMESPACE__ . '/prepend';
 

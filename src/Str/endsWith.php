@@ -1,5 +1,7 @@
 <?php namespace lray138\GAS\Str;
 
+use function lray138\GAS\Functional\curry2;
+
 const endsWith = __NAMESPACE__ . '\endsWith';
 
 /**

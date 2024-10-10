@@ -24,6 +24,7 @@ require __DIR__ . '/Str/beforeNth.php';
 require __DIR__ . '/Str/concat.php';
 require __DIR__ . '/Str/concatN.php';
 require __DIR__ . '/Str/concatNOld.php';
+require __DIR__ . '/Str/contains.php';
 require __DIR__ . '/Str/containsAll.php';
 require __DIR__ . '/Str/containsAny.php';
 require __DIR__ . '/Str/containsNone.php';

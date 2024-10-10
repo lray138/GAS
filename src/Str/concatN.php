@@ -1,11 +1,16 @@
 <?php namespace lray138\GAS\Str;
 
+use function lray138\GAS\Functional\curryN;
+use function lray138\GAS\Arr\{filter, tail};
+
 const concatN = __NAMESPACE__ . '/concatN';
+
+/* Oct 9 2024, well, cleary doing something extracurricular here */
 
 function concatN() {
     $args = func_get_args();
 
-    $filtered = Arr\filter(function($x) {
+    $filtered = filter(function($x) {
         return $x instanceof \lray138\GAS\Functional\Placeholder === false;
     }, $args);
 
@@ -26,5 +31,5 @@ function concatN() {
         return $out;
     };
 
-    return FP\curryN($args[0], $f, ...Arr\tail($args));
+    return curryN($args[0], $f, ...tail($args));
 }

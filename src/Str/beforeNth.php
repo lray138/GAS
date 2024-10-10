@@ -1,5 +1,7 @@
 <?php namespace lray138\GAS\Str;
 
+use function lray138\GAS\Functional\curryN;
+
 /**
  * Returns the substring of a string before the nth occurrence of a delimiter.
  *
@@ -12,26 +14,30 @@
  * 
  * @return string The substring before the nth occurrence of the delimiter.
  */
-function beforeNth($n, string $delimiter, string $input) {
-    if(empty($n)) {
-        return $input; 
-    }
+function beforeNth(int $n, string $delimiter = null, string $input = null): string {
+    $f = function(int $n, string $delimiter, string $input) {
+        if(empty($n)) {
+            return $input; 
+        }
 
-    if(empty($delimiter)) {
-        return ""; 
-    }
+        if(empty($delimiter)) {
+            return ""; 
+        }
 
-    if($n > substr_count($input, $delimiter)) {
-        return $input;
-    }
+        if($n > substr_count($input, $delimiter)) {
+            return $input;
+        }
 
-    $out = [];
-    $bits = \explode($delimiter, $input);
-    
-    foreach ($bits as $key => $bit) {
-        if ($key > $n - 1) break; // $n is 1-based index
-        $out[] = $bit;
-    }
-    
-    return \implode($delimiter, $out);
+        $out = [];
+        $bits = \explode($delimiter, $input);
+        
+        foreach ($bits as $key => $bit) {
+            if ($key > $n - 1) break; // $n is 1-based index
+            $out[] = $bit;
+        }
+        
+        return \implode($delimiter, $out);
+    };
+
+    return curryN(3)($f)(...func_get_args());
 }

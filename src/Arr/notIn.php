@@ -14,10 +14,9 @@ const notIn = __NAMESPACE__ . '\notIn';
  * doc: https://www.php.net/manual/en/function.in-array.php
  */
 
-function notIn($find, array $haystack) {
+function notIn($find, array $haystack = null) {
     $notIn = function($find, $haystack) {
         return !in_array($find, $haystack);
     };
-
     return curry2($notIn)(...func_get_args());
 }

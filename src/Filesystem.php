@@ -119,8 +119,9 @@ function getFilesInDir($directory, $options = []): array {
 		});
 
 	// leave a comment, like and subscribe
+	// Oct 9, 2024 - 18:37 . not sure what changed but I have to add flip to 
 	$process = FP\pipe(
-		Arr\filter(Arr\notIn([".", "..", ".DS_Store"])),
+		Arr\filter(FP\flip(Arr\notIn)([".", "..", ".DS_Store"])),
 		(isset($options["filter"]) ? Arr\filter($options["filter"]) : fn($x) => $x),
 		$prependDirectoryToFile);
 

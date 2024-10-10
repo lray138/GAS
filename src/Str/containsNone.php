@@ -11,6 +11,7 @@ const containsNone = __NAMESPACE__ . '\containsNone';
  * @param string|array $needle
  * @param string $haystack
  * @return bool
+ * feel like I added this for no reason.
  */
 function containsNone(): bool 
 {

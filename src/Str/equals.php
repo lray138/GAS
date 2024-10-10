@@ -2,6 +2,8 @@
 
 const equals = __NAMESPACE__ . '\equals';
 
+use function lray138\GAS\Functional\curry2;
+
 /**
  * 
  */
@@ -9,5 +11,6 @@ function equals(string $compare, string $to = "") {
     $f = function($compare, $to): bool {
         return $compare === $to;
     };
-    return FP\curryN(2, $f)(...func_get_args());
+
+    return curry2($f)(...func_get_args());
 }

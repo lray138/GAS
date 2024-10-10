@@ -2,6 +2,10 @@
 
 const concat = __NAMESPACE__ . '/concat';
 
+use function lray138\GAS\Str\concatN;
+
+/* looks like this is a little voodoo magic here */
+/* oct 9 2024 */
 function concat() {
 
     return count(func_get_args()) > 1 

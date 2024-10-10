@@ -8,8 +8,7 @@ const trimWithExpression = __NAMESPACE__ . '/trimWithExpression';
  *
  * @return string
  */
-function trimWithExpression($haystack, $needle) {
+function trimWithExpression($needle, $haystack) {
     $pattern = slice($needle, 1, length($needle) - 2);
-
     return (string) preg_replace("#^{$pattern}|{$pattern}$#", "", $haystack);
 }

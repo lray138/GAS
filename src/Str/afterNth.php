@@ -1,6 +1,6 @@
 <?php namespace lray138\GAS\Str;
 
-use function lray138\GAS\Functional\curry3 as curry;
+use function lray138\GAS\Functional\curryN;
 
 const afterNth = __NAMESPACE__ . '\afterNth';
 
@@ -21,5 +21,5 @@ function afterNth() {
         return implode($delimiter, $sliced);
     };
 
-    return curry($f)(...func_get_args());
+    return curryN(3)($f)(...func_get_args());
 }
