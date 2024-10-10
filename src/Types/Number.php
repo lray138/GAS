@@ -22,10 +22,14 @@ class Number extends Type {
 
 	protected $value;
 
+	// originally casted this to float based on Chris Pitt, but now will
+	// do what I'm doing with G2 version and force a number... 
 	public function __construct($value) {
-		$this->value = is_numeric($value) 
-			? (float) $value 
-			: 0;
+		if(!is_numeric($value)) {
+			die("pass a number");
+		}
+
+		$this->value = $value;
 	}
 
 	use MapTrait;

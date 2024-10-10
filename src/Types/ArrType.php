@@ -10,7 +10,9 @@ use lray138\GAS\{
 	, Types as T
 };
 
+use function lray138\GAS\Functional\extract;
 use lray138\GAS\Traits\MapTrait;
+use lray138\GAS\Types\Number;
 
 use function lray138\GAS\IO\dump;
 
@@ -25,13 +27,17 @@ class ArrType extends Type implements \Iterator {
 	}
 
 	public function sum() {
-		return ArrType::of(array_sum($this->value));
+		return Number::of(array_sum($this->value));
 	}
 
+	// I am likley doing "bind" here because I didn't know
+	// what extend is - Oct 10 2024 
 	public function bind($callable) {
 		return ArrType::of($callable($this->value));
 	}
 
+	// I don't really dig this... although push above 2nd argument being
+	// the key would make more sense... 
 	public function pushKeyVal($key, $val) {
 		return ArrType::of(Arr\pushKeyVal($key, $val, $this->value));
 	}
@@ -103,7 +109,6 @@ class ArrType extends Type implements \Iterator {
 			$arr = $this->value; 
 			usort($arr, $arg);
 			return ArrType::of($arr);
-		}
 
 	}
 
@@ -114,7 +119,6 @@ class ArrType extends Type implements \Iterator {
 		}
 		return ArrType::of(Arr\set($key, $val, $this->value));
 	}
-
 
 	function filter($value = null) {
 		if(is_null($value)) {
@@ -229,7 +233,11 @@ class ArrType extends Type implements \Iterator {
 	// I flipped the Arr\merge order since we want
 	// additional items to be last (i.e head_merge)
 	function merge($arr) {
-		return is_null($arr) || $arr instanceof None
+		if(is_object($arr) && method_exists($arr, "extract")) {
+			$arr = $arr->extract();
+		}
+
+		return is_null($arr) || $arr instanceof None || $arr instanceof Nothing
 			? $this
 			: ArrType::of(Arr\merge($arr, $this->value));
 	}

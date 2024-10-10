@@ -116,6 +116,10 @@ class Maybe implements Functor\PointedFunctor {
         return $f->map($this->extract());
     }
 
+    public function ap($f) {
+    	return $this->apply($f);
+    }
+
     public function applyM($applicative) {
     	return $this->map($applicative->extract());
     	//return $applicative->apply($this);
