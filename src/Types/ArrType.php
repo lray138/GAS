@@ -109,7 +109,7 @@ class ArrType extends Type implements \Iterator {
 			$arr = $this->value; 
 			usort($arr, $arg);
 			return ArrType::of($arr);
-
+		}
 	}
 
 	public function set($key, $val) {
