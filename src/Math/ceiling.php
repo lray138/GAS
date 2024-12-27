@@ -9,5 +9,5 @@ const ceiling = __NAMESPACE__ . '\ceiling';
  */
 function ceiling($number)
 {
-    return (int) \ceil($number);
+    return \ceil($number);
 }

@@ -6,39 +6,40 @@ it('returns a Number instance with a static::of()', function () {
     $n = Number::of(10);
 
     expect($n)->toBeInstanceOf(Number::class)
-                ->and($n->extract())->toBe(10.0);
+                ->and($n->extract())->toBe(10);
 });
 
 it('constructs with a numeric value', function () {
     $number = new Number(42);
-    expect($number->extract())->toBe(42.0); // Assuming extract() returns the float value
+    expect($number->extract())->toBe(42); // Assuming extract() returns the float value
 });
 
-it('constructs with a non-numeric value', function () {
-    $number = new Number("not a number");
-    expect($number->extract())->toBe(0);
+it('throws an exception when constructed with a non-numeric value', function () {
+    expect(fn () => new Number("not a number"))
+        ->toThrow(InvalidArgumentException::class);
 });
 
 it('adds numbers correctly', function () {
     $number = new Number(10);
     $result = $number->add(5);
-    expect($result->extract())->toBe(15.0);
+    expect($result->extract())->toBe(15);
 });
+
 
 it('divides numbers correctly', function () {
     $number = new Number(10);
     $result = $number->divide(2);
-    expect($result->extract())->toBe(5.0);
+    expect($result->extract())->toBe(5);
     $result = $number->divideBy(2);
-    expect($result->extract())->toBe(5.0);
+    expect($result->extract())->toBe(5);
     $result = $number->div(2);
-    expect($result->extract())->toBe(5.0);
+    expect($result->extract())->toBe(5);
 });
 
 it('multiplies numbers correctly', function () {
     $number = new Number(10);
     $result = $number->multiply(5);
-    expect($result->extract())->toBe(50.0);
+    expect($result->extract())->toBe(50);
 });
 
 it('rounds numbers correctly', function () {
@@ -64,4 +65,22 @@ it('checks greater than correctly', function () {
     $number2 = new Number(5);
     expect($number1->isGreaterThan($number2)->isTrue())->toBeTrue();
     expect($number1->isGreaterThan(15)->isTrue())->toBeFalse();
+});
+
+it('concats correctly using mempty and adding by default', function() {
+    $result = Number::mempty()   
+        ->concat(Number::of(5))
+        ->concat(Number::of(6))
+        ->get();
+
+    expect($result)->toBe(11);
+});
+
+it('concats correctly using mempty and multilly by specification', function() {
+    $result = Number::mempty("mul")   
+        ->concat(Number::of(5))
+        ->concat(Number::of(6))
+        ->get();
+
+    expect($result)->toBe(30);
 });

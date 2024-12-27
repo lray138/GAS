@@ -22,3 +22,10 @@ function findUrl() {
 function replaceUrl() {
 	return '<a href="$1">$1</a>';
 }
+
+// wonder why I was using "|" and "#" as bookends, will probably find out
+// not sure I'm using it like this currently
+function findAmpersand() {
+	return '/&(?![a-zA-Z#]|amp|#\d+;)(?![a-zA-Z]+;)/';
+}
+

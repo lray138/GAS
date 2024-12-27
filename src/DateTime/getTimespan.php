@@ -1,5 +1,8 @@
 <?php namespace lray138\GAS\DateTime;
 
+use lray138\GAS\Arr;
+use lray138\GAS\Functional as FP;
+
 const getTimespan = __NAMESPACE__ . '\getTimespan';
 
 /**

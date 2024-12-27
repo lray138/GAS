@@ -9,5 +9,5 @@ const floor = __NAMESPACE__ . '\floor';
  */
 function floor($number)
 {
-    return (int) \floor($number);
+    return \floor($number);
 }

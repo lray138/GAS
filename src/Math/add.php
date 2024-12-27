@@ -12,10 +12,8 @@ const add = __NAMESPACE__ . '\add';
  */
 function add() {
     $f = function($x, $y) {
-        return (float) $x + (float) $y;
+        return $x + $y;
     };
-
-    //$f = fn($x, $y) => (float) $x + (float) $y;
 
     return curry($f)(...func_get_args());
 }

@@ -36,6 +36,7 @@ require __DIR__ . '/Str/equals.php';
 require __DIR__ . '/Str/explode.php';
 require __DIR__ . '/Str/extract.php';
 require __DIR__ . '/Str/findFirst.php';
+require __DIR__ . '/Str/isUrl.php';
 require __DIR__ . '/Str/findLast.php';
 require __DIR__ . '/Str/firstChar.php';
 require __DIR__ . '/Str/indexOf.php';
@@ -58,6 +59,7 @@ require __DIR__ . '/Str/matchesString.php';
 require __DIR__ . '/Str/numberFormat.php';
 require __DIR__ . '/Str/padLeft.php';
 require __DIR__ . '/Str/padLeftN.php';
+require __DIR__ . '/Str/padZero.php';
 require __DIR__ . '/Str/prepend.php';
 require __DIR__ . '/Str/removeQuotes.php';
 require __DIR__ . '/Str/replace.php';
@@ -91,4 +93,5 @@ require __DIR__ . '/Str/trimWithString.php';
 require __DIR__ . '/Str/wrap.php';
 require __DIR__ . '/Str/XMLToArray.php';
 
+// wtf, it's 03:38 and I'm adding a isURL function...? DRY DRY DRY DRY DRY
 //https://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url

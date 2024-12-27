@@ -16,6 +16,7 @@ function isValid($xmlstr, $wrap = false) {
               }, libxml_get_errors());
         libxml_clear_errors();
     }
+    
     return $sxe !== FALSE ? true : $errors;
 }
 

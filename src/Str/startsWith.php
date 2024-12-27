@@ -1,6 +1,6 @@
 <?php namespace lray138\GAS\Str;
 
-use lray138\GAS\Functionl\curry2;
+use function lray138\GAS\Functional\curry2;
 
 const startsWith = __NAMESPACE__ . '\startsWith';
 

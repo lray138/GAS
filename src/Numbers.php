@@ -32,6 +32,8 @@ const padZero = __NAMESPACE__ . '\padZero';
 
 // corrected edge case on Sep 25, 2024 @ 13:32 PM Where if it already had a zero it would still
 // be padded.  The main usecase for this is.  
+// interesting, I had this done another way Oct 11 14:23 in the class.
+// so this is really a string function anyway
 function padZero($num) {
     return ($num < 10 && $num[0] !== "0")
         ? "0" . $num
@@ -72,7 +74,11 @@ function absolute($number)
  * @return float
  */
 function add() {
-    $f = function($x, $y) { return (float) $x + (float) $y; };
+    $f = function($x, $y) { 
+        $x = FP\extract($x);
+        $y = FP\extract($y);
+        return (float) $x + (float) $y; 
+    };
     return FP\curry2($f)(...func_get_args());
 }
 

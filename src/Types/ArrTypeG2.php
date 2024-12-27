@@ -14,7 +14,7 @@ use lray138\GAS\Types\NumberG2 as Number;
 use lray138\GAS\Types\ArrTypeG2 as ArrType;
 use FunctionalPHP\FantasyLand\{Monoid, Semigroup};
 
-use lray138\GAS\Traits\MapTrait;
+use lray138\GAS\Traits\{ApplyTrait, MapTrait};
 
 use function lray138\GAS\IO\dump;
 
@@ -170,6 +170,47 @@ class ArrTypeG2 extends Type implements \Iterator, Monoid, Semigroup {
 			? T\Nothing()
 			: $value;
 	}
+	
+	public function toTable() {
+		$out = "";
+    	$rows = $this->extract();
+	
+    	if (empty($rows)) {
+    	    $e->return = $out;
+    	    return;
+    	}
+	
+    	// Start table
+    	$out .= "<table class='table'>";
+	
+    	// Use the first row's keys as headers if the row is associative
+    	$firstRow = $rows[0];
+	
+    	if (is_array($firstRow)) {
+    	    $out .= "<thead><tr>";
+    	    $out .= implode(array_map(function($key) {
+    	        return "<th>" . htmlspecialchars($key) . "</th>";
+    	    }, array_keys($firstRow)));
+    	    $out .= "</tr></thead>";
+    	}
+	
+    	// Generate table rows
+    	$out .= "<tbody>";
+    	foreach ($rows as $row) {
+    	    $out .= "<tr>";
+    	    $out .= implode(array_map(function($x) use (&$out) {
+    	        $out .= "<td>" . $x . "</td>";
+    	    }, $row));
+	
+    	    $out .= "</tr>";
+    	}
+    	$out .= "</tbody>";
+	
+    	// Close table
+    	$out .= "</table>";
+	
+    	return $out;
+	}
 
 	public function implode($delimeter = "") {
 
@@ -190,10 +231,10 @@ class ArrTypeG2 extends Type implements \Iterator, Monoid, Semigroup {
 		return ArrType::of(array_slice($this->extract(), $offset, $length, $preserve_keys));
 	}
 
-	function apply($just) {
-		//$f->map($this->extract());
-		return $just($this);
-	}
+	// function apply($just) {
+	// 	//$f->map($this->extract());
+	// 	return $just($this);
+	// }
 
 	function count() {
 		return Number::of(count($this->value));

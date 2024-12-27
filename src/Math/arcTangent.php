@@ -9,5 +9,5 @@ const arcTangent = __NAMESPACE__ . '\arcTangent';
  */
 function arcTangent($number)
 {
-    return (float) \atan($number);
+    return \atan($number);
 }

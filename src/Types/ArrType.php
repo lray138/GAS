@@ -10,13 +10,24 @@ use lray138\GAS\{
 	, Types as T
 };
 
+use lray138\GAS\Types\Either;
+
+use FunctionalPHP\FantasyLand\{
+	Monoid, // memty,
+	Semigroup
+};
+
+use lray138\GAS\Traits\ExtractValueTrait;
+
 use function lray138\GAS\Functional\extract;
 use lray138\GAS\Traits\MapTrait;
 use lray138\GAS\Types\Number;
+use function lray138\GAS\Types\wrapType;
 
 use function lray138\GAS\IO\dump;
+use lray138\GAS\Types\Comonad;
 
-class ArrType extends Type implements \Iterator {
+class ArrType extends Type implements Monoid {
 
 	public const of  = __CLASS__ . '::of';
 	
@@ -26,14 +37,30 @@ class ArrType extends Type implements \Iterator {
 		return ArrType::of(Arr\push($value, $this->value));
 	}
 
+	public static function mempty() {
+		return new static([]);
+	}
+
+	public function concat(Semigroup $x): ArrType {
+		return new static(array_merge($this->extract(), $x->extract()));
+	}
+
 	public function sum() {
 		return Number::of(array_sum($this->value));
 	}
 
 	// I am likley doing "bind" here because I didn't know
 	// what extend is - Oct 10 2024 
+
+	// ok, this isn't right anyway Dec 15 2024... not sure what is 
+	// and I also don't quite have the grasp on "extend" bind should definately be
+	// returning the function call but expecting the monad... 
 	public function bind($callable) {
-		return ArrType::of($callable($this->value));
+		return $callable($this->value);
+	}
+
+	public function diff($array) {
+		return ArrType::of(array_diff($this->extract(), $array));
 	}
 
 	// I don't really dig this... although push above 2nd argument being
@@ -49,11 +76,16 @@ class ArrType extends Type implements \Iterator {
 	}
 
 	public function unique($flags = SORT_STRING) {
-		return ArrType::of(array_unique($this->extract(), $flags));
+		$unique = array_unique($this->extract());
+		return ArrType::of($unique, $flags);
 	}
 
 	public function uniqueRegular() {
 		return $this->unique(SORT_REGULAR);
+	}
+
+	public function values() {
+		return new static(array_values($this->extract()));
 	}
 
 	function removeLast() {
@@ -120,6 +152,8 @@ class ArrType extends Type implements \Iterator {
 		return ArrType::of(Arr\set($key, $val, $this->value));
 	}
 
+	use ExtractValueTrait;
+
 	function filter($value = null) {
 		if(is_null($value)) {
 			$value = function($x) {
@@ -139,11 +173,26 @@ class ArrType extends Type implements \Iterator {
 	}
 
 	function toJSON() {
-		// getExtractable() ;)
-		return json_encode($this->getValue());
+		return \lray138\GAS\Types\StrType::of(json_encode($this->getValue()));
 	}
 
-	function get($key) {
+	function jsonEncode() {
+		return \lray138\GAS\Types\StrType::of(json_encode($this->extract()));
+	}
+
+	function getOrElse() {
+		//return $this->extract();
+	}
+
+	// note Oct 17 2024 02:54 obviously should have tried to go to sleep but...
+	// get (prop) will conflict with get (extract)
+
+	// note Oct 21 2024 18:00 
+	// exactly, so let's change "get" to "prop"
+
+	// this would be a good example of lesson for updating the code
+	// so it uses a Either vs Maybe
+	public function prop($key) {
 		// incase it is a StrType (i suppose)
 		if(is_object($key) && method_exists($key, "extract")) {
 			$key = $key->extract();
@@ -161,6 +210,16 @@ class ArrType extends Type implements \Iterator {
 		return is_null($value) || T\isNothing($value)
 			? T\Nothing()
 			: $value;
+	}
+
+	public function getPath($path) {
+		return \Idles\hasPath($path, $this->extract())
+			? wrapType(\Idles\path($path, $this->extract()))
+			: Nothing::of();
+	}
+
+	public function chunk(int $length, bool $preserve_keys = false) {
+		return new self(array_chunk($this->extract(), $length, $preserve_keys));
 	}
 
 	public function implode($delimeter = "") {
@@ -182,10 +241,10 @@ class ArrType extends Type implements \Iterator {
 		return ArrType::of(array_slice($this->extract(), $offset, $length, $preserve_keys));
 	}
 
-	function apply($just) {
-		//$f->map($this->extract());
-		return $just($this);
-	}
+	// function apply($just) {
+	// 	//$f->map($this->extract());
+	// 	return $just($this);
+	// }
 
 	function count() {
 		return Number::of(count($this->value));
@@ -227,7 +286,7 @@ class ArrType extends Type implements \Iterator {
 	}
 
 	function max() {
-		return T\wrap(\max($this->value));
+		return \lray138\GAS\Types\Number::of(\max($this->value));
 	}
 
 	// I flipped the Arr\merge order since we want
@@ -307,12 +366,72 @@ class ArrType extends Type implements \Iterator {
 		return T\wrap($test);
 	}
 
+	public function toTable($attrs = []) {
+		$out = "";
+    	$rows = $this->extract();
+	
+    	if (empty($rows)) {
+    	    $e->return = $out;
+    	    return;
+    	}
+
+    	$table_class = "table";
+
+    	if(isset($attrs["class_append"])) {
+    		$table_class = "table " . $attrs["class_append"];
+    	}
+	
+    	// Start table
+    	$out .= "<table class=\"$table_class\">";
+	
+    	// Use the first row's keys as headers if the row is associative
+    	$firstRow = $rows[0];
+	
+    	if (is_array($firstRow)) {
+    	    $out .= "<thead><tr>";
+    	    $out .= implode(array_map(function($key) {
+    	        return "<th>" . htmlspecialchars($key) . "</th>";
+    	    }, array_keys($firstRow)));
+    	    $out .= "</tr></thead>";
+    	}
+	
+    	// Generate table rows
+    	$out .= "<tbody>";
+    	foreach ($rows as $row) {
+    	    $out .= "<tr>";
+    	    $out .= implode(array_map(function($x) use (&$out) {
+    	        $out .= "<td>" . $x . "</td>";
+    	    }, $row));
+	
+    	    $out .= "</tr>";
+    	}
+    	$out .= "</tbody>";
+	
+    	// Close table
+    	$out .= "</table>";
+	
+    	return $out;
+	}
+
 	public function reverse() {
 		return T\Arr(array_reverse($this->value));
 	}
 
 	public function head() {
-		return $this->get(0);
+		$items = $this->extract();
+
+		if(count($items) === 0) {
+			return Either::left("No items to process.");
+		}
+
+		foreach($this->extract() as $item) {
+
+			if(!is_array($item)) {
+				$item = [$item];
+			}
+
+			return new self($item);
+		}
 	}
 
 	public function rsort() {
@@ -333,6 +452,13 @@ class ArrType extends Type implements \Iterator {
 		// 	$data = [$data];
 		// }
 
+		if(!is_array($data) && is_iterable($data)) {
+			$data = iterator_to_array($data);
+		} else if(!is_array($data)) {
+			$data = [$data];
+		}
+
+		// this wouldn't even be true...
 		if(is_null($data)) {
 			$data = [];
 		}
@@ -341,13 +467,15 @@ class ArrType extends Type implements \Iterator {
 	}
 
 	public function __get($key) {
-		return $this->get($key);
+		return $this->prop($key);
 	}
 
 	public function __set($property, $value) {
 		$this->value[$property] = $value;
 	}
 
+	// so, I needed either here because ... well the other thing is 
+	// would we allow this "magic" on Str/Array/etc...
 	public function __call($method, $args) {
 		// this is where we get a little "hacky/geeky" 
 		// perhaps, note on Sept 10, 2022 as I'm updating this stuff
@@ -356,9 +484,16 @@ class ArrType extends Type implements \Iterator {
 		} else if(function_exists("\lray138\GAS\Arr\\$method")) {
 			$func = "\lray138\GAS\Arr\\$method";
 			return new self(call_user_func_array($func, [...$args, $this->extract()]));
-		} 
+		}
 
 		return NoMethod::of($method . " method doesn't exists in stored value");
+	}
+
+	// if you started with an either then I think this is fair 
+	// considering the mentality is to return the type expected 
+	// so you would either have that type or the either class type
+	public function either(callable $_, callable $right) {
+		return $right($this->extract());
 	}
 
 	public function toJust() {
@@ -375,8 +510,29 @@ class ArrType extends Type implements \Iterator {
         return $this->extract()[$this->position];
     }
  
-    public function key(): int {
-        return $this->position;
+ 	// I never used this but I guess I'll call it index...
+ 	// ok, coming back to reclaim... not really sure what Interface I was implementing
+ 	// but have never used it for that purpose so moving on.
+    public function key($key, $transform = true) {
+        return $this->index($key, $transform);
+    }
+
+    public function index($key, $transform = true) {
+    	if(isset($this->extract()[$key])) {
+
+    		if(!$transform) {
+    			return new static([$this->extract()[$key]]);
+    		}
+
+    		if(getType($this->extract()[$key]) == "object") {
+    			return \lray138\GAS\Types\Either::right($this->extract()[$key]);
+    		}
+
+    		return wrapType($this->extract()[$key]);
+    	}
+
+    	return \lray138\GAS\Types\Either::left("Index $key not found");
+    	//return \lray138\GAS\Types\Maybe::nothing();
     }
  
  	#[\ReturnTypeWillChange]
@@ -387,5 +543,9 @@ class ArrType extends Type implements \Iterator {
  	#[\ReturnTypeWillChange]
     public function valid() {
         return isset($this->extract()[$this->position]);
+    }
+
+    public function __toString() {
+    	return "ArrType: array needs to be converted to string";
     }
 }

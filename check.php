@@ -3,6 +3,10 @@
 require "vendor/autoload.php";
 
 use lray138\GAS\Filesystem as FS;
+use lray138\GAS\Str;
+
+use function lray138\GAS\Functional\{extract, paths};
+use const lray138\GAS\Functional\extract;
 
 spl_autoload_register(function ($class) {
     $prefix = 'lray138\\';
@@ -26,24 +30,3 @@ spl_autoload_register(function ($class) {
         require $file;
     }
 });
-
-FS\getFilesInDir_("src/Str")
-    ->walk(function($x) {
-        
-        $testfile = str_replace(["src/", ".php"], ["tests/Unit/", "Test.php"], $x);
-
-        $function = str_replace(["src/", ".php", "/"], ["", "", "\\"], $x); 
-
-       $functionContent = <<<PHP
-<?php 
-
-use lray138\GAS\\$function;
-
-
-PHP;
-        if(!file_exists($testfile)) {
-            echo "creating $testfile";
-            file_put_contents($testfile, $functionContent);
-        }
-
-    });

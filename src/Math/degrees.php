@@ -9,5 +9,5 @@ const degrees = __NAMESPACE__ . '\degrees';
  */
 function degrees($number)
 {
-    return (float) \rad2deg($number);
+    return \rad2deg($number);
 }

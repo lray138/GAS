@@ -2,6 +2,7 @@
 namespace lray138\GAS\Test;
 
 /* this was before I found PEST...  2024-10-08 15:44:00 WOW */
+/* renaming because I know this caused naming clashes at some point too Oct 11 2024*/
 
 // via https://www.blogbyben.com/2020/06/an-ultra-lightweight-php-unit-test.html
 // https://www.php.net/manual/en/function.assert.php

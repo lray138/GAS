@@ -1,6 +1,8 @@
-<?php 
+<?php namespace lray138\GAS\Types;
 
-namespace lray138\GAS\Types;
+/**
+ *  @todo definaty get rid of it here in this location
+ * */
 
 class Nothing extends Maybe {
 	

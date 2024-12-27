@@ -1,20 +1,24 @@
 <?php namespace lray138\GAS\Str;
 
-const afterLast = __NAMESPACE__ . '\afterLast';
-
 use function lray138\GAS\Functional\curryN;
+
+const afterLast = __NAMESPACE__ . '\afterLast';
 
 function afterLast() {
     $f = function($delimeter, $string, $include_delimeter = false) {
         $out = afterNth(-1, $delimeter, $string);
 
         return $include_delimeter 
-            ? $out . $delimeter
+            ? $delimeter . $out
             : $out;
             
     };
 
-    return curryN(2)($f)(...func_get_args());
+    return curryN(2, $f)(...func_get_args());
+}
+
+function afterLast_() {
+    return \lray138\GAS\Types\StrType::of(afterLast(...func_get_args()));
 }
 
 /**

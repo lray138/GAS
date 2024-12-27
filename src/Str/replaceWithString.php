@@ -1,6 +1,6 @@
 <?php namespace lray138\GAS\Str;
 
-use lray138\GAS\Functionl\curry3;
+use function lray138\GAS\Functional\curryN;
 
 const replaceWithString = __NAMESPACE__ . '/replaceWithString';
 
@@ -12,9 +12,9 @@ const replaceWithString = __NAMESPACE__ . '/replaceWithString';
  * @return string
  */
 function replaceWithString() {
-    $replaceWithString = function($needle, $replacement, $haystack) {
+    $f = function($needle, $replacement, $haystack) {
         return str_replace($needle, $replacement, $haystack);
     };
 
-    return call_user_func_array(curry3($replaceWithString), func_get_args());
+    return curryN(3)($f)(...func_get_args());
 }

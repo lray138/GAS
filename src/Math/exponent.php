@@ -9,5 +9,5 @@ const exponent = __NAMESPACE__ . '\exponent';
  */
 function exponent($number)
 {
-    return (float) \exp($number);
+    return \exp($number);
 }

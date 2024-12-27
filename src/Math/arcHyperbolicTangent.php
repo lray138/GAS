@@ -9,5 +9,5 @@ const arcHyperbolicTangent = __NAMESPACE__ . '\arcHyperbolicTangent';
  */
 function arcHyperbolicTangent($number)
 {
-    return (float) \atanh($number);
+    return \atanh($number);
 }

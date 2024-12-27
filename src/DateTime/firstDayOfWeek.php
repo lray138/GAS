@@ -1,5 +1,7 @@
 <?php namespace lray138\GAS\DateTime;
 
+use lray138\GAS\Functional as FP;
+
 const firstDayOfWeek = __NAMESPACE__ . '\firstDayOfWeek';
 
 /**

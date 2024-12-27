@@ -6,7 +6,8 @@
         "ivopetkov/html5-dom-document-php": "2.*",
         "gajus/dindent": "2.0.*",
         "fightbulc/moment": "1.34.*",
-        "functional-php/fantasy-land": "^1"
+        "functional-php/fantasy-land": "^1",
+        "miroshnikov/idles": "^1.6"
     },
     "autoload": {
         "psr-4": {

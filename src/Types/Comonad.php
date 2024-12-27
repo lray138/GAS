@@ -5,8 +5,8 @@ interface Comonad {
     public function extract();
 
     // Apply a function to the entire comonad context
-    public function extend(callable $f);
+    public function extend(callable $f): Comonad;
 
     // Duplicate the comonad, wrapping it in itself
-    public function duplicate();
+    public function duplicate(): Comonad;
 }

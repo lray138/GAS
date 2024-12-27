@@ -9,7 +9,7 @@ const curry_n = __NAMESPACE__ . '\curry_n';
  * If you give a smaller number you will have an error when calling the given function. If
  * you give a higher number, arguments will simply be ignored.
  * 
- * Note: I'm not sure where this came from, but I think I added the placeholders 
+ * Note: I'm not sure where this came from, but I think I added the placeholders (concept from somewhere else)
  * from somewhere else
  *
  * @param int $count number of arguments you want to curry

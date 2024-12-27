@@ -1,6 +1,7 @@
 <?php namespace lray138\GAS\Str;
 
-use lray138\GAS\Functionl\curry3;
+use function lray138\GAS\Functional\curry3;
+use function lray138\GAS\Types\isArray;
 
 const replace = __NAMESPACE__ . '\replace';
 

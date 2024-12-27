@@ -61,7 +61,7 @@ const isNothing = __NAMESPACE__ . '\isNothing';
  */
 function isObject($variable)
 {
-    return is_object($variable) and !isFunction($variable);
+    return is_object($variable) && !isFunction($variable);
 }
 
 /**
@@ -69,8 +69,19 @@ function isObject($variable)
  *
  * @return bool
  */
-function isFunction($variable) {
-    return is_callable($variable) and is_object($variable);
+function isFunction($var) {
+
+    if($var instanceof \Closure) {
+        return true;
+    }
+
+    if (is_string($var) && function_exists($var)) {
+        return true;
+    }
+
+    return false;
+    // processwire was messing this up and this is probably better (above)
+    //return is_callable($variable) and is_object($variable);
 }
 
 /**

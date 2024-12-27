@@ -1,9 +1,9 @@
 <?php namespace lray138\GAS\Traits;
 
-use FunctionalPHP\FantasyLand\Functor;
+use lray138\GAS\Types\Comonad;
 
 trait ExtendTrait {
-    public function extend(callable $f): Functor {
+    public function extend(callable $f): Comonad {
         return new static($f($this));
     }
 }

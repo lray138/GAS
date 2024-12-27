@@ -1,8 +1,10 @@
 <?php namespace lray138\GAS\Str;
 
-use function lray138\GAS\Functional\curry2 as curry;
+use function lray138\GAS\Functional\curryN;
 
 const afterFirst = __NAMESPACE__ . '\afterFirst';
+
+// pretty sure the afterNth was academic stuff
 
 /**
  * @todo remove the "old way" after documenting
@@ -12,9 +14,8 @@ function afterFirst() {
         return afterNth(1, $delimeter, $string);
     };
 
-    return curry($f)(...func_get_args());
+    return curryN(2)($f)(...func_get_args());
 }
-
 
 function afterFirst_OldWay() {
     $afterFirst = function($needle, $haystack) {

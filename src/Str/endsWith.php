@@ -1,6 +1,6 @@
 <?php namespace lray138\GAS\Str;
 
-use function lray138\GAS\Functional\curry2;
+use function lray138\GAS\Functional\curryN;
 
 const endsWith = __NAMESPACE__ . '\endsWith';
 
@@ -10,15 +10,12 @@ const endsWith = __NAMESPACE__ . '\endsWith';
  *
  * @return bool
  */
-function endsWith()
-{
-    $endsWith = function($needle, $haystack) {
-        if (isExpression($needle)) {
-            return endsWithExpression($haystack, $needle);
-        }
-
-        return endsWithString($haystack, $needle);
+function endsWith() {
+    $f = function($needle, $haystack) {
+        return isExpression($needle) 
+            ? endsWithExpression($needle, $haystack)
+            : endsWithString($needle, $haystack);
     };
 
-    return call_user_func_array(curry2($endsWith), func_get_args());
+    return curryN(2)($f)(...func_get_args());
 }

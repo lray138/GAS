@@ -5,6 +5,7 @@ namespace lray138\GAS\ProcessWire;
 use lray138\GAS\Str;
 use lray138\GAS\Arr;
 use lray138\GAS\Numbers;
+use lray138\GAS\Math;
 use lray138\GAS\HTML;
 use lray138\GAS\Functional as FP;
 
@@ -186,7 +187,9 @@ function updatePage($page, $data, $pages = null) {
 
     $page->of(false);
 
-    foreach($data["fields"] as $key=>$field ) {
+    $fields = isset($data["fields"]) ? $data["fields"] : [];
+
+    foreach($fields as $key=>$field ) {
 		
     	if(isset($data["helpers"])) {
 
@@ -280,9 +283,11 @@ function createPageRecursive($pages, $data, $carry = []) {
 			$parent_path = "/";
 		}
 
+
+
 		$data = [
 			"parent_path" => $parent_path,
-			"name" => Str\afterLast("/", $data["parent_path"])
+			"name" => Str\afterLast("/", $data["parent_path"]),
 		];
 	}
 		

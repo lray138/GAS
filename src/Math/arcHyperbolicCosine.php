@@ -9,5 +9,5 @@ const arcHyperbolicCosine = __NAMESPACE__ . '\arcHyperbolicCosine';
  */
 function arcHyperbolicCosine($number)
 {
-    return (float) \acosh($number);
+    return \acosh($number);
 }

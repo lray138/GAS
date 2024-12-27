@@ -6,8 +6,14 @@ use lray138\GAS\Numbers;
 use lray138\GAS\Types as T;
 use function lray138\GAS\dump;
 
-use FunctionalPHP\FantasyLand\Functor;
-use lray138\GAS\Traits\MapTrait;
+use FunctionalPHP\FantasyLand\{
+	Functor,
+	Monoid,
+	Semigroup
+};
+
+use lray138\GAS\Traits\{ExtractValueTrait, MapTrait, ChainTrait};
+use function lray138\GAS\Functional\extract;
 
 // the reason for using the "Numbers" function is that it 
 // will handle type unwrapping which I suppose... 
@@ -16,33 +22,56 @@ use lray138\GAS\Traits\MapTrait;
 // the idea is if you interact via a "GAS" Type you get a type back
 // if you interact via a "Native" type you get that back.
 
-class Number extends Type {
+class Number extends Type implements Monoid {
 
 	const of = __CLASS__ . '::of';
 
 	protected $value;
+	protected $operation;
 
 	// originally casted this to float based on Chris Pitt, but now will
 	// do what I'm doing with G2 version and force a number... 
-	public function __construct($value) {
+	public function __construct($value, $operation = "add") {
 		if(!is_numeric($value)) {
-			die("pass a number");
+			throw new \InvalidArgumentException('Expected an iterable or traversable value');
 		}
-
+		
 		$this->value = $value;
+		$this->operation = $operation;
 	}
 
 	use MapTrait;
+	use ExtractValueTrait;
+	use ChainTrait;
+
+	public static function mempty($operation = null) {
+		$operation = is_null($operation) ? "add" : $operation;
+		$value = $operation === "add" ? 0 : 1;
+        return new self($value, $operation);
+    }
+
+    public function concat(Semigroup $n): Number {
+        if ($this->operation === 'add') {
+            return new self($this->extract() + $n->extract(), $this->operation);
+        } else if ($this->operation === 'mul') {
+            return new self($this->extract() * $n->extract(), $this->operation);
+        }
+
+        throw new \Exception("Unknown operation"); // chatGPT
+    }
 
 	public function __toString() {
 		return (string) $this->value;
 	}
 
-	public function add($number) {
-		return new self(Numbers\add($this->value, $number));
+	public function add(float|int|Number $n): Number {
+		return $n instanceof Number 
+			? new self($this->extract() + $n->extract())
+			: new self($this->extract() + $n);
 	}
 
 	// @note this should be equals
+	// this is dumb and should be ... yeah equals below would make sense... 
 	public function is($number) {
 		return $this->value == $number;
 	}
@@ -84,6 +113,24 @@ class Number extends Type {
 		return $number instanceof self
 			? T\Boolean($this->extract() > $number->extract())
 			: T\Boolean($this->extract() > $number);
+	}
+
+	public function gt($number) {
+		return $this->isGreaterThan($number);
+	}
+
+	public function isLessThan($number) {
+		return $number instanceof self
+			? T\Boolean($this->extract() > $number->extract())
+			: T\Boolean($this->extract() > $number);
+	}
+
+	public function lt($number) {
+		return $this->isLessThan($number);
+	}
+
+	public function bind($callable) {
+		return $callable($this->extract());
 	}
 
 	// don't like this voodoo (2024-10-08 )

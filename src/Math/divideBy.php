@@ -1,7 +1,13 @@
 <?php namespace lray138\GAS\Math;
 
+use function lray138\GAS\Functional\curryN;
+
 const divideBy = __NAMESPACE__ . '\divideBy';
 
 function divideBy() {
-    return call_user_func_array(FP\flip(divide), func_get_args());
+    $f = function($x, $y) {
+        return $y / $x;
+    };
+
+    return curryN(2, $f)(...func_get_args());
 }

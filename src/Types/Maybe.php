@@ -1,8 +1,15 @@
 <?php namespace lray138\GAS\Types;
 
-class Maybe implements Functor\PointedFunctor {
+use \FunctionalPHP\FantasyLand\Monad;
+use lray138\GAS\Traits\ApplyTrait;
+use lray138\GAS\Types\Maybe\{Just, Nothing};
+use function lray138\GAS\Types\{getType, wrapType};
 
-	private $value;
+class Maybe implements Functor\PointedFunctor, Comonad, Monad {
+
+	public const of  = __CLASS__ . '::of';
+
+	protected $value;
 
 	public function within(callable $func) {
         return $this->then(function($value) use ($func) {
@@ -10,10 +17,25 @@ class Maybe implements Functor\PointedFunctor {
         });
     }
 
-    public static function of($value): Maybe {
-    	return new static($value);
+    public function __toString() {
+    	return (string) $this->extract();
     }
 
+    public function extend(callable $f): Comonad {
+    	return $f($this);
+    }
+
+    public function duplicate(): Comonad {
+    	return new static(clone $this);
+    }
+
+    // note from Dec 3, 2024 because I was going do do "fromNullable"
+    // but really the pointed functor returning 
+    public static function of($value): Maybe {
+    	return is_null($value) ? Maybe::nothing() : Maybe::just($value);
+    }
+
+    /* don't like this at all (obviously) this is where using Map is best... */
     private function pluck($key, $source) {
         if(is_array($source)) {
             return isset($source[$key]) ? $source[$key] : null;
@@ -47,8 +69,7 @@ class Maybe implements Functor\PointedFunctor {
 					// perhaps a "prop"
 					if(count($parameters) == 0) {
 						return $this->pluck($method, $value);
-
-						return $value->$method;
+						//return $value->$method;
 					}
 
 					return null;
@@ -63,7 +84,6 @@ class Maybe implements Functor\PointedFunctor {
 				//return $value->$method;
 			}
 		});
-
 
 	}
 
@@ -83,6 +103,14 @@ class Maybe implements Functor\PointedFunctor {
 
 	public function join() {
 		return $this->extract();
+	}
+
+	public static function just($value) {
+		return Just::of($value);
+	}
+
+	public static function nothing() {
+		return Nothing::of();
 	}
 
 	// public function runClosure() {
@@ -109,16 +137,18 @@ class Maybe implements Functor\PointedFunctor {
 		return None::of();
 	}
 
-	public function apply($f) {
-		// I suppose if you use the extract function
-		// the variable can be whatever, but I would 
-		// lean toward just doing $this->value
-        return $f->map($this->extract());
-    }
+	use ApplyTrait;
 
-    public function ap($f) {
-    	return $this->apply($f);
-    }
+	// public function apply($f) {
+	// 	// I suppose if you use the extract function
+	// 	// the variable can be whatever, but I would 
+	// 	// lean toward just doing $this->value
+    //     return $f->map($this->extract());
+    // }
+
+    // public function ap($f) {
+    // 	return $this->apply($f);
+    // }
 
     public function applyM($applicative) {
     	return $this->map($applicative->extract());
@@ -136,25 +166,31 @@ class Maybe implements Functor\PointedFunctor {
 			$attempt_method = false;
 		}
 
+		$out = null;
 		if(is_array($value) && isset($value[$property])) {
-			// so silly to want to inject Some vs. Just
-			return Some::of($value[$property]);
+			$out = $value[$property];
 		} else if (is_object($value) && isset($value->$property)) {
-			return Some::of($value->$property);
-		} 
+			$out = $value->$property;
+		}
 
-		// try as method otherwise
-		return $attempt_method
-			? $this->$property()
-			: null;
+		if(is_null($out)) {
+			return $attempt_method
+				? $this->$property()
+				: null;
+		}
+
+		$type = \lray138\GAS\Types\getType($out);
+
+		if(in_array($type, ["number", "string", "array"])) {
+			return wrapType($out);
+		}
+		
+		return Just::of($out);
 	}
 
 	public function chain($fn) {
 		// need extra check in... this is why there needs to be ..
 		// not sure what the pattern is.
-
-		//
-		// 
 
 		return $this->map($fn)->join();
 		//$this->value->map($fn)->flatten();
@@ -173,6 +209,8 @@ class Maybe implements Functor\PointedFunctor {
 		return $this->then($f);
 	}
 
+	// ok, i don't have return type specified here so that's why
+	// hadn't ran into this.
 	public function bind($func) {
 		return $this->then($func)->extract();
 	}
@@ -193,10 +231,12 @@ class Maybe implements Functor\PointedFunctor {
 		if(is_null($this->value)) {
 			return new self();
 		} elseif(is_null($func)) {
+			// Dec 3 2024 this is wrong and would be Nothing
+			//return new self();
 			return new self();
 		} elseif(isNothing($func) || isError($func)) {
 			return $func;
-		} 
+		}
 
 		$value = $func($this->value);
 
@@ -265,6 +305,10 @@ class Maybe implements Functor\PointedFunctor {
 	}
 
 	public function out() {
+		return $this->value;
+	}
+
+	public function get() {
 		return $this->value;
 	}
 }

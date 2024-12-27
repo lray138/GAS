@@ -1,5 +1,7 @@
 <?php namespace lray138\GAS\Types\Monad;
 
+// seems like it's probably PacktPHP code
+
 use FunctionalPHP\FantasyLand\{
 	Monoid
 	, Semigroup 

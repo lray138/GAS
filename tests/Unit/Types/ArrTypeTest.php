@@ -2,6 +2,7 @@
 
 use lray138\GAS\Types\StrType as StrType;
 use lray138\GAS\Types\ArrType as A;
+use lray138\GAS\Types\Nothing;
 use lray138\GAS\Types\Number as Number;
 
 // it('concats with mempty', function() {
@@ -56,3 +57,32 @@ it('can merge', function() {
     $c = $a->merge(A::of(["d", "e", "f"]));
     expect($c->extract())->toBe($expected);
 });
+
+it('uses "path" function (via Idles)', function() {
+
+    $a = A::of([
+        "a" => [
+            "b" => [
+                "c" => "d"
+            ]
+        ]
+    ]);
+
+    expect($a->getPath("a.b.c.d"))->toBeInstanceOf(Nothing::class);
+    expect($a->getPath("a.b.c")->extract())->toBe("d");
+    expect($a->getPath("a.b.c"))->toBeInstanceOf(StrType::class);
+});
+
+// concats properly, this is also sort of a gateway to "full-on" types
+// for arguments
+it('concats properly starting with mempty', function() {
+    $result = A::mempty()
+        ->concat(A::of(["a", "b"]))
+        ->concat(A::of(["c"]))
+        ->get();
+
+    $expected = ["a", "b", "c"];
+
+    expect($result)->toBe($expected);
+});
+

@@ -1,6 +1,6 @@
 <?php namespace lray138\GAS\Types;
 
-use lray138\GAS\Traits\{ChainTrait, PointedTrait, MapTrait, ApplyTrait};
+use lray138\GAS\Traits\{ChainTrait, PointedTrait, MapTrait, ApplyTrait, ExtendTrait};
 
 use FunctionalPHP\FantasyLand\Monad;
 use lray138\GAS\Types\Comonad;
@@ -19,6 +19,7 @@ class Type implements Monad, Comonad {
 	use PointedTrait;
 	use ChainTrait;
 	use ApplyTrait;
+	use MapTrait;
 
 	// public static function of($value = null) {
 	// 	// return new self($value) returns Type, whereas we want the subclass
@@ -30,11 +31,15 @@ class Type implements Monad, Comonad {
 		return $this->value;
 	}
 
-	public function extend(callable $f) {
-		return new static($f($this));
+	// public function extend(callable $f) {
+	// 	return new static($f($this));
+	// }
+	// I see this done two ways and wondering WTF - 2024-12-15 12:29
+	public function extend(callable $f): Comonad {
+		return $f($this);
 	}
 
-	public function duplicate() {
+	public function duplicate(): Comonad {
 		return new static(clone $this);
 	}
 
@@ -108,16 +113,16 @@ class Type implements Monad, Comonad {
 		return new \DateTime($this->value);
 	}
 
-	public function bind($callable) {
-		return (new self($callable($this->value)))->extract();
-		//return new self($callable($this->value)->extract());
-	}
+	// ughhh... 
+	// had this and the trait -- 2024-12-15 12:26
+	// public function bind($callable) {
+	// 	return (new self($callable($this->value)))->extract();
+	// 	//return new self($callable($this->value)->extract());
+	// }
 
-	use MapTrait;
-
-	public function chain($callable) {
-		return (new self($callable($this->value)))->extract();
-	}
+	// public function chain($callable) {
+	// 	return (new self($callable($this->value)))->extract();
+	// }
 
 	public function toStr($callable = null) {
 		$value = !is_null($callable) 
@@ -127,10 +132,11 @@ class Type implements Monad, Comonad {
 		return StrType::of($value);
 	}
 
+	// no clue what this is supposed to be
 	public function toString($callable = null) {
 		return $this->toStr($callable);
 	}
-
+	
 	public function isNothing() {
 		return false;
 	}

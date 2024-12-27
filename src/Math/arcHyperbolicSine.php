@@ -9,5 +9,5 @@ const arcHyperbolicSine = __NAMESPACE__ . '\arcHyperbolicSine';
  */
 function arcHyperbolicSine($number)
 {
-    return (float) \asinh($number);
+    return \asinh($number);
 }

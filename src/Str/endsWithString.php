@@ -8,7 +8,6 @@ const endsWithString = __NAMESPACE__ . '\endsWithString';
  *
  * @return bool
  */
-function endsWithString($haystack, $needle)
-{
+function endsWithString($needle, $haystack) {
     return slice($haystack, -1 * length($needle)) === $needle;
 }

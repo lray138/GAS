@@ -1,10 +1,17 @@
-<?php namespace lray138\GAS\Functional;
+<?php namespace lray138\GAS\Functional\Just;
 
-const Just = __NAMESPACE__ . '\Just';
+use lray138\GAS\Types\Maybe\Just;
 
-/**
- * Function description.
- */
-function Just($value) {
-    return Maybe::of($value);
+const unit = __NAMESPACE__ . '\unit';
+
+function unit($value) {
+    return Just::of($value);
+}
+
+const pure = __NAMESPACE__ . '\pure';
+
+// this threw me off at certain points so "why not"
+// I would also stick with unit
+function pure($value) {
+    return unit($value);
 }

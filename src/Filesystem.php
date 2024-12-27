@@ -12,6 +12,7 @@ use lray138\GAS\{
 };
 
 use function lray138\GAS\IO\dump;
+use function lray138\GAS\Functional\curryN;
 
 const sortBySize = __NAMESPACE__ . '\sortBySize';
 
@@ -37,6 +38,14 @@ function readFile($filename) {
 	return file_get_contents($filename);
 }
 
+// function copy(string $to, string $from = null, $context = null) {
+// 	 $f = function(string $to, string $from, $context = null) {
+// 	  	copy($from, $to, $resource);
+// 	 };
+
+// 	 curryN(2, $f)(...func_get_args());
+// }
+
 function write($pathname, $contents = "", $create_dir_if_not_exists = false) {
 	$f = function($pathname, $contents, $create_dir_if_not_exists = false) {
 		if($create_dir_if_not_exists) {
@@ -61,12 +70,14 @@ const createFile = __NAMESPACE__ . '\createFile';
 
 // here is an example not not necessarilly getting much milage out of
 // default currying and if currying is needed then do it inline
-function putContents($filename, $contents, $create_dir_if_not_exists = false) {
-	$putContents = function($filename, $contents, $create_dir_if_not_exists = false) {
-		return file_put_contents($filename, $contents, $create_dir_if_not_exists);
+
+// well... Nov 23 @ 13:12 -- found a case ;)
+function putContents($filename, $contents = null) {
+	$f = function($filename, $contents) {
+		return file_put_contents($filename, $contents);
 	};
 
-	return $putContents(...func_get_args());
+	return curryN(2, $f)(...func_get_args());
 }
 
 function getChangedTimestamp($filename) {
@@ -406,4 +417,52 @@ function setCreatedTime($shelltime, $filename) {
 	$exec = "SetFile -d $shelltime $filename";
 	$exec = escapeshellcmd($exec);
 	shell_exec($exec);
+}
+
+/**
+ * Reads a file line by line, applies a callback to each line, and writes the result to a new file.
+ *
+ * @param string $inputFilePath Path to the input file.
+ * @param string $outputFilePath Path to the output file.
+ * @param callable $callback A function to apply to each line, which can modify the line.
+ */
+function mapLinesAndWrite() {
+	$f = function(callable $callback, $inputFilePath, $outputFilePath = null) {
+
+		if(!is_file($inputFilePath)) {
+				die($inputFilePath . " is not file");
+		}
+
+		if(is_null($outputFilePath)) {
+			$outputFilePath = $inputFilePath;
+		}
+
+
+	    // Open the input file for reading
+	    $inputFile = fopen($inputFilePath, 'r');
+
+	    if ($inputFile) {
+	        $updatedLines = [];
+
+	        // Read each line, apply the callback, and store the result in an array
+	        while (($line = fgets($inputFile)) !== false) {
+	            // Apply the callback function to potentially modify the line
+	            $updatedLines[] = $callback($line);
+	        }
+
+	        // Close the input file after reading all lines
+	        fclose($inputFile);
+
+	        // Open the output file for writing and write all lines at once
+	        file_put_contents($outputFilePath, implode('', $updatedLines));
+	    } else {
+	        echo "Error: Unable to open the input file.";
+	    }
+	};
+
+	return curryN(2, $f)(...func_get_args());
+}
+
+function getExtension($pathname) {
+	return pathinfo($pathname, PATHINFO_EXTENSION);
 }

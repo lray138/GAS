@@ -15,7 +15,6 @@ use function lray138\GAS\Functional\flipCurry2 as _;
 use function lray138\GAS\dump;
 
 /*-----------------------------------------------------------------------*/
-
 function arrToColumns($cols_per_row, $data, $callable = null) {
 	$class = (12/$cols_per_row);
 

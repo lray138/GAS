@@ -9,5 +9,5 @@ const arcSine = __NAMESPACE__ . '\arcSine';
  */
 function arcSine($number)
 {
-    return (float) \asin($number);
+    return \asin($number);
 }

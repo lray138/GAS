@@ -1,6 +1,7 @@
 <?php
 
 use lray138\GAS\Types\Type;
+use lray138\GAS\Types\Number;
 
 describe('Pointed', function () {
     
@@ -25,13 +26,15 @@ describe('Comonad', function () {
         expect($t->extract())->toEqual(10); // Assuming extract() exists
     });
 
+    // this test failed on Dec 10, 2024 because it was not returning a Comonad, which
+    // makes sense
     it('allows extending functionality', function () {
         // Lift the value into the Type context
         $t = Type::of(10);
 
         // Assuming extend() exists and modifies the context
         $result = $t->extend(function ($context) {
-            return $context->extract() + 5; // Example modification
+            return Number::of($context->extract() + 5); // Example modification
         });
 
         // Check that the result is correct based on the extended function

@@ -9,5 +9,5 @@ const arcCosine = __NAMESPACE__ . '\arcCosine';
  */
 function arcCosine($number)
 {
-    return (float) \acos($number);
+    return \acos($number);
 }

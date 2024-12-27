@@ -5,7 +5,7 @@ use function lray138\GAS\Functional\curryN;
 const afterNth = __NAMESPACE__ . '\afterNth';
 
 /**
- * @todo this should be named 'afterNthDelimiter' for clarity
+ * @todo this should be named 'afterNthDelimiter' for clarity (?)
  * Note: if delimeter not found explode returns NULL
  * Note: I also hadn't implemented my curried explode so it was returning null.
  */

@@ -75,3 +75,5 @@ require __DIR__ . '/DateTime/getTimespanYearMonth.php';
 require __DIR__ . '/DateTime/fromUTCString.php';
 require __DIR__ . '/DateTime/toEST.php';
 require __DIR__ . '/DateTime/UTCtoEST.php';
+require __DIR__ . '/DateTime/getMonthNames.php';
+require __DIR__ . '/DateTime/getDayNames.php';

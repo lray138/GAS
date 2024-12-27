@@ -1,6 +1,6 @@
 <?php namespace lray138\GAS\Str;
 
-use lray138\GAS\Functionl\curry2;
+use function lray138\GAS\Functional\curryN;
 
 const rtrim = __NAMESPACE__ . '/rtrim';
 
@@ -8,5 +8,5 @@ function rtrim() {
     $f = function($needle, $haystack) {
         return \rtrim($haystack, $needle);
     };
-    return curry2($f)(...func_get_args());
+    return curryN(2)($f)(...func_get_args());
 }

@@ -3,17 +3,29 @@
 namespace lray138\GAS\Types;
 use lray138\GAS\Types\Maybe;
 use function lray138\GAS\IO\dump;
+use FunctionalPHP\FantasyLand\Functor;
 
 class Many extends Type {
+
+	public const of  = __CLASS__ . '::of';
+	
 	private $values;
 
-	public function __construct($values = null) {
+	public function __construct($values) {
 		// here they auto unwrap
 		// and this was throwing me off when I tried to use chain
 
 		// if(is_object($values) && $values instanceof static) {
 		// 	$values = $values->value();
 		// }
+
+		if (!is_iterable($values) && !$values instanceof \Traversable) {
+        	throw new \InvalidArgumentException('Expected an iterable or traversable value');
+    	}
+
+    	if (!is_array($values)) {
+        	$values = iterator_to_array($values);
+    	}
 	
 		$this->values = $values;
 	}
@@ -26,13 +38,16 @@ class Many extends Type {
 
 	public static function create($args) {
 		// return new static did not work
-		return new Many($args);
+		// Oct 11 2024 - I'm not sure why I thought that.
+		return new static($args);
+		//return new Many($args);
 	}
 
-	// public static function of($args) {
-	// 	// return new static did not work
-	// 	return new Many($args);
-	// }
+	// this was commented out, wonder why.
+	public static function of($args) {
+		// return new static did not work
+		return new Many($args);
+	}
 
 	public function __get($prop) {
 		return $this->map(function($x) use ($prop) {
@@ -40,10 +55,10 @@ class Many extends Type {
 		});
 	}
 
+	// this was before I learned about Comonad and "extend"
+	// obviously not even working
 	public function to($type) {
-		echo "?";
 		return $this->value;
-
 		return $type($this->value);
 	}
 
@@ -51,20 +66,20 @@ class Many extends Type {
 		return static::create(flatMap($this->values, $mapper));
 	}
 
-	public function map(callable $mapper) {
+	public function map(callable $f): Many {
 		$out = [];
 		foreach($this->values as $value) {
-			$out[] = $mapper($value);
+			$out[] = $f($value);
 		}
 
 		return static::create($out);
-
 	}
 
-	public function bind($func) {
+	public function bind($func): Many {
 		$out = [];
 		foreach($this->values as $value) {
-			$out[] = $func($value);
+			$result = $func($value);
+			$out[] = $result->extract();
 		}
 
 		return static::create($out);
@@ -85,6 +100,8 @@ class Many extends Type {
 	// dunno why this just came to me as a way to handle the type conversion
 	// but it did... May 2, 2023 @ 16:22
 	// just smirked after running it... hmm....
+	// ---
+	// and so OCT 10 2024 - we discovered extend...
 	public function extract($callable = null) {
 		return is_null($callable) ? $this->values : $callable($this->values);
 	}

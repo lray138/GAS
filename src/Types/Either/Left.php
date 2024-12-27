@@ -4,6 +4,7 @@ namespace lray138\GAS\Types\Either;
 //namespace PhpFp\Either\Constructor;  // left to show what he did
 
 use lray138\GAS\Types\Either;
+use FunctionalPHP\FantasyLand\Apply;
 
 /**
  * An OO-looking implementation of the Left constructor.
@@ -15,9 +16,13 @@ final class Left extends Either
      * @param Either $that The parameter to apply.
      * @return Either The wrapped result.
      */
-    public function ap(Either $that) : Either
+    public function ap(Apply $that) : Apply
     {
         return $that;
+    }
+
+    public function bind(callable $f): Either {
+        return $this;
     }
 
     /**
@@ -100,6 +105,14 @@ final class Left extends Either
 
     public function isRight() {
         return false;
+    }
+
+    public function __get($_) {
+        return $this;
+    }
+
+    public function __toString() {
+        return (string) $this->extract();
     }
 
 }

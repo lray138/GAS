@@ -2,18 +2,15 @@
 
 const matchesExpression = __NAMESPACE__ . '\matchesExpression';
 
+// this was failing becasue the arguments are not in correct
+// "functional" order 
+
 /**
  * @param string $haystack
  * @param string $needle
  *
  * @return bool
  */
-function matchesExpression($haystack, $needle)
-{
-    //preg_match(pattern, subject)
-    if (preg_match($haystack, $needle)) {
-        return true;
-    }
-
-    return false;
+function matchesExpression($needle, $haystack) {
+    return preg_match($needle, $haystack) === 1;
 }

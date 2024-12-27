@@ -6,4 +6,8 @@ trait ExtractValueTrait {
     public function extract() {
         return $this->value;
     }
+
+    public function get() {
+        return $this->extract();
+    }
 }

@@ -5,13 +5,15 @@ namespace lray138\GAS\Types;
 // I actually wanted to install it via composer ;)
 //namespace PhpFp\Either;
 
+// it's 11:12 on Oct 18 2024 I am adding that it implements the FantasyLand spec
+
 use lray138\GAS\Types\Either\{Left, Right};
+use \FunctionalPHP\FantasyLand\{Apply, Monad};
 
 /**
  * An OO-looking implementation of Either in PHP.
  */
-abstract class Either
-{
+abstract class Either implements Monad {
     /**
      * Construct a new Left instance with a value.
      * @param mixed $x The value to be wrapped.
@@ -37,10 +39,13 @@ abstract class Either
      * @param mixed $x The value to be wrapped.
      * @return A new Right-constructed type.
      */
-    public static function of($x) : Either
-    {
-        return is_null($x) ? self::left(null) : self::right($x);
-        //return self::right($x);
+    abstract public static function of($x) : Either;
+
+    // fromNullable is OK, but ... dunno.... from/fromNullable? dunno...
+    // need a way to pass the error I don't really like having to type 
+    // out the conditional... 
+    public static function unit($x, $fail_message = null) {
+        return is_null($x) ? self::left($fail_message) : self::right($x);
     }
 
     /**
@@ -51,7 +56,7 @@ abstract class Either
     final public static function tryCatch(callable $f) : Either
     {
         try {
-            return self::of($f());
+            return self::unit($f());
         } catch (\Exception $e) {
             return self::left($e);
         }
@@ -62,7 +67,7 @@ abstract class Either
      * @param Either $that The wrapped parameter.
      * @return Either The wrapped result.
      */
-    abstract public function ap(Either $that) : Either;
+    abstract public function ap(Apply $that) : Apply;
 
     /**
      * Map over both sides of the Either.
@@ -113,7 +118,9 @@ abstract class Either
         return $this->isRight() ? $this->value : $value;
     }
 
-        public function getOrElse($value) {
+    // I know this is me adding onto the original class
+    public function getOrElse($value) {
         return $this->isRight() ? $this->value : $value;
     }
+    
 }

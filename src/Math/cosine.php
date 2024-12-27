@@ -9,5 +9,5 @@ const cosine = __NAMESPACE__ . '\cosine';
  */
 function cosine($number)
 {
-    return (float) \cos($number);
+    return \cos($number);
 }

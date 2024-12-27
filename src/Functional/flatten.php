@@ -6,8 +6,7 @@ const flatten = __NAMESPACE__ . '\flatten';
  * Function description.
  */
 // from ace bingo
-function flatten(array $list): array
-{
+function flatten(array $list): array {
   $flattened = fold(
     function ($acc, $value) {
       return \is_array($value) ?
