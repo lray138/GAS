@@ -25,7 +25,6 @@ it('adds numbers correctly', function () {
     expect($result->extract())->toBe(15);
 });
 
-
 it('divides numbers correctly', function () {
     $number = new Number(10);
     $result = $number->divide(2);
@@ -56,8 +55,13 @@ it('formats numbers correctly', function () {
 
 it('checks equality correctly', function () {
     $number = new Number(10);
-    expect($number->equals(10))->toBeTrue();
-    expect($number->equals(5))->toBeFalse();
+    expect($number->equals(10)->get())->toBeTrue();
+    expect($number->equals(5)->get())->toBeFalse();
+
+    expect($number->eq(10)->g())->toBeTrue();
+    expect($number->eq(5)->g())->toBeFalse();
+
+
 });
 
 it('checks greater than correctly', function () {
@@ -84,3 +88,4 @@ it('concats correctly using mempty and multilly by specification', function() {
 
     expect($result)->toBe(30);
 });
+

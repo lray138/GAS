@@ -32,8 +32,7 @@ $diffOriginalHTML = function() {
                 $x->modified->replace(".ejs", ".diff"),
                 $differ->diff($content_1, $content_2));
 
-        });
-           
+        });    
 };
 
 use lray138\GAS\IO;
@@ -58,11 +57,7 @@ function Str($s) {
 }
 
 function Arr($a) {
-
-    if(!is_array($a)) {
-        $a = [$a];
-    }
-
+    
     return $a instanceof \lray138\GAS\Types\ArrType
         ? $a
         : \lray138\GAS\Types\ArrType::of($a);
@@ -72,4 +67,26 @@ function Just($x) {
     return $x instanceof \lray138\GAS\Types\Maybe\Just
         ? $x
         : \lray138\GAS\Types\Maybe::just($x);
+}
+
+function Num($x) {
+    return $x instanceof \lray138\GAS\Types\Number
+        ? $x
+        : \lray138\GAS\Types\Number::of($x);
+}
+
+function Nothing() {
+    return \lray138\GAS\Types\Maybe\Nothing::of();
+}
+
+function Maybe($value) {
+    return is_null($value)
+        ? \lray138\GAS\Types\Maybe::nothing()
+        : \lray138\GAS\Types\Maybe::just($value);
+}
+
+function Either($value, $message = "") {
+    return is_null($value)
+        ? \lray138\GAS\Types\Either::left($message)
+        : \lray138\GAS\Types\Either::right($value);
 }

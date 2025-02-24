@@ -167,11 +167,11 @@ function getType($variable) {
     $functions = [
         "isNumber" => "number",
         "isBoolean" => "boolean",
+        "isString" => "string",
         "isNull" => "null",
         "isObject" => "object",
         "isFunction" => "function",
         "isExpression" => "expression",
-        "isString" => "string",
         "isResource" => "resource",
         "isArray" => "array"
     ];
@@ -228,7 +228,7 @@ function wrapType($variable) {
 
         // this is not right
         //return call_user_func("\\lray138\\GAS\\Types\\" . $result . "::of", $class);
-        return $variable;
+        return \lray138\GAS\Types\Either\Right::of($variable);
     }
 
     if(isset($types[$type])) {

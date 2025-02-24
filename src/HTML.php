@@ -32,7 +32,9 @@ function element($type, $content = "", $attributes = null) {
     $content = $content->extract();
   }
 
-  if($attributes instanceof Type) {
+  // program to an interface baby!!!
+  //if($attributes instanceof Type) {
+  if(is_object($attributes) && method_exists($attributes, "extract")) {
     $attributes = $attributes->extract();
   }
 
@@ -103,9 +105,29 @@ function getVoidElements() {
   ];
 }
 
+// hello darkness my old friend Dec 28, 2024 at 20:39
 function _processAttributes($attributes) {
+
+    // I ugess this assumes that $attributes is a string
+    // or i guess the concat with " " . casts it anyway
     if(!is_array($attributes)) {
       return " " . $attributes;
+    }
+
+    $attr = '';
+    if(isset($attributes[0]) && is_array($attributes[0])) {
+      foreach($attributes as $attribute) {
+          $attr = $attr . ' ' . $attribute[0] . '="' . $attribute[1] .'"';
+      }
+      return $attr;
+    }
+
+    // otherwise it will be a key/val not 0
+    // this is becaues of mapping attributes/properties and it might be an attribute string
+    // but in the properties/attributes group collection
+    if(isset($attributes[0]) && is_string($attributes[0])) {
+      
+      return $attributes[0];
     }
 
     // old way for reference
@@ -113,7 +135,6 @@ function _processAttributes($attributes) {
       $attr = $attr . ' ' . $key . '="' . $value .'"';
     };
 
-    $attr = '';
     Arr\walk($apply, $attributes);
 
     return $attr;

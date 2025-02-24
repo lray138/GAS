@@ -83,8 +83,21 @@ final class Left extends Either
     }
 
     // return this value
+    // I'm changint this to returning the value, since "dump" is applied
+    // this is how I implemented it with JavaScript anyway
+    // and really you should be using "fork"
+
+    // bug here fixed on value Feb 24, 2025
     public function extract() {
         return $this->value;
+    }
+
+    public function get() {
+        return $this->extract();
+    }
+
+    public function g() {
+        return $this->extract();
     }
 
     public function isLeft() {
@@ -99,6 +112,14 @@ final class Left extends Either
         return false;
     }
 
+    public function getOrElse($value) {
+        return $value;
+    }
+    
+    public function goe($value) {
+        return $this->getOrElse($value);
+    }
+
     public function __call($method, $value) {
         return $this;
     }
@@ -109,10 +130,6 @@ final class Left extends Either
 
     public function __get($_) {
         return $this;
-    }
-
-    public function __toString() {
-        return (string) $this->extract();
     }
 
 }

@@ -10,6 +10,7 @@ use FunctionalPHP\FantasyLand\{
 };
 
 use lray138\GAS\Traits\ExtractValueTrait;
+use function lray138\GAS\dump;
 
 /**
  * An OO-looking implementation of Writer in PHP.
@@ -107,6 +108,12 @@ class Writer implements Monad {
                 list ($ys, $log2) = $f($xs)->run();
 
                 // @todo fix this later
+                // great node here man, c'mon... 
+
+                // so, I'm back here and Jan 10 at 12:56 and was going to use an array
+                // to pass data, but really if we just use "null" as the kill then anything
+                // else is the data we want to pass.
+
                 if(is_null($ys)) {
                     $log2 = $log2->concat(ArrType::of(["Computation ended."]));
                 }

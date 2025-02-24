@@ -11,6 +11,7 @@ use lray138\GAS\{
 	Str
 };
 
+use lray138\GAS\Types\Either;
 use function lray138\GAS\IO\dump;
 use function lray138\GAS\Functional\curryN;
 
@@ -24,15 +25,24 @@ function getContents($filename) {
 	return file_get_contents($filename);
 }
 
+// this shows we were kind of on the way... Jan 14 2024 - 11:22
 function getContents_($filename) {
-	return Str\of(file_get_contents($filenam));
+	return Str\of(file_get_contents($filename));
 }
+
+const getContentsEither = __NAMESPACE__ . '\getContentsEither';
+
+function getContentsEither($pathname) {
+		return file_exists($pathname) 
+			? Either::right(file_get_contents($pathname))
+			: Either::left("File not found: $pathname");
+}
+
+const read = __NAMESPACE__ . '\read';
 
 function read($filename) {
 	return file_get_contents(FP\extract($filename));
 }
-
-const read = __NAMESPACE__ . '\read';
 
 function readFile($filename) {
 	return file_get_contents($filename);
@@ -106,6 +116,11 @@ const getFiles = __NAMESPACE__ . '\getFiles';
 // mode not implemented but would be the difference between
 // file object and a the full path that this currently provides.
 function getFilesInDir($directory, $options = []): array {
+
+	if(is_object($directory) && method_exists($directory, "extract")) {
+		$directory = $directory->extract();
+	}
+
 	if(isset($options["mode"]) 
 		&& in_array(strtolower($options["mode"]), ["object", "obj", "splfile"])) {
 		$files = [];
@@ -136,9 +151,12 @@ function getFilesInDir($directory, $options = []): array {
 		(isset($options["filter"]) ? Arr\filter($options["filter"]) : fn($x) => $x),
 		$prependDirectoryToFile);
 
-	return Arr\filter(
+
+	// carbon relies on zero indexing somewhere and 
+	// was tripping up because of this that 2025-01-16 12:27
+	return array_values(Arr\filter(
 		"is_file",
-		$process(scandir($directory)));
+		$process(scandir($directory))));
 }
 
 function getFilesInDir_($directory, $options = []) {
@@ -183,6 +201,11 @@ function getPathinfo($pathname) {
 // and
 // https://stackoverflow.com/questions/19724579/php-recursivedirectoryiterator-how-to-exclude-directory-paths-with-a-dot-and-do
 function getFilesInDirRecursive($dir, $options = []) {
+
+	if(!is_dir($dir)) {
+		return Either::left("dir '$dir' not found");
+	}
+
 	$it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
 	
 	return isset($options["return_type"]) && strtolower($options["return_type"]) === "fileinfo"
@@ -463,6 +486,20 @@ function mapLinesAndWrite() {
 	return curryN(2, $f)(...func_get_args());
 }
 
+
+// OK so I had started this.... Jan 14 - 9:56 PM
 function getExtension($pathname) {
 	return pathinfo($pathname, PATHINFO_EXTENSION);
+}
+
+function getBasename($pathname) {
+	return pathinfo($pathname, PATHINFO_BASENAME);
+}
+
+function getFilename($pathname) {
+	return pathinfo($pathname, PATHINFO_FILENAME);
+}
+
+function getDirname($pathname) {
+	return pathinfo($pathname, PATHINFO_DIRNAME);
 }

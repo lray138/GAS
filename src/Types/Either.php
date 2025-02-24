@@ -9,11 +9,13 @@ namespace lray138\GAS\Types;
 
 use lray138\GAS\Types\Either\{Left, Right};
 use \FunctionalPHP\FantasyLand\{Apply, Monad};
+use lray138\GAS\Types\Comonad;
+use function lray138\GAS\dump;
 
 /**
  * An OO-looking implementation of Either in PHP.
  */
-abstract class Either implements Monad {
+abstract class Either implements Monad, Comonad {
     /**
      * Construct a new Left instance with a value.
      * @param mixed $x The value to be wrapped.
@@ -22,6 +24,10 @@ abstract class Either implements Monad {
     final public static function left($x) : Left
     {
         return new Left($x);
+    }
+
+    final public function dump() {
+        dump($this->extract());
     }
 
     /**
@@ -122,5 +128,27 @@ abstract class Either implements Monad {
     public function getOrElse($value) {
         return $this->isRight() ? $this->value : $value;
     }
+
+    public function extend(callable $f): Comonad {
+        return $f($this);
+    }
+
+    public function duplicate(): Comonad {
+        return new static(clone $this);
+    }
+
+    public static function fromNullable($x, $left_message = "") {
+        return is_null($x) ? Either::left($left_message) : Either::right($x);
+    }
     
+    public function __toString() {
+        // YAY! PHP Fatal error:  Uncaught Error: Object of class WP_Post
+        try {
+            return (string) $this->extract();
+        } catch(\Exception $e) {
+            return $e->getMessage();
+        } catch(\Error $e) {
+            return $e->getMessage();
+        }
+    }
 }

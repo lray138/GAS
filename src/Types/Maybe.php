@@ -36,6 +36,7 @@ class Maybe implements Functor\PointedFunctor, Comonad, Monad {
     }
 
     /* don't like this at all (obviously) this is where using Map is best... */
+    /* copying this over and not really sure what it's for */
     private function pluck($key, $source) {
         if(is_array($source)) {
             return isset($source[$key]) ? $source[$key] : null;
@@ -44,6 +45,13 @@ class Maybe implements Functor\PointedFunctor, Comonad, Monad {
         if(is_object($source)) {
             return isset($source->$key) ? $source->$key : null;
         }
+    }
+
+    public static function fromNullable($value) {
+    	// funny how now I like UNIT
+    	return is_null($value)
+    		? Nothing::of()
+    		: Just::of($value);
     }
 
 	public function __call($method, $parameters) {
@@ -92,7 +100,9 @@ class Maybe implements Functor\PointedFunctor, Comonad, Monad {
 	}
 
 	public function getOrElse($default_value) {
-		return $this->isNothing() ? $default_value : $this->value;
+		//return $this->isNothing() ? $default_value : $this->value;
+		// will be funny when this is the issue.
+		return $this->isNothing() ? $default_value : $this->extract();
 	}
 
 	// adding this alias on Apr 9, 2022 because I tried to use this
@@ -296,8 +306,10 @@ class Maybe implements Functor\PointedFunctor, Comonad, Monad {
 	// 	return new self($x);
 	// }
 
+	// Jan 7th - Coming back to unit from Mayb... 
 	public static function unit($x) {
-		return new self($x);
+		// return new self($x); - wonder when that would have ever been valid...
+		return is_null($x) ? Maybe::nothing() : Maybe::just($x);
 	}
 
 	public function extract() {

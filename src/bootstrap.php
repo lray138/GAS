@@ -48,4 +48,5 @@ require 'Tree.php';
 require 'GasTools.php';
 require 'Views.php';
 require 'XML.php';
+require 'WordPress.php';
 require 'HTML/Bootstrap5/index.php';

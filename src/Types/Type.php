@@ -35,6 +35,9 @@ class Type implements Monad, Comonad {
 	// 	return new static($f($this));
 	// }
 	// I see this done two ways and wondering WTF - 2024-12-15 12:29
+
+	/// no clue about the above, but the need for this comes from
+	// trying to map on a whole collection/array vs the bind/map on each item
 	public function extend(callable $f): Comonad {
 		return $f($this);
 	}
@@ -45,6 +48,12 @@ class Type implements Monad, Comonad {
 
 	public function out() {
 		return $this->extract();
+	}
+
+	// Feb 6 2025 - 10:51 - can't believe it took me this long to put this in...
+	// or think to ... or whatever...
+	public function dump() {
+		dump($this->extract());
 	}
 
 	public function toArr($option = null) {
@@ -139,6 +148,17 @@ class Type implements Monad, Comonad {
 	
 	public function isNothing() {
 		return false;
+	}
+
+	// adding this... also noting the "todateTime" and all that... 
+	// not sure I ever used the "if" much and would prefer the monadic functions and
+	// run that in there...  keep interace tight
+	// Jan 6 15:36 
+	public function either(callable $left, callable $right) {
+		$value = $this->extract();
+		return is_null($value) 
+			? $left($value) 
+			: $right($value);
 	}
 
 }

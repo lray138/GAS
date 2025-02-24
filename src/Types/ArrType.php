@@ -56,7 +56,19 @@ class ArrType extends Type implements Monoid {
 	// and I also don't quite have the grasp on "extend" bind should definately be
 	// returning the function call but expecting the monad... 
 	public function bind($callable) {
-		return $callable($this->value);
+		//return $callable($this->value);
+		// this had been wrong and updated Dec 28 2k24, 11:38 PM
+			
+		$out = [];
+		foreach($this->value as $val) {
+			$out[] = $callable($val)->extract();
+		}
+
+		// it's late but this is what I would have expected it to behave like
+		// and now it does
+		// Dec 28 11:47 ...
+
+		return new static($out);
 	}
 
 	public function diff($array) {
@@ -180,8 +192,13 @@ class ArrType extends Type implements Monoid {
 		return \lray138\GAS\Types\StrType::of(json_encode($this->extract()));
 	}
 
-	function getOrElse() {
-		//return $this->extract();
+	// wonder why this was commented out Jan 24, 16:37
+	function getOrElse($value) {
+		return $this->extract();
+	}
+
+	function goe($value) {
+		return $this->getOrElse();
 	}
 
 	// note Oct 17 2024 02:54 obviously should have tried to go to sleep but...
@@ -203,14 +220,22 @@ class ArrType extends Type implements Monoid {
 		$value = Arr\get($key, $this->value);
 		
 		// wrap type if not an object
-		if(!is_object($value)) {
-       		$value = T\wrapType($value);
-       	}
+		// if(!is_object($value)) {
+       	// 	$value = T\wrapType($value);
+       	// }
+
+       	$value = T\wrapType($value);
 
 		return is_null($value) || T\isNothing($value)
-			? T\Nothing()
+			? Either::left("prop '$key' not found")
 			: $value;
 	}
+
+	public function p($key) {
+		return $this->prop($key);
+	}
+
+
 
 	public function getPath($path) {
 		return \Idles\hasPath($path, $this->extract())
@@ -421,16 +446,32 @@ class ArrType extends Type implements Monoid {
 		$items = $this->extract();
 
 		if(count($items) === 0) {
-			return Either::left("No items to process.");
+			// return new self([]);
+			// Jan 2 13:56 - This is the correct annswer, and maybe even
+			// Just::Nothing...
+			return Either::left("No items in Array (head fail)");
 		}
 
+		// honestly think this implementation is wrong 
+		// and should really be acting like an extract/get
+		// @todo discuss
+
+		// ok, I can see why this is wrong... 
+		// it's that it should be wrapping the type and if the type 
+		// is array that's OK. but forcing it to be an array is not
+
+		// ok... Dec 31, 17:26 ... been up since fucking 5... hahaha let's FUCKING GOOOOO!!!!
+		// anyway this is actually the last thing for the demo buildout and also 
+		// was a last flag I know. so, poetic... let's do this!
 		foreach($this->extract() as $item) {
 
-			if(!is_array($item)) {
-				$item = [$item];
-			}
+			return wrapType($item);
 
-			return new self($item);
+			// if(!is_array($item)) {
+			// 	$item = wrapType($item);
+			// 	//$item = [$item];
+			// }
+			// return new self($item);
 		}
 	}
 
@@ -470,8 +511,14 @@ class ArrType extends Type implements Monoid {
 		return $this->prop($key);
 	}
 
+	// we wouldn't do it like this anyway cause 
+	// it's not "Point Free"
 	public function __set($property, $value) {
 		$this->value[$property] = $value;
+	}
+
+	public function hasKey($key) {
+		return Boolean::of(array_key_exists($key, $this->extract()));
 	}
 
 	// so, I needed either here because ... well the other thing is 

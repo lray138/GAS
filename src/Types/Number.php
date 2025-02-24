@@ -12,6 +12,8 @@ use FunctionalPHP\FantasyLand\{
 	Semigroup
 };
 
+use lray138\GAS\Types\Boolean;
+
 use lray138\GAS\Traits\{ExtractValueTrait, MapTrait, ChainTrait};
 use function lray138\GAS\Functional\extract;
 
@@ -33,7 +35,7 @@ class Number extends Type implements Monoid {
 	// do what I'm doing with G2 version and force a number... 
 	public function __construct($value, $operation = "add") {
 		if(!is_numeric($value)) {
-			throw new \InvalidArgumentException('Expected an iterable or traversable value');
+			throw new \InvalidArgumentException("Expected an integer or float");
 		}
 		
 		$this->value = $value;
@@ -78,7 +80,7 @@ class Number extends Type implements Monoid {
 
 	// keeping the relaxed "==" here 
 	public function equals($number) {
-		return $this->extract() == $number;
+		return Boolean::of($this->extract() == $number);
 	}
 
 	public function eq($number) {
@@ -133,12 +135,24 @@ class Number extends Type implements Monoid {
 		return $callable($this->extract());
 	}
 
+	public function getOrElse($_) {
+		return $this->extract();
+	}
+
+	public function goe($_) {
+		return $this->getOrElse();
+	}
+
 	// don't like this voodoo (2024-10-08 )
+	// running into an issue becase of "GreaterThan" vs. "isGreaterThan" vs "gt"
 	public function __call($method, $args) {
 		if(function_exists("\lray138\GAS\Numbers\\$method")) {
 			$func = "\lray138\GAS\Numbers\\$method";
 			return new self(call_user_func_array($func, [...$args, $this->extract()]));
-		} 
+		} else {
+			// adding this Dec 28, 2024 because I tried to call getOrElse and it returned null
+			// would have needed this all along anyway
+			return "method $method does not exist.";
+		}
 	}
-
 }

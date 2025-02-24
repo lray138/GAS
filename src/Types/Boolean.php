@@ -52,9 +52,14 @@ class Boolean extends Type implements Monoid {
 
     /**
      * Check if the boolean value is true.
+     * this is stupid btw - Jan 6 2024
      */
     public function is() {
         return $this->value === true;
+    }
+
+    public function g() {
+        return $this->extract();
     }
 
     /**
@@ -71,10 +76,33 @@ class Boolean extends Type implements Monoid {
         return $this->is();
     }
 
+    public function ifTrue(callable $c) {
+        return $this->extract()
+            ? $c()
+            : $this;
+    }
+
+    public function either(callable $false, callable $true) {
+        $stored = $this->extract();
+        return $this->extract()
+            ? $true($stored)
+            : $false($stored);
+    }
+
     /**
      * Check if the boolean is false (alias of isNot()).
      */
     public function isFalse() {
         return $this->isNot();
     }
+
+    // Jan 2 @ 15:04, I guess get wasn't in Type?
+    public function get() {
+        return $this->extract();
+    }
+
+    public function __toString() {
+        return (string) $this->extract();
+    }
+    
 }

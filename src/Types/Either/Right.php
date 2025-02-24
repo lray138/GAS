@@ -5,6 +5,13 @@ namespace lray138\GAS\Types\Either;
 
 use lray138\GAS\Types\Either;
 use FunctionalPHP\FantasyLand\{Monad, Apply};
+use function lray138\GAS\dump;
+
+function funcToString(callable $f) {
+    return is_string($f) 
+        ? "'" . $f . "'" 
+        : "Closure object";
+}
 
 /**
  * An OO-looking implementation of the Right constructor.
@@ -65,7 +72,12 @@ final class Right extends Either
      */
     public function map(callable $f) : Either
     {
-        return Either::unit($f($this->value));
+        $value = $f($this->extract());
+        return is_null($value)
+            ? Either::left("calling " . funcToString($f) . " resulted in NULL value")
+            : Either::right($value);
+
+        //return Either::unit();
         //return Either::right($f($this->value));
     }
 
@@ -103,6 +115,10 @@ final class Right extends Either
         return $this->value;
     }
 
+    public function get() {
+        return $this->extract();
+    }
+
     public function __call($method, $parameters) {
 
         // use bind instead of "map" which was really "then" from the Chris Pitt code
@@ -111,7 +127,7 @@ final class Right extends Either
             // in this case we're trying to call something that is a property
             // this is the "back and forth" - wish I documented this better.
             if(is_array($value)) {
-                return isset($value[$method]) ? Right::of($value[$method]) : Left::of("prop no exist");
+                return isset($value[$method]) ? Right::of($value[$method]) : Left::of("method '$method' does not exist");
             } else if($value instanceof ArrType) {
                 return $value->$method;
             } else if(is_object($value)) {
@@ -169,6 +185,15 @@ final class Right extends Either
 
     }
 
+    public function getOrElse($value) {
+        return $this->extract();
+    }
+    
+    // this can be abstract
+    public function goe($value) {
+        return $this->getOrElse($value);
+    }
+
     public function __get($property) {
 
         $value = $this->extract();
@@ -201,10 +226,6 @@ final class Right extends Either
         }
         
         return Either::unit($out);
-    }
-
-    public function __toString() {
-        return (string) $this->extract();
     }
 
 }

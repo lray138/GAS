@@ -2,6 +2,8 @@
 
 namespace lray138\GAS\Types;
 
+use function lray138\GAS\IO\dump;
+
 use FunctionalPHP\FantasyLand\{Monoid, Functor, Semigroup, Monad};
 use lray138\GAS\Traits\{ExtractValueTrait, MapTrait};
 
@@ -9,8 +11,6 @@ use lray138\GAS\{
 	Str as S
 	, Functional as FP
 };
-
-use function lray138\GAS\IO\dump;
 
 class StrType extends Type implements Functor, Monoid {
 
@@ -41,17 +41,34 @@ class StrType extends Type implements Functor, Monoid {
 		}
 	}
 
+	public function charAt($index) {
+		return new static(mb_substr($this->extract(), $index, 1, "UTF-8"));
+	}
+
+	public function substr($from, $length = null) {
+		return new static(substr($this->extract(), $from, $length));
+	}
+
+	public function mbSubstr($from, $length = null) {
+		return new static(mb_substr($this->extract(), $from, $length, "UTF-8"));
+	}
+
 	// public function concat($x) {
 	// 	return new self($this->extract() . $x);
 	// }
 
+	// this was already in place, nice... Jan 27 2015 wow 
+	// Jan 27 2025 
 	public function getOrElse($val) {
 		$stored = $this->extract();
 		if(is_null($stored) || empty($stored)) {
 			return $val;
 		}
-
 		return $stored;
+	}
+
+	public function goe($val) {
+		return $this->getOrElse($val);
 	}
 
 	// ok, this is borderline and I don't really like it, but I'm here because I needed 
@@ -81,6 +98,11 @@ class StrType extends Type implements Functor, Monoid {
 		return new self($value);
 	}
 
+	public function contains($x) {
+		return \lray138\GAS\Types\Boolean(str_contains($this->extract(), $x));
+	}
+
+	// this is dum Jan 16, 2024 - 11:30
 	public function add($x) {
 		return $this->append($x);
 	}
@@ -129,6 +151,7 @@ class StrType extends Type implements Functor, Monoid {
 		return empty($this->extract()) ? Nothing::of() : $this;
 	}
 
+	// cool Jan 24, 2024
 	public function either($_, callable $f) {
 		return $f($this->extract());
 	}

@@ -30,4 +30,12 @@ class Left {
 		return $this->value;
 	}
 
+	public function getOrElse($value) {
+		return $value;
+	}
+	
+	public function goe($value) {
+		return $this->getOrElse($value);
+	}
+
 }
