@@ -111,6 +111,10 @@ function isRegex($variable)
         return false;
     }
 
+    // this was choking on <!doctype html> with a line break, 
+    // I still think adding the check for "/" or "|" is good too though
+    $variable = trim($variable);
+
     // Oct 9, 2024 @ 17:34 - adding this for edge cases.
     if (preg_match('/[a-zA-Z0-9]/', substr($variable, 0, 1)) || preg_match('/[a-zA-Z0-9]/', substr($variable, -1))) {
         return false; // Not a valid regex since the start/end characters are not symbols
@@ -118,6 +122,17 @@ function isRegex($variable)
 
     // I added this because it was choking on "<hr>" for HTML cleanup
     $notVoidTag = implode([substr($variable, 0, 1), substr($variable, strlen($variable)-1, 1)]) !== "<>";
+
+    // Thu Feb 27 15:14 - "WOW"... this is that Chris Pitt code I believe and really just need to check if 
+    // first string is "/" or "|" otherwise ...
+    // also seems like it.. it's failing on doctype so...
+
+    $first_char = substr($variable, 0, 1);
+    $last_char = substr($variable, strlen($variable)-1, 1);
+
+    if(!in_array($first_char, ["/", "|"])) {
+        return false;
+    }
     
     $isNotFalse = @preg_match($variable, "") !== false;
     $hasNoError = preg_last_error() === PREG_NO_ERROR;

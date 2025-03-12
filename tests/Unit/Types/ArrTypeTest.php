@@ -86,3 +86,13 @@ it('concats properly starting with mempty', function() {
     expect($result)->toBe($expected);
 });
 
+
+it('returns emtpy for single item on array tail call', function() {
+    $result = A::of([1])
+        ->tail();
+
+    expect($result->tail())->toBeInstanceOf(A::class);
+    expect($result->tail()->get())->toBe([]);
+});
+
+// src/Types/ArrType.php

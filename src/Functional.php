@@ -51,3 +51,15 @@ require __DIR__ . '/Functional/flatten.php';
 require __DIR__ . '/Functional/nullIfEmpty.php';
 require __DIR__ . '/Functional/toPath.php';
 require __DIR__ . '/Functional/hasPath.php';
+
+function unwrap($x) {
+    $x = is_object($x) && method_exists($x, 'extract') ? $x->extract() : $x;
+    
+    return is_array($x)
+        ? array_map("\lray138\GAS\Functional\unwrap", $x)
+        : $x;
+}
+
+function wrap($x) {
+    return \lray138\GAS\Types\wrapType($x);
+}

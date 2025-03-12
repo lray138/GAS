@@ -12,6 +12,8 @@ use lray138\GAS\{
 	, Functional as FP
 };
 
+use lray138\GAS\Types\ArrType as Arr;
+
 class StrType extends Type implements Functor, Monoid {
 
 	const of = __CLASS__ . '::of';
@@ -34,6 +36,7 @@ class StrType extends Type implements Functor, Monoid {
 
 	// cast it to string if it isn't
 	public function __construct($value) {
+
 		if(!is_string($value)) {
 			$this->value = (string) $value;
 		} else {
@@ -75,6 +78,7 @@ class StrType extends Type implements Functor, Monoid {
 	// an either function... and ... since I wasn't returning anything on fail
 	// it took me a minute to realize what was going on.
 	public function __call($method, $args) {
+
 		if(function_exists("\lray138\GAS\Str\\$method")) {
 			$func = "\lray138\GAS\Str\\$method";
 			return new self(call_user_func_array($func, [...$args, $this->extract()]));
@@ -89,7 +93,49 @@ class StrType extends Type implements Functor, Monoid {
 		return $this->value;
 	}
 
-	use MapTrait;
+	public function replace($search, $replace) {
+
+		$search = $search instanceof Type ? $search->get() : $search;
+		$replace = $replace instanceof Type ? $replace->get() : $replace;
+
+		return $this->map(fn($subject) 
+            => S\isExpression($search) 
+                ? preg_replace($search, $replace, $subject)
+                : str_replace($search, $replace, $subject)
+        );
+	}
+
+    public function toLower() {
+        return $this->map(fn($x) => strtolower($x));
+    }
+
+    public function toLowerCase() {
+        return $this->toLower();
+    }
+
+    public function matchAll($regex, $flags = 0): Arr {
+        $matches = [];
+        preg_match_all($regex, $this->extract(), $matches, $flags);
+        return Arr::of($matches);
+    }
+	
+	public function beforeFirst($find) {
+
+		$value = $this->extract();
+
+		if(!str_contains($value, $find)) {
+			return \lray138\GAS\Types\Either\Left::of("string not found: $find");
+		}
+
+		return new self(S\beforeFirst($find, $value));
+
+	}
+
+	// use MapTrait;
+    public function map(callable $f): StrType {
+        return new static($f($this->extract()));
+    }
+    
 	use ExtractValueTrait;
 
 	public function append($x) {
@@ -129,6 +175,10 @@ class StrType extends Type implements Functor, Monoid {
 
 	public function length() {
 		return Number::of(S\length($this->value));
+	}
+
+	public function equals($value) {
+		return Boolean::of($value == $this->extract());
 	}
 
 	public function isEmpty() {

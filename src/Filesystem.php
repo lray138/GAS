@@ -11,7 +11,13 @@ use lray138\GAS\{
 	Str
 };
 
-use lray138\GAS\Types\Either;
+use function lray138\GAS\Str;
+
+use lray138\GAS\Types\{
+	Either,
+	Boolean as Boo
+};
+
 use function lray138\GAS\IO\dump;
 use function lray138\GAS\Functional\curryN;
 
@@ -30,11 +36,18 @@ function getContents_($filename) {
 	return Str\of(file_get_contents($filename));
 }
 
+// Feb 25 .. I can see I did this previously with getContentsEither...
+function getContentsStr(\lray138\GAS\Types\StrType $pathname) {
+	return file_exists($pathname->get())
+		? $pathname->map(fn($x) => file_get_contents($x))
+		: \lray138\GAS\Types\Either\Left::of("File not found: $pathname");
+}
+
 const getContentsEither = __NAMESPACE__ . '\getContentsEither';
 
-function getContentsEither($pathname) {
-		return file_exists($pathname) 
-			? Either::right(file_get_contents($pathname))
+function getContentsEither(\lray138\GAS\Types\StrType $pathname) {
+		return file_exists($pathname->get()) 
+			? Either::right($pathname->map("file_get_contents"))
 			: Either::left("File not found: $pathname");
 }
 
@@ -92,6 +105,20 @@ function putContents($filename, $contents = null) {
 
 function getChangedTimestamp($filename) {
 	return filectime($filename);
+}
+
+// Tue FEb 24 20:23 - LISO (loose in strict out)
+
+// Tue Feb 25 2025 20:06 EST - Here is were if we add new functions
+// we will go with this approach.  Anything "Typed" is loose and can
+// handle the normal PHP "loosness" but "client" code should be typed, and
+function hasExtension() {
+		$f = function($ext, $pathname): Boo {
+				list($ext, $pathname) = FP\unwrap(func_get_args());
+				return Str\unit(getExtension($pathname))->equals($ext);
+		};
+
+		return curryN(2, $f)(...func_get_args());
 }
 
 const getChangedTimestamp = __NAMESPACE__ . '\getChangedTimestamp';
@@ -452,6 +479,8 @@ function setCreatedTime($shelltime, $filename) {
 function mapLinesAndWrite() {
 	$f = function(callable $callback, $inputFilePath, $outputFilePath = null) {
 
+		$inputFilePath = FP\unwrap($inputFilePath);
+
 		if(!is_file($inputFilePath)) {
 				die($inputFilePath . " is not file");
 		}
@@ -470,7 +499,7 @@ function mapLinesAndWrite() {
 	        // Read each line, apply the callback, and store the result in an array
 	        while (($line = fgets($inputFile)) !== false) {
 	            // Apply the callback function to potentially modify the line
-	            $updatedLines[] = $callback($line);
+	            $updatedLines[] = $callback(Str($line));
 	        }
 
 	        // Close the input file after reading all lines
@@ -492,6 +521,10 @@ function getExtension($pathname) {
 	return pathinfo($pathname, PATHINFO_EXTENSION);
 }
 
+// function getExtensionStr($pathname) {
+// 	return Str::of(pathinfo($pathname, PATHINFO_EXTENSION));
+// }
+
 function getBasename($pathname) {
 	return pathinfo($pathname, PATHINFO_BASENAME);
 }
@@ -503,3 +536,4 @@ function getFilename($pathname) {
 function getDirname($pathname) {
 	return pathinfo($pathname, PATHINFO_DIRNAME);
 }
+

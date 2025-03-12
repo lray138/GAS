@@ -90,3 +90,7 @@ function Either($value, $message = "") {
         ? \lray138\GAS\Types\Either::left($message)
         : \lray138\GAS\Types\Either::right($value);
 }
+
+function Writer($value, $monoid = null) {
+    return \lray138\GAS\Types\Writer::of($value, $monoid);
+}

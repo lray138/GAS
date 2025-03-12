@@ -31,6 +31,11 @@ class Type implements Monad, Comonad {
 		return $this->value;
 	}
 
+    public function tap(callable $callback) {
+        $callback($this->value);
+        return $this;
+    }
+
 	// public function extend(callable $f) {
 	// 	return new static($f($this));
 	// }
@@ -53,7 +58,17 @@ class Type implements Monad, Comonad {
 	// Feb 6 2025 - 10:51 - can't believe it took me this long to put this in...
 	// or think to ... or whatever...
 	public function dump() {
-		dump($this->extract());
+		dump($this);
+		return $this;
+	}
+
+	// feb 25 - 13:00 - 
+	public function type() {
+		return Str(\lray138\GAS\Types\getType($this->extract()));
+	}
+
+	public function die($message = "") {
+		die($message);
 	}
 
 	public function toArr($option = null) {
@@ -86,6 +101,11 @@ class Type implements Monad, Comonad {
 		}
 
 		return Number::of($value);
+	}
+
+	public function echo() {
+		echo $this->extract();
+		return $this;
 	}
 
 	public function toMaybe($callable = null) {

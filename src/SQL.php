@@ -1,6 +1,9 @@
 <?php 
 namespace lray138\GAS\SQL;
 
+// Thur Mar 6 14:51 
+// this is probably based on things I was seeing in Trongate
+
 use lray138\GAS\{
 	Functional as FP,
 	Arr,

@@ -184,12 +184,12 @@ class ArrType extends Type implements Monoid {
 		return ArrType::of(array_combine($this->value, $array));
 	}
 
-	function toJSON() {
-		return \lray138\GAS\Types\StrType::of(json_encode($this->getValue()));
+	function toJson() {
+		return \lray138\GAS\Types\StrType::of(json_encode($this->extractRecursive()));
 	}
 
 	function jsonEncode() {
-		return \lray138\GAS\Types\StrType::of(json_encode($this->extract()));
+		return $this->toJSON();
 	}
 
 	// wonder why this was commented out Jan 24, 16:37
@@ -481,7 +481,7 @@ class ArrType extends Type implements Monoid {
 		return new static($arr);
 	}
 
-	public static function of($data = []) {
+	public static function of($data = []): ArrType {
 		//return new self($data);
 		return new static($data);
 	}
@@ -564,6 +564,9 @@ class ArrType extends Type implements Monoid {
         return $this->index($key, $transform);
     }
 
+    // I guess this was if I wanted to not transform and keep it as an array?
+    // not sure why I would do that or ... I asdflkjas who knows, some of this 
+    // is academic
     public function index($key, $transform = true) {
     	if(isset($this->extract()[$key])) {
 
@@ -581,6 +584,22 @@ class ArrType extends Type implements Monoid {
     	return \lray138\GAS\Types\Either::left("Index $key not found");
     	//return \lray138\GAS\Types\Maybe::nothing();
     }
+
+	private function extractR($items) {
+	    return array_map(function ($item) {
+	        if (is_array($item)) {
+	            return $this->extractR($item); // Use $this->extractR for recursion
+	        }
+	        if (is_object($item) && method_exists($item, 'extract')) {
+	            return $item->extract();
+	        }
+	        return $item;
+	    }, $items);
+	}
+
+	public function extractRecursive(): array {
+	    return $this->extractR($this->extract());
+	}
  
  	#[\ReturnTypeWillChange]
     public function next(): int {

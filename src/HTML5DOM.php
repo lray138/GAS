@@ -5,6 +5,8 @@ namespace lray138\GAS\HTML5DOM;
 use IvoPetkov\HTML5DOMDocument;
 
 use function lray138\GAS\IO\dump;
+use function lray138\GAS\Functional\curryN;
+use lray138\GAS\Types\Either;
 
 // via http://www.java2s.com/Code/Php/XML/TraversingaTreeofXMLNodesUsingRecursion.htm
 // related https://stackoverflow.com/questions/4562769/recursively-loop-through-the-dom-tree-and-remove-unwanted-tags
@@ -161,4 +163,13 @@ function getChildren($element) {
 
 function hasChildren($node) {
     return $node->hasChildNodes();
+}
+
+function querySelector($selector, $el = null) {
+   $f = function($selector, $el): Either {
+      $out = $el->querySelector($selector);
+      return is_null($out) ? Either::left("$selector not found") : Either::right($out);
+   };
+
+   return curryN(2, $f)(...func_get_args());
 }

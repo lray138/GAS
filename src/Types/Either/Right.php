@@ -100,7 +100,7 @@ final class Right extends Either
      */
     public function fold(callable $_, callable $g)
     {
-        return $g($this->value);
+        return $g($this->extract());
     }
 
     public function isRight() {

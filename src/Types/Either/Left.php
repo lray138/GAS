@@ -74,12 +74,12 @@ final class Left extends Either
      */
     public function either(callable $f, callable $_)
     {
-        return $f($this->value);
+        return $f($this->extract());
     }
 
     public function fold(callable $f, callable $_)
     {
-        return $f($this->value);
+        return $f($this->extract());
     }
 
     // return this value
@@ -114,6 +114,10 @@ final class Left extends Either
 
     public function getOrElse($value) {
         return $value;
+    }
+
+    public function extend(callable $f): \lray138\GAS\Types\Comonad  {
+        return $this;
     }
     
     public function goe($value) {

@@ -1,9 +1,10 @@
-<?php 
+<?php namespace lray138\GAS;
 
 require "vendor/autoload.php";
 
 use lray138\GAS\Filesystem as FS;
 use lray138\GAS\Str;
+use lray138\GAS\dump;
 
 use function lray138\GAS\Functional\{extract, paths};
 use const lray138\GAS\Functional\extract;
@@ -30,3 +31,4 @@ spl_autoload_register(function ($class) {
         require $file;
     }
 });
+

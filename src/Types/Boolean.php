@@ -82,11 +82,19 @@ class Boolean extends Type implements Monoid {
             : $this;
     }
 
+    // interesting to note "either" and I like that I figured out
+    // fold was basically "extract" with the "identity" auto applied 
+    // Wed Mar 5 15:11
     public function either(callable $false, callable $true) {
         $stored = $this->extract();
         return $this->extract()
             ? $true($stored)
             : $false($stored);
+    }
+
+    public function fold(callable $onFalse, callable $onTrue) {
+        $stored = $this->extract();
+        return $stored ? $onTrue() : $onFalse();
     }
 
     /**

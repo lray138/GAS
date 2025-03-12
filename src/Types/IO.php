@@ -20,12 +20,29 @@ class IO implements Monad {
      */
     private $action;
 
+    // /**
+    //  * Applicative constructor.
+    //  * @param mixed $x The IO's inner value.
+    //  * @return IO The value wrapped with IO.
+    //  * Mar 4 - looks like this is "life" vs "pointed" expecting the function
+    //  */
+    // public static function of($x) : IO
+    // {
+    //     return new IO(
+    //         function () use ($x)
+    //         {
+    //             return $x;
+    //         }
+    //     );
+    // }
+
     /**
      * Applicative constructor.
      * @param mixed $x The IO's inner value.
      * @return IO The value wrapped with IO.
+     * Mar 4 - looks like this is "life" vs "pointed" expecting the function
      */
-    public static function of($x) : IO
+    public static function lift($x) : IO
     {
         return new IO(
             function () use ($x)
@@ -33,6 +50,10 @@ class IO implements Monad {
                 return $x;
             }
         );
+    }
+
+    public static function of($action): IO {
+        return new self($action);
     }
 
     /**
@@ -78,14 +99,20 @@ class IO implements Monad {
      * @param callable $f The mapping function.
      * @return IO The outer structure is preserved.
      */
-    public function map(callable $f) : IO
-    {
-        return $this->bind(
-            function ($a) use ($f)
-            {
-                return IO::of($f($a));
-            }
-        );
+    // public function map(callable $f) : IO
+    // {
+    //     return $this->bind(
+    //         function ($a) use ($f)
+    //         {
+    //             return IO::of($f($a));
+    //         }
+    //     );
+    // }
+
+    public function map(callable $fn): self {
+        return new self(function () use ($fn) {
+            return $fn(($this->action)());
+        });
     }
 
     /**

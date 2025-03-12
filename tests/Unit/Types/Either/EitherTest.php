@@ -33,7 +33,6 @@ it('puts the message in correctly', function() {
     $testObject = new TestObject("My Test Name");
     $either = Either::of($testObject);
     expect($either)->toBeInstanceOf(Right::class);
-    
     $either->map(function($x) {
 
     });

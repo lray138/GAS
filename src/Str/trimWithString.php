@@ -14,8 +14,15 @@ use function lray138\GAS\Functional\curryN;
  *  what I consider "functional order"
  *  ok, here's the prob then I switched it up there and not everywhere... 
  */
-function trimWithString($characters, $string = null) {
+function trimWithString() {
+
     $f = function($characters, $string) {
+
+        // pretty sure this was a chat GPT test but valid I suppose.
+        if(is_null($characters) && is_null($string)) {
+            return null;
+        }
+
         return is_null($characters) ? \trim($string) : \trim($string, $characters);
     };
 

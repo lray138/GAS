@@ -1,4 +1,4 @@
-<?php namespace lray138\GAS\Strs;
+<?php namespace lray138\GAS\Str;
 
 use lray138\GAS\{
     Arr,
@@ -6,11 +6,18 @@ use lray138\GAS\{
     Types
 };
 
-use function lray138\GAS\Functional\{curry3, curry2};
+use function lray138\GAS\Functional\{curryN};
 use function lray138\GAS\IO\dump;
 
-const DOUBLE_QUOTE = '"';
-const SINGLE_QUOTE = "'";
+use function lray138\GAS\Functional\unwrap;
+
+if (!defined('DOUBLE_QUOTE')) {
+    define('DOUBLE_QUOTE', '"');
+}
+
+if (!defined('SINGLE_QUOTE')) {
+    define('SINGLE_QUOTE', "'");
+}
 
 require __DIR__ . '/Str/_match.php';
 require __DIR__ . '/Str/addLeadingZero.php';
@@ -45,6 +52,7 @@ require __DIR__ . '/Str/indexOfString.php';
 require __DIR__ . '/Str/isExpression.php';
 require __DIR__ . '/Str/isRegex.php';
 require __DIR__ . '/Str/join.php';
+require __DIR__ . '/Str/unit.php';
 require __DIR__ . '/Str/kebalbCaseToCamel.php';
 require __DIR__ . '/Str/kebalbCaseToPascal.php';
 require __DIR__ . '/Str/lastChar.php';
@@ -95,3 +103,11 @@ require __DIR__ . '/Str/XMLToArray.php';
 
 // wtf, it's 03:38 and I'm adding a isURL function...? DRY DRY DRY DRY DRY
 //https://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url
+
+function urlConcat(...$args) {
+    $f = function($str, $to) {
+        return \lray138\GAS\Types\StrType::of(\trim(unwrap($to), "/") . "/" . \trim(unwrap($str), "/") . "/");
+    };
+
+    return curryN(2, $f)(...$args);
+}

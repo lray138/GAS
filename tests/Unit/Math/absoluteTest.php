@@ -1,19 +1,21 @@
 <?php 
 
+// $HOME/sites/GAS/src/Math/absolute;
 use function lray138\GAS\Math\absolute;
 
 test('absolute function returns correct absolute value for positive numbers', function () {
-    expect(absolute(5))->toBe(5.0);
+    // fixing a test fail, noting that at one point we were forcing everything to be float.
+    expect(absolute(5))->toBe(5);
     expect(absolute(10.5))->toBe(10.5);
 });
 
 test('absolute function returns correct absolute value for negative numbers', function () {
-    expect(absolute(-5))->toBe(5.0);
+    expect(absolute(-5))->toBe(5);
     expect(absolute(-10.5))->toBe(10.5);
 });
 
 test('absolute function returns 0.0 for zero', function () {
-    expect(absolute(0))->toBe(0.0);
+    expect(absolute(0))->toBe(0);
 });
 
 test('absolute function returns float for float input', function () {

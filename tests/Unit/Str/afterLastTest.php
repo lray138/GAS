@@ -1,5 +1,7 @@
 <?php
 
+# src/Str/_match.php
+# $HOME/sites/GAS/src/Str/afterNth.php
 use function lray138\GAS\Str\afterLast;
 
 it('returns the substring after the last comma delimiter', function () {
@@ -85,8 +87,9 @@ it('handles string where delimiter is at the end', function () {
 it('includes the last delimiter when include_delimiter is true', function () {
     $string = "one,two,three,four";
     $delimiter = ",";
-    $expected = "four,";
+    $expected = ",four";
     
+    // I know this is related to keeping the delimeter
     $result = afterLast($delimiter, $string, true);
     
     expect($result)->toBe($expected);

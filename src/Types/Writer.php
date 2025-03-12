@@ -15,7 +15,7 @@ use function lray138\GAS\dump;
 /**
  * An OO-looking implementation of Writer in PHP.
  */
-class Writer implements Monad {
+class Writer implements Monad, Comonad {
     /**
      * The internal action for this monad.
      * @var callable
@@ -43,6 +43,16 @@ class Writer implements Monad {
         );
     }
 
+    public function extend(callable $f): Comonad {
+        return $f($this);
+    }
+
+    public function extract() {}
+
+    public function duplicate(): Comonad {
+        return new static(clone $this);
+    }
+
     /**
      * Write something to the Writer log using some trickery. See the
      * documentation for some more information around using this.
@@ -57,6 +67,11 @@ class Writer implements Monad {
                 return [null, $x];
             }
         );
+    }
+
+    public function dump() {
+        dump("Writer monad");
+        return $this;
     }
 
     /**

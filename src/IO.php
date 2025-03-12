@@ -40,6 +40,7 @@ function varDump($var) {
 
 const varDump = __NAMESPACE__ . '\varDump';
 
+// adding reeturn so I can use tap/extend to dump.
 function dump() {
     $args = count(func_get_args()) > 0 
         ? func_get_args()
@@ -52,6 +53,8 @@ function dump() {
     } else {
         var_dump(...$args);
     }
+
+    return $args[0];
 }
 
 const dump = __NAMESPACE__ . '\dump';

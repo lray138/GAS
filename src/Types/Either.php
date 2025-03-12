@@ -27,7 +27,8 @@ abstract class Either implements Monad, Comonad {
     }
 
     final public function dump() {
-        dump($this->extract());
+        dump($this);
+        return $this;
     }
 
     /**
@@ -35,8 +36,7 @@ abstract class Either implements Monad, Comonad {
      * @param mixed $x The value to be wrapped.
      * @return A new Right-constructed type.
      */
-    final public static function right($x) : Right
-    {
+    final public static function right($x) : Right {
         return new Right($x);
     }
 
@@ -45,13 +45,25 @@ abstract class Either implements Monad, Comonad {
      * @param mixed $x The value to be wrapped.
      * @return A new Right-constructed type.
      */
-    abstract public static function of($x) : Either;
+    public static function of($x) {
+        return is_null($x) ? self::left(null) : self::right($x);
+    }
 
     // fromNullable is OK, but ... dunno.... from/fromNullable? dunno...
     // need a way to pass the error I don't really like having to type 
     // out the conditional... 
     public static function unit($x, $fail_message = null) {
         return is_null($x) ? self::left($fail_message) : self::right($x);
+    }
+
+    public function tap(callable $callback) {
+        $callback($this->value);
+        return $this;
+    }
+
+    public function echo() {
+        echo $this->extract();
+        return $this;
     }
 
     /**
