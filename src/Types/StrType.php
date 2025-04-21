@@ -34,6 +34,12 @@ class StrType extends Type implements Functor, Monoid {
 		return new static(trim($this->extract()));
 	}
 
+	public function ifEmpty($then) {
+		return empty($this->extract()) 
+			? $then
+			: $this;
+	}
+
 	// cast it to string if it isn't
 	public function __construct($value) {
 

@@ -154,6 +154,11 @@ class Writer implements Monad, Comonad {
         );
     }
 
+    public function tap(callable $f) : Writer {
+        $f();
+        return $this;
+    }
+
     /**
      * Perform the Writer computation, return a [value, log] pair.
      * @return mixed Whatever the computation yields!

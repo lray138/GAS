@@ -8,14 +8,14 @@ namespace lray138\GAS\Types;
 // it's 11:12 on Oct 18 2024 I am adding that it implements the FantasyLand spec
 
 use lray138\GAS\Types\Either\{Left, Right};
-use \FunctionalPHP\FantasyLand\{Apply, Monad};
+use \FunctionalPHP\FantasyLand\{Apply, Monad, Semigroup};
 use lray138\GAS\Types\Comonad;
 use function lray138\GAS\dump;
 
 /**
  * An OO-looking implementation of Either in PHP.
  */
-abstract class Either implements Monad, Comonad {
+abstract class Either implements Monad, Comonad, Semigroup {
     /**
      * Construct a new Left instance with a value.
      * @param mixed $x The value to be wrapped.
@@ -57,7 +57,7 @@ abstract class Either implements Monad, Comonad {
     }
 
     public function tap(callable $callback) {
-        $callback($this->value);
+        $callback($this);
         return $this;
     }
 

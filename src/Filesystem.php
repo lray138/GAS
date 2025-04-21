@@ -521,6 +521,14 @@ function getExtension($pathname) {
 	return pathinfo($pathname, PATHINFO_EXTENSION);
 }
 
+function hasExtension2(...$args) {
+    $f = function($ext, $pathname) {
+        return getExtension($pathname) == $ext;
+    };
+
+    return curryN(2, $f)(...$args);
+}
+
 // function getExtensionStr($pathname) {
 // 	return Str::of(pathinfo($pathname, PATHINFO_EXTENSION));
 // }

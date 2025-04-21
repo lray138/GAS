@@ -37,7 +37,11 @@ class Number extends Type implements Monoid {
 		if(!is_numeric($value)) {
 			throw new \InvalidArgumentException("Expected an integer or float");
 		}
-		
+
+        if(is_string($value)) {
+            $value = str_contains($value, '.') ? (float) $value : (int) $value;
+        }
+
 		$this->value = $value;
 		$this->operation = $operation;
 	}
@@ -95,6 +99,14 @@ class Number extends Type implements Monoid {
 		return $this->divide($number);
 	}
 
+	public function divideInto($number) {
+		return new self($number / $this->value);
+	}
+
+	public function divInto($number) {
+		return $this->divideInto($number);
+	}
+
 	public function div($number) {
 		return $this->divide($number);
 	}
@@ -121,7 +133,7 @@ class Number extends Type implements Monoid {
 		return $this->isGreaterThan($number);
 	}
 
-	public function isLessThan($number) {
+    public function isLessThan($number) {
 		return $number instanceof self
 			? T\Boolean($this->extract() > $number->extract())
 			: T\Boolean($this->extract() > $number);
@@ -149,7 +161,10 @@ class Number extends Type implements Monoid {
 		if(function_exists("\lray138\GAS\Numbers\\$method")) {
 			$func = "\lray138\GAS\Numbers\\$method";
 			return new self(call_user_func_array($func, [...$args, $this->extract()]));
-		} else {
+		} else if(function_exists("\lray138\GAS\Str\\$method")) {
+            $func = "\lray138\GAS\Str\\$method";
+			return \lray138\GAS\Types\StrType::of(call_user_func_array($func, [...$args, $this->extract()]));
+        } else {
 			// adding this Dec 28, 2024 because I tried to call getOrElse and it returned null
 			// would have needed this all along anyway
 			return "method $method does not exist.";

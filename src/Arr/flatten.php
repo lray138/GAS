@@ -1,5 +1,7 @@
 <?php namespace lray138\GAS\Arr;
 
+use function lray138\GAS\Functional\unwrap;
+
 const flatten = __NAMESPACE__ . '\flatten';
 
 // https://stackoverflow.com/questions/526556/how-to-flatten-a-multi-dimensional-array-to-simple-one-in-php/15939539
@@ -58,9 +60,9 @@ function flatten_try3(array $array) {
 
 function flatten(array $array) {
     $result = [];
-
     $flattenArray = function ($array, &$result) use (&$flattenArray) {
         foreach ($array as $key => $value) {
+            $value = unwrap($value);
             if (is_array($value)) {
                 $flattenArray($value, $result);
             } else {

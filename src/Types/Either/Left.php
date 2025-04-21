@@ -4,7 +4,7 @@ namespace lray138\GAS\Types\Either;
 //namespace PhpFp\Either\Constructor;  // left to show what he did
 
 use lray138\GAS\Types\Either;
-use FunctionalPHP\FantasyLand\Apply;
+use FunctionalPHP\FantasyLand\{Semigroup, Apply};
 
 /**
  * An OO-looking implementation of the Left constructor.
@@ -24,6 +24,10 @@ final class Left extends Either
     public function bind(callable $f): Either {
         return $this;
     }
+
+    public function concat(Semigroup $m): Semigroup {
+		return $m;
+	}
 
     /**
      * Map over both sides of the Either.

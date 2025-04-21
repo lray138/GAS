@@ -32,6 +32,10 @@ class Nothing extends Maybe {
 		return $this;
 	}
 
+    public function wrapMap() {
+        return $this;
+    }
+
 	public function apply($f): Maybe {
 		return $this;
 	}

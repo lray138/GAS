@@ -18,6 +18,7 @@ use FunctionalPHP\FantasyLand\{
 };
 
 use lray138\GAS\Traits\ExtractValueTrait;
+use function lray138\GAS\Functional\unwrap;
 
 use function lray138\GAS\Functional\extract;
 use lray138\GAS\Traits\MapTrait;
@@ -40,6 +41,10 @@ class ArrType extends Type implements Monoid {
 	public static function mempty() {
 		return new static([]);
 	}
+
+    public static function lift($val) {
+        return static::of([$val]);
+    }
 
 	public function concat(Semigroup $x): ArrType {
 		return new static(array_merge($this->extract(), $x->extract()));
@@ -276,7 +281,7 @@ class ArrType extends Type implements Monoid {
 	}
 
 	function flatten() {
-		return new self(Arr\flatten($this->value));
+		return new self(Arr\flatten($this->extract()));
 	}
 
 	function flatMap($callable) {
@@ -306,9 +311,18 @@ class ArrType extends Type implements Monoid {
 		return new self(Arr\tail($this->value));
 	}
 
+    public function tap(callable $callback) {
+        $callback($this);
+        return $this;
+    }
+
 	function map(callable $func): ArrType {
 		return new static(Arr\map($func, $this->value));
 	}
+
+    function wrapMap(callable $func): ArrType {
+        return new static(Arr\map($func, Arr\map(fn($x) => wrap($x), $this->value)));
+    }
 
 	function max() {
 		return \lray138\GAS\Types\Number::of(\max($this->value));
@@ -481,8 +495,19 @@ class ArrType extends Type implements Monoid {
 		return new static($arr);
 	}
 
+    public function contains($val) {
+        $val = unwrap($val);
+        return wrap(in_array($val, $this->extract()));
+    }
+
 	public static function of($data = []): ArrType {
 		//return new self($data);
+
+        // in case Null gets passed (this is from carbonf ields Apr 17, 2025 - 12:50)
+        if(is_null($data)) {
+            $data = [];
+        }
+
 		return new static($data);
 	}
 
@@ -570,11 +595,21 @@ class ArrType extends Type implements Monoid {
     public function index($key, $transform = true) {
     	if(isset($this->extract()[$key])) {
 
+            $val = $this->extract()[$key];
+
     		if(!$transform) {
     			return new static([$this->extract()[$key]]);
     		}
 
+            // return Monadic types
+            if ($val instanceof \lray138\GAS\Types\StrType 
+                || $val instanceof \lray138\GAS\Types\Number 
+                || $val instanceof \lray138\GAS\Types\Boolean) {
+                return $val;
+            }
+
     		if(getType($this->extract()[$key]) == "object") {
+               echo  getType($this->extract()[$key]);
     			return \lray138\GAS\Types\Either::right($this->extract()[$key]);
     		}
 

@@ -14,7 +14,9 @@ use function lray138\GAS\{
 use lray138\GAS\Types\{
     Either, 
     Boolean as Boo,
-    ArrType as Arr
+    ArrType as Arr,
+    StrType as Str,
+    Monad
 };
 
 use const lray138\GAS\dump;
@@ -53,7 +55,7 @@ function getContents(...$args) {
         return wrap($filename)
             ->bind(function($x) {
                 $contents = file_get_contents($x);
-                return $contents === false ? Either::left("error reading file") : Either::right($contents);
+                return $contents === false ? Either::left("error reading file") : Str::of($contents);
             });
     };
 
@@ -67,4 +69,12 @@ function getJson(...$args) {
     };
 
     return $f(...$args);
+}
+
+function getFilesInDir($dir) {
+   return wrap($dir)
+        ->extend(fn($x) => is_dir($x->get()) ? $x : Either::left("ERROR: $x is not a directory."))
+        ->bind(fn($x) => Arr::of(\lray138\GAS\Filesystem\getFilesInDir($dir))
+            ->map(fn($x) => \lray138\GAS\Functional\wrap($x))
+    );
 }

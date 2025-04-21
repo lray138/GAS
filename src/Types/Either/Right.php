@@ -4,7 +4,7 @@
 namespace lray138\GAS\Types\Either;
 
 use lray138\GAS\Types\Either;
-use FunctionalPHP\FantasyLand\{Monad, Apply};
+use FunctionalPHP\FantasyLand\{Monad, Apply, Semigroup};
 use function lray138\GAS\dump;
 
 function funcToString(callable $f) {
@@ -35,6 +35,19 @@ final class Right extends Either
 
     public static function of($x) : Either {
         return self::right($x);
+    }
+
+    public function concat(Semigroup $m): Either {
+        if ($m instanceof Left) {
+            return $m; // Preserve Left (error state)
+        }
+
+        if ($m instanceof Right) {
+            return new Right($this->extract() . $m->extract());
+        }
+
+        // obviously don't like this
+        throw new \InvalidArgumentException("Cannot concat with non-monadic value");
     }
 
     /**
