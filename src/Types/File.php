@@ -79,8 +79,14 @@ class File implements Monad, Comonad {
         return new static($fn($this->extract()));
     }
 
+    public function __toString() {
+        return $this->extract()->prop('path')->get();
+    }
+
     use \lray138\GAS\Traits\ExtendTrait;
     use \lray138\GAS\Traits\DuplicateTrait;
+    use \lray138\GAS\Traits\MagicCallTrait;
+    use \lray138\GAS\Traits\MagicGetTrait;
     use ExtractValueTrait;
 
 }

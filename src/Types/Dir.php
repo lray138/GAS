@@ -137,8 +137,7 @@ function getFiles($options = []): Arr {
             "is_file",
             $process(scandir($directory))))
         )
-        ->map(fn($x) => File::of($x))
-        ->dump();
+        ->map(fn($x) => File::of($x));
 }
 
     // https://stackoverflow.com/questions/24783862/list-all-the-files-and-folders-in-a-directory-with-php-recursive-function
@@ -158,6 +157,10 @@ function getFiles($options = []): Arr {
             : array_keys(iterator_to_array(new \RecursiveIteratorIterator($it)));
 
         return Arr::of($value);
+    }
+
+    public function __toString() {
+        return $this->extract()->prop('path')->get();
     }
 
 }
