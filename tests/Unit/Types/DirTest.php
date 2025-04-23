@@ -7,13 +7,23 @@ describe('Pointed', function () {
     
     it('constructs properly', function () {
         
-        $dir = Dir::of("/Users/lray/site");
+        expect(Dir::of("nowhere")
+            ->exists()
+            ->extract()
+        )->toBe(false);
 
-        expect($dir->exists()->get())->toBeTrue();
+        expect(Dir::of("/Users/lray/Sites")
+            ->exists()
+            ->extract()
+        )->toBe(true);
 
     });
 
-    // You could add more tests related to Pointed functionality
+    it('throws error when direct constructor is called', function () {
+        new Dir("/some/path");
+    })->throws(Error::class); // or TypeError, Exception, depending on how it's blocked
+
+    
 
 });
 

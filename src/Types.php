@@ -217,6 +217,14 @@ function wrapType($variable) {
         return $variable;
     }
 
+    if(is_object($variable)) {
+        if(in_array(get_class($variable), [
+            "lray138\GAS\Types\Dir"
+        ])) {
+            return $variable;
+        }
+    }
+
     $result = "Error";
 
     $types = [

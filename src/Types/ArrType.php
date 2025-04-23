@@ -240,8 +240,6 @@ class ArrType extends Type implements Monoid {
 		return $this->prop($key);
 	}
 
-
-
 	public function getPath($path) {
 		return \Idles\hasPath($path, $this->extract())
 			? wrapType(\Idles\path($path, $this->extract()))
@@ -323,6 +321,12 @@ class ArrType extends Type implements Monoid {
     function wrapMap(callable $func): ArrType {
         return new static(Arr\map($func, Arr\map(fn($x) => wrap($x), $this->value)));
     }
+
+    function wrapWalk(callable $func) {
+        $wrapped = array_map('wrap', $this->value);
+		Arr\walk($func, $wrapped);
+		return $this;
+	}
 
 	function max() {
 		return \lray138\GAS\Types\Number::of(\max($this->value));

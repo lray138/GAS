@@ -30,6 +30,17 @@ it('creates a Boolean with false value and "or" operation', function () {
     expect($bool->isFalse())->toBeTrue();
 });
 
+it('creates a boolean with true when "true" static method is called', function() {
+    $boo = Boolean::true();
+    expect($boo->extract())->toBe(true);
+});
+
+it('creates a boolean with false when "false" static method is called', function() {
+    $boo = Boolean::false();
+    expect($boo->extract())->toBe(false);
+});
+
+
 it('returns the correct mempty for "and" operation', function () {
     $mempty = Boolean::mempty("and");
     expect($mempty->extract())->toBe(true); // Identity for "and" is true

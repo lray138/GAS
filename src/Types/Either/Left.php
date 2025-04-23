@@ -6,6 +6,8 @@ namespace lray138\GAS\Types\Either;
 use lray138\GAS\Types\Either;
 use FunctionalPHP\FantasyLand\{Semigroup, Apply};
 
+use lray138\GAS\Types\Boolean as Boo;
+
 /**
  * An OO-looking implementation of the Left constructor.
  */
@@ -110,6 +112,10 @@ final class Left extends Either
 
     public function isNothing() {
         return false;
+    }
+
+    public function exists() {
+        return Boo::false();
     }
 
     public function isString() {

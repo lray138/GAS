@@ -62,6 +62,10 @@ class Type implements Monad, Comonad {
 		return $this;
 	}
 
+    public function __call($method, $args) {
+        return Either::left("Method '$method' does not exist");
+    }
+
 	// feb 25 - 13:00 - 
 	public function type() {
 		return Str(\lray138\GAS\Types\getType($this->extract()));

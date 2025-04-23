@@ -7,6 +7,8 @@ use FunctionalPHP\FantasyLand\{
     Semigroup
 };
 
+use Boolean as Boo;
+
 use lray138\GAS\Traits\ExtractValueTrait;
 
 class Boolean extends Type implements Monoid {
@@ -17,6 +19,14 @@ class Boolean extends Type implements Monoid {
     public function __construct($value, $operation = "and") {
         $this->value = (bool) $value;
         $this->operation = $operation;
+    }
+
+    public static function true() {
+        return new Boolean(true);
+    }
+
+    public static function false() {
+        return new Boolean(false);
     }
 
     /**
@@ -96,7 +106,7 @@ class Boolean extends Type implements Monoid {
         $stored = $this->extract();
         return $stored ? $onTrue() : $onFalse();
     }
-
+    
     /**
      * Check if the boolean is false (alias of isNot()).
      */

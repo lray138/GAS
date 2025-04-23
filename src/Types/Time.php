@@ -4,6 +4,7 @@ namespace lray138\GAS\Types;
 
 use function lray138\GAS\dump;
 use lray138\GAS\Types as T;
+use lray138\GAS\Types\Boolean as Boo;
 
 // https://www.php.net/manual/en/datetime.format.php
 
@@ -87,6 +88,10 @@ class Time extends Type {
 		return $this->value->format('Y-m-d H:i:s');
 	}
 
+    public static function of($value) {
+        return new static($value);
+    }
+
 	public function __construct($datetime = null) {
 		// if($datetime instanceof \Moment\Moment || $datetime instanceof \Moment\MomentFromVo) {
 		// 	$m = $datetime;
@@ -100,26 +105,40 @@ class Time extends Type {
 		// 	}
 		// 	$m = new \Moment\Moment($datetime->format("Y-m-d H:i:s"));
 		// }
+       
+        try {
+            if(is_null($datetime)) {
+                $datetime = new \DateTime();
+            } else if(is_string($datetime)) {
+                $datetime = new \DateTime($datetime);
+            } else if(is_int($datetime)) {
+                $datetime = (new \DateTime())->setTimestamp($datetime);
+            }
+    
+            $this->value = $datetime;
+        } catch(\Exception $e) {
+            return Either::left("Time not parsable");
+        } catch(\Error $e) {
+            return Either::left("Time not parsable");
+        }
 
-		if(is_null($datetime)) {
-			$datetime = new \DateTime();
-		} else if(is_string($datetime)) {
-			$datetime = new \DateTime($datetime);
-		} else if(is_int($datetime)) {
-			$datetime = (new \DateTime())->setTimestamp($datetime);
-		}
-
-		$this->value = $datetime;
 	}
 
 	public function format($format) {
 		return $this->value->format($format);
 	}
 
+    public function exists() {
+        // if exception occuris this will be "null";
+        return Boo::of(!is_null($this->extract()));
+    }
+
 	public function __call($method, $args) {
 		if(method_exists($this->value, $method)) {
 			return T\wrapType($this->value->$method(...$args));
 		}
+
+        return \lray138\GAS\Types\Either::left("Method '$method' doesn't exist");
 	}
 
 }
