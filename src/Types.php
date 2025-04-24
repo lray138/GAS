@@ -219,7 +219,8 @@ function wrapType($variable) {
 
     if(is_object($variable)) {
         if(in_array(get_class($variable), [
-            "lray138\GAS\Types\Dir"
+            "lray138\GAS\Types\Dir",
+            "lray138\GAS\Types\File" // @refactor ?
         ])) {
             return $variable;
         }

@@ -1,8 +1,9 @@
 <?php namespace lray138\GAS\Traits;
 
-use lray138\GAS\Arr;
+use function lray138\GAS\Arr\get;
 use lray138\GAS\Types as T;
 use lray138\GAS\Types\Either;
+use function lray138\GAS\dump;
 
 trait PropTrait {
 
@@ -14,8 +15,8 @@ trait PropTrait {
 
 		// probably need to dertimine, I think pluck is more
 		// approprpiate 
-		$value = Arr\get($key, $this->extract());
-		
+		$value = get($key, $this->extract());
+
        	$value = T\wrapType($value);
 
 		return is_null($value) || T\isNothing($value)

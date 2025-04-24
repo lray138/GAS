@@ -11,9 +11,9 @@ use lray138\GAS\Types\{
     Either\Left,
     Either\right,
     Boolean as Boo,
-    StrType as Str
+    StrType as Str,
 };
-use \FunctionalPHP\FantasyLand\{Apply, Monad, Semigroup};
+use \FunctionalPHP\FantasyLand\{Apply, Monad, Semigroup, Functor};
 use lray138\GAS\Types\Comonad;
 use lray138\GAS\Traits\ExtractValueTrait;
 use function lray138\GAS\Arr\get;
@@ -23,7 +23,7 @@ use function lray138\GAS\Functional\wrap;
  * An OO-looking implementation of Either in PHP.
  * Comonad, Semigroup 
  */ 
-class File implements Monad, Comonad {
+class File implements Functor, Monad, Comonad {
 
     private $value;
 
@@ -78,8 +78,14 @@ class File implements Monad, Comonad {
         return $fn($this->extract());
     }
 
-    public function map(callable $fn): File {
-        return new static($fn($this->extract()));
+    public function map(callable $fn): Functor {
+        try {
+            return new static($fn($this->extract()));
+        } catch (\Exception $e) {
+            return Either::left($e->getMessage());
+        } catch (\Error $e) {
+            return Either::left($e->getMessage());
+        }
     }
 
     public function __toString() {
@@ -92,6 +98,15 @@ class File implements Monad, Comonad {
             ->map(fn($pn) 
                 => pathinfo($pn, PATHINFO_EXTENSION)
             );
+    }
+
+    public function dump() {
+        dump($this);
+        return $this;
+    }
+
+    public function getDirname($levels = 1) {
+        return Str::of(dirname($this->extract()->prop('path'), $levels));
     }
 
     // TRAITS

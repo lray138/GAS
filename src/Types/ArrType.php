@@ -482,14 +482,7 @@ class ArrType extends Type implements Monoid {
 		// anyway this is actually the last thing for the demo buildout and also 
 		// was a last flag I know. so, poetic... let's do this!
 		foreach($this->extract() as $item) {
-
-			return wrapType($item);
-
-			// if(!is_array($item)) {
-			// 	$item = wrapType($item);
-			// 	//$item = [$item];
-			// }
-			// return new self($item);
+    		return wrapType($item);
 		}
 	}
 
