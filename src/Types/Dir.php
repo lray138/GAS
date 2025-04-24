@@ -156,7 +156,8 @@ function getFiles($options = []): Arr {
             ? iterator_to_array(new \RecursiveIteratorIterator($it))
             : array_keys(iterator_to_array(new \RecursiveIteratorIterator($it)));
 
-        return Arr::of($value);
+        return Arr::of($value)
+            ->map(File::of);
     }
 
     public function __toString() {

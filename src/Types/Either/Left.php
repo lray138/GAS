@@ -142,6 +142,10 @@ final class Left extends Either
         return false;
     }
 
+    public function isTrue() {
+        return false;
+    }
+
     public function __get($_) {
         return $this;
     }

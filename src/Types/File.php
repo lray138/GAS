@@ -16,7 +16,7 @@ use lray138\GAS\Types\{
 use \FunctionalPHP\FantasyLand\{Apply, Monad, Semigroup};
 use lray138\GAS\Types\Comonad;
 use lray138\GAS\Traits\ExtractValueTrait;
-
+use function lray138\GAS\Arr\get;
 use function lray138\GAS\Functional\wrap;
 
 /**
@@ -33,7 +33,10 @@ class File implements Monad, Comonad {
         return file_exists($path) 
             ? new File(Arr::of(
                 is_null($data) 
-                    ? ["path" => $path]
+                    ? [
+                        "path" => $path,
+                        "pathname" => $path
+                    ]
                     : $data
                 ))
             : Either::left("File not found: " . $path);
@@ -83,7 +86,17 @@ class File implements Monad, Comonad {
         return $this->extract()->prop('path')->get();
     }
 
+    public function getExtension(): Str {
+        return $this->extract()
+            ->prop('pathname')
+            ->map(fn($pn) 
+                => pathinfo($pn, PATHINFO_EXTENSION)
+            );
+    }
+
+    // TRAITS
     use \lray138\GAS\Traits\ExtendTrait;
+    use \lray138\GAS\Traits\PropTrait;
     use \lray138\GAS\Traits\DuplicateTrait;
     use \lray138\GAS\Traits\MagicCallTrait;
     use \lray138\GAS\Traits\MagicGetTrait;
