@@ -2,12 +2,17 @@
 
 require "vendor/autoload.php";
 
-use lray138\GAS\Filesystem as FS;
-use lray138\GAS\Str;
-use lray138\GAS\dump;
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response as Res;
 
-use function lray138\GAS\Functional\{extract, paths};
-use const lray138\GAS\Functional\extract;
+use lray138\GAS\Types\ArrType as Arr;
+use function lray138\GAS\dump;
+
+use \lray138\GAS\Types\Guz;
 
 spl_autoload_register(function ($class) {
     $prefix = 'lray138\\';
@@ -32,3 +37,8 @@ spl_autoload_register(function ($class) {
     }
 });
 
+$g = Guz::get('https://reqfasdfres.in/api/users/2')
+    ->map(fn(Res $r) => Arr::of(json_decode($r->getBody(), true)))
+    ->run()
+    //->then(fn() => asdf())
+    ->wait();

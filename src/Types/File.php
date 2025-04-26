@@ -105,8 +105,12 @@ class File implements Functor, Monad, Comonad {
         return $this;
     }
 
-    public function getDirname($levels = 1) {
+    public function getDirname($levels = 1): Str {
         return Str::of(dirname($this->extract()->prop('path'), $levels));
+    }
+
+    public function getPathname(): Str {
+        return $this->extract()->prop('pathname');
     }
 
     // TRAITS
