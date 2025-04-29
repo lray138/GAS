@@ -12,33 +12,37 @@ use GuzzleHttp\Psr7\Response as Res;
 use lray138\GAS\Types\ArrType as Arr;
 use function lray138\GAS\dump;
 
-use \lray138\GAS\Types\Guz;
+use \lray138\GAS\Types\IO;
 
-spl_autoload_register(function ($class) {
-    $prefix = 'lray138\\';
-    $base_dir = __DIR__ . '/src/';
+// spl_autoload_register(function ($class) {
+//     $prefix = 'lray138\\';
+//     $base_dir = __DIR__ . '/src/';
 
-    // If the class does not use the "App" namespace, move on
-    $len = strlen($prefix);
-    if (strncmp($prefix, $class, $len) !== 0) {
-        return;
-    }
+//     // If the class does not use the "App" namespace, move on
+//     $len = strlen($prefix);
+//     if (strncmp($prefix, $class, $len) !== 0) {
+//         return;
+//     }
 
-    // Get the relative class name
-    $relative_class = substr($class, $len);
+//     // Get the relative class name
+//     $relative_class = substr($class, $len);
 
-    // Replace namespace separators with directory separators
-    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
-    $file = str_replace("/src/GAS/", "/src/", $file);
+//     // Replace namespace separators with directory separators
+//     $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+//     $file = str_replace("/src/GAS/", "/src/", $file);
 
-    // If the file exists, require it
-    if (file_exists($file)) {
-        require $file;
-    }
-});
+//     // If the file exists, require it
+//     if (file_exists($file)) {
+//         require $file;
+//     }
+// });
 
-$g = Guz::get('https://reqfasdfres.in/api/users/2')
-    ->map(fn(Res $r) => Arr::of(json_decode($r->getBody(), true)))
-    ->run()
-    //->then(fn() => asdf())
-    ->wait();
+$ioFunction = IO::of(fn($x) => $x + 10);
+$ioValue = IO::lift(5);
+
+$v = $ioFunction
+    ->ap($ioValue)
+    ->run();
+
+
+dump($v);

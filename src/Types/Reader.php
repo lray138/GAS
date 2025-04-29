@@ -14,7 +14,7 @@ use lray138\GAS\Traits\ExtractValueTrait;
 /**
  * An OO implementation of the Reader monad in PHP.
  */
-class Reader {
+class Reader implements Monad {
     /**
      * This Reader's computation.
      * @var callable
@@ -63,7 +63,7 @@ class Reader {
      * @param callable $f a -> Reader r b | Reader r a -> Reader r b
      * @return Reader Reader r b
      */
-    public function chain(callable $f) : Reader
+    public function bind(callable $f) : Reader
     {
         return new Reader(
             function ($env) use ($f)
@@ -80,7 +80,7 @@ class Reader {
      */
     public function map(callable $f) : Reader
     {
-        return $this->chain(
+        return $this->bind(
             function ($a) use ($f)
             {
                 return Reader::of($f($a));
@@ -93,9 +93,9 @@ class Reader {
      * @param Reader $x The wrapped argument.
      * @return Reader The wrapped result.
      */
-    public function ap(Reader $x) : Reader
+    public function ap(Apply $x) : Reader
     {
-        return $this->chain(
+        return $this->bind(
             function ($f) use ($x)
             {
                 return $x->map($f);

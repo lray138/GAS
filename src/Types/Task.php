@@ -2,11 +2,12 @@
 
 namespace lray138\GAS\Types;
 
+use lray138\GAS\Types\ArrType as Arr;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\PromiseInterface;
 use \FunctionalPHP\FantasyLand\Monad;
 
-class Guz
+class Task
 {
     protected $action;
 
@@ -63,6 +64,10 @@ class Guz
         });
     }
 
+    public function decodeJson() {
+        return $this->map(fn($resp) => Arr::of(json_decode($resp->getBody(), true)));
+    }
+
     public function fork(callable $onReject, callable $onResolve)
     {
         return ($this->action)()
@@ -71,10 +76,8 @@ class Guz
     }
 
     // at first this was returning a #PromiseInterface then a \GuzzleHttp\Psr7\Response
-    public function run(): Monad {   
-        $out = ($this->action)()
-            ->wait();
-        
+    public function run() {   
+        $out = ($this->action)()->wait();
         return $out;
     }
 
